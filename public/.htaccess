@@ -1,0 +1,33 @@
+# Yemekhaneci.com.tr — Apache rewrite (Hostinger VPS)
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # HTTPS zorunlu (production'da Traefik tarafından da yapılıyor; ek savunma).
+    # RewriteCond %{HTTPS} off
+    # RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+    # public/ altındaki gerçek dosya/dizin isteğini doğrudan döndür.
+    RewriteCond %{REQUEST_FILENAME} -d [OR]
+    RewriteCond %{REQUEST_FILENAME} -f
+    RewriteRule ^ - [L]
+
+    # Diğer her şey index.php'ye düşsün.
+    RewriteRule ^ index.php [L]
+</IfModule>
+
+# Güvenlik header'ları
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+    Header set Permissions-Policy "geolocation=(self), camera=(), microphone=()"
+</IfModule>
+
+# .env, config/, app/ gibi hassas dizinlere erişim engeli (zaten public/ altı değil ama emin olalım).
+<FilesMatch "\.(env|md|sql|json|lock)$">
+    Require all denied
+</FilesMatch>
+
+# UTF-8 zorunlu
+AddDefaultCharset UTF-8

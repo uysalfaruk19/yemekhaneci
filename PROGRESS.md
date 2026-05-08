@@ -94,21 +94,24 @@
 
 | # | Görev | Durum | Not |
 |---|-------|:-----:|-----|
-| 0.5.1 | DB migration (`inflation_sources`, `inflation_indices`, `inflation_calculations`) | ◐ | Bu commit |
-| 0.5.2 | Seed: 4 resmî kaynak | ◐ | Bu commit |
-| 0.5.3 | PRD Bölüm 25 yazımı | ◐ | Bu commit (`docs/PRD_25_Enflasyon_Hesaplayici.md`) |
+| 0.5.1 | DB migration (`inflation_sources`, `inflation_indices`, `inflation_calculations`) | ☑ | 2026-05-08 |
+| 0.5.2 | Seed: 4 resmî kaynak | ☑ | 2026-05-08 |
+| 0.5.3 | PRD Bölüm 25 yazımı | ☑ | `docs/PRD_25_Enflasyon_Hesaplayici.md` |
 | 0.5.4 | TCMB EVDS API hesabı (UYSA) | ☐ | UYSA — e-Devlet ile ücretsiz başvuru |
 | 0.5.5 | EVDS endeks kodları doğrulama | ☐ | API key alınınca |
-| 0.5.6 | `app/Services/InflationCalculator.php` | ☐ | Ortak servis (3 panel) |
+| 0.5.6 | `app/Services/InflationCalculator.php` | ☑ | Sentetik mock veriyle çalışıyor |
 | 0.5.7 | `app/Services/InflationDataFetcher.php` | ☐ | EVDS HTTP istemcisi |
 | 0.5.8 | `app/Jobs/FetchInflationIndicesJob.php` (cron) | ☐ | Her ayın 5'i |
-| 0.5.9 | Müşteri sayfası (anasayfa) | ☐ | Blade + Alpine.js + Chart.js |
-| 0.5.10 | Yemekçi paneli sayfası | ☐ | Auth gerekir → Faz 1.0b sonrası |
-| 0.5.11 | Admin paneli sayfası + kaynak yönetimi | ☐ | Auth + admin role gerekir |
+| 0.5.9 | Müşteri sayfası (anasayfa) | ☑ | `/araclar/enflasyon-hesaplayici` çalışıyor |
+| 0.5.10 | Yemekçi paneli sayfası | ☐ | Faz 1.0b sonrası (üst sayfaya `/yemekci/araclar/enflasyon` eklenecek) |
+| 0.5.11 | Admin paneli sayfası + kaynak yönetimi | ☐ | Faz 1.0b sonrası |
 | 0.5.12 | Admin: özel formül oluştur + aylık veri gir | ☐ | CRUD UI |
 | 0.5.13 | Lead capture (`POST /api/v1/enflasyon/mail-gonder`) | ☐ | KVKK onayı + IP/UA kayıt |
-| 0.5.14 | Rate limit (IP başı 30/saat) | ☐ | Redis tabanlı |
+| 0.5.14 | Rate limit (IP başı 30/saat) | ◐ | Login başına 5/dk var; enflasyon API için Redis'e geçilecek |
 | 0.5.15 | Unit + Feature testler | ☐ | Hesap doğruluğu kritik |
+| **0.5.D1** | **Demo: Login akışı (Uysa/1234, OFU/1234)** | ☑ | `/giris-yap` + role guard çalışıyor |
+| **0.5.D2** | **Demo: 3 panel iskeleti (public/yemekçi/admin)** | ☑ | Dashboard'lar placeholder |
+| **0.5.D3** | **Demo: Enflasyon hesap UI + API + grafik** | ☑ | Chart.js ile aylık seri |
 
 ### Kabul Kriterleri
 

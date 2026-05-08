@@ -165,6 +165,37 @@
 - **Alternatif:** Seri (geç çıkar), tek mega oturum (riskli, context window).
 - **Etki:** Branch stratejisi: `feature/faz-1-db-auth`, `feature/faz-0.5-enflasyon`, `feature/faz-3.5-admin-pivot`, `feature/faz-3-hizli-teklif`. PR review sonrası `dev` dalına merge. Mevcut `claude/start-yemekhaneci-project-xCJFu` Faz 0 entry'si; bu commit sonrası kapanır.
 
+## ADR-014 — Faz 0.5 demo: raw PHP prototip (geçici)
+
+- **Tarih:** 2026-05-08
+- **Durum:** Kabul edildi (geçici — Faz 1.0a'da değiştirilecek)
+- **Bağlam:** Kullanıcı talebi: "Yemekçi paneline tıklayarak girilmesin, login olsun". Demo hesaplar `OFU/1234` (admin) ve `Uysa/1234` (yemekçi). ADR-013a Laravel 11 seçti ama `composer install` henüz çalıştırılmadı; demo'yu kısa sürede teslim edebilmek için raw PHP prototipi yazıldı.
+- **Karar:** Faz 0.5 boyunca (yaklaşık 1-2 hafta) demo iskelet **raw PHP** olarak çalışır:
+  - `public/index.php` — front controller + PSR-4 autoloader
+  - `app/Auth/SimpleAuth.php` — session-based, Argon2id hash'li demo kullanıcılar
+  - `app/Http/Router.php` + `app/Middleware/AuthMiddleware.php` — basit pattern eşleştirme + role guard
+  - `app/Helpers/functions.php` — view(), e(), csrf, redirect, flash
+  - `config/auth.php` — sadece 2 demo kullanıcı (DB henüz yok)
+  - `resources/views/*.php` — Blade yerine düz PHP template (Bootstrap 5 + Alpine.js + Chart.js CDN'den)
+- **Faz 1.0a'da yapılacak değişim:**
+  1. `composer install` (Laravel 11 paketleri)
+  2. `app/Auth/SimpleAuth.php` → Laravel `auth` middleware + `App\Models\User`
+  3. `config/auth.php` (demo) → `database_seeders/UserSeeder.php` (DB tabanlı)
+  4. `public/index.php` (custom router) → Laravel router (`routes/web.php`)
+  5. View'lar → `*.blade.php` (yine Bootstrap 5)
+  6. URL'ler ve UI **birebir aynı kalacak** (`/giris-yap`, `/yemekci`, `/yonetim`, `/araclar/enflasyon-hesaplayici`)
+- **Gerekçe:** Demo'yu hemen teslim et (ROI), sonra paketle değiştir. Hard dependency yok.
+- **Alternatif:** Bekle composer install kurulumunu, demo gecikir. Hard-coded HTML, demo'da işe yaramaz.
+- **Etki:** ~750 satır PHP demo kodu. Faz 1.0a'da bu kodun ~%80'i silinir, ~%20'si (servisler, controller imzaları, view yapıları) Laravel'e taşınır. Yatırım kaybı küçük.
+
+**Demo doğrulama (2026-05-08, 27 dakikada teslim):**
+- ✅ `Uysa/1234` → `/yemekci`, `OFU/1234` → `/yonetim`
+- ✅ Yanlış şifre → 302 + flash hata
+- ✅ Admin oturumuyla `/yemekci` → 403
+- ✅ CSRF korumasız POST → 419
+- ✅ Enflasyon hesabı: Mart 2024 5.000 ₺ → Mayıs 2026 10.998 ₺ (TÜFE Gıda, sentetik veri)
+- ✅ Validation: tüm zorunlu alanlar tek tek raporlanıyor
+
 ## ADR-013 — Branch stratejisi: dev/staging/main + feature dalları
 
 - **Tarih:** 2026-05-08
