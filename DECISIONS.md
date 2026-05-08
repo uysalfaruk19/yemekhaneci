@@ -85,15 +85,19 @@
 - **Alternatif:** İlk 3 ay komisyon (ekibin ilk önerisi); kademeli (%2-4-6 artış).
 - **Etki:** `commission_rules` tablosu (Faz 1'de eklenecek) `pilot_zero_until` alanı tutar; sipariş başına `app/Services/CommissionCalculator.php` bu tarihi kontrol eder. `.env.example: COMMISSION_FREE_PILOT_MONTHS=6`.
 
-## ADR-009 — Faz 0.5: Anasayfa enflasyon hesaplayıcı (PRD dışı)
+## ADR-009 — Enflasyon hesaplayıcı: 3 panel + özel formül desteği (genişletildi)
 
-- **Tarih:** 2026-05-08
-- **Durum:** Kabul edildi
-- **Bağlam:** Kullanıcı talebi (2026-05-08): yemek fiyatı için tarih bazlı enflasyon hesaplayıcı butonu. PRD v3.0'da yok. SEO + lead capture açısından lansmandan önce hayata geçirilmesi öneriyle kabul edildi.
-- **Karar:** Faz 1'den önce **Faz 0.5** olarak `/enflasyon-hesaplayici/yemek-fiyati` sayfası tasarlanır. Veri kaynakları: TÜİK TÜFE / TÜFE Gıda / Yİ-ÜFE (TCMB EVDS API üzerinden otomatik) + ENAG TÜFE (admin manuel). PRD'ye **Bölüm 25** olarak eklenir.
-- **Gerekçe:** Türkiye'de "yemek enflasyon hesaplayıcı" Google'da rakipsiz arama; SEO trafik + e-posta capture + KVKK uyumlu lead pool.
-- **Alternatif:** Tamamen lansman sonrası (kaçırılan SEO fırsatı), tüm endeksleri manuel (her ay UYSA çalışan eforu).
-- **Etki:** Yeni tablolar: `inflation_indices`, `inflation_calculations`. Yeni servis: `InflationCalculator`, `InflationDataFetcher`. Yeni cron: `FetchInflationIndicesJob` (her ayın 5'i). Faz 1 başlamadan önce 1 haftalık iş paketi.
+- **Tarih:** 2026-05-08 (revize: 2026-05-08)
+- **Durum:** Kabul edildi (kullanıcı talebiyle kapsam genişletildi)
+- **Bağlam:** Kullanıcı talebi (2026-05-08): yemek fiyatı için tarih bazlı enflasyon hesaplayıcı butonu. PRD v3.0'da yok. İkinci karar turunda kapsam genişletildi: 3 panelde de gösterilecek + admin **kendi isimli formülleri ekleyebilecek** (UYSA Et Endeksi, UYSA Sebze Endeksi gibi).
+- **Karar:** Enflasyon hesaplayıcı **3 panelde de** sunulacak:
+  - **Müşteri tarafı:** `/araclar/enflasyon-hesaplayici` (anasayfa, SEO + lead capture)
+  - **Yemekçi paneli:** `/yemekci/araclar/enflasyon` (kendi maliyet/menü fiyatlarını güncellemek için)
+  - **Admin paneli:** `/yonetim/araclar/enflasyon` (denetim + uyarı kurma + formül yönetimi)
+  Veri kaynakları: TÜİK TÜFE genel, TÜİK TÜFE gıda alt grubu, TÜİK Yİ-ÜFE (üçü TCMB EVDS API), ENAG TÜFE (admin manuel) **+ özel isimli formüller** (admin oluşturur ve aylık değer girer; `is_official=false` flag).
+- **Gerekçe:** Üç panel kullanıcısının da farklı senaryoları var (denetim/güncelleme/SEO); özel formüller UYSA'nın kendi sektörel endeksini oluşturmasına izin verir (rekabet avantajı). PRD'ye **Bölüm 25 — Enflasyon Hesaplayıcı** eklenecek.
+- **Alternatif:** Sadece müşteri (eksik), sadece sabit 4 kaynak (esnek değil), tüm formüller scraping (hukuki risk).
+- **Etki:** **Şema değişti** — `inflation_sources` (id, code, name, is_official, source_type ENUM('tuik_api','enag_manual','custom_admin'), tuik_evds_code, owner_admin_id, created_at) + `inflation_indices.source_id BIGINT` (ENUM yerine FK). Yeni route'lar 3 panelde. `app/Services/InflationCalculator.php` 3 panelde paylaşılan servis. PRD'ye Bölüm 25 yazılacak.
 
 ## ADR-010 — Faz 3.5: Admin "Teklif Pivot" + manuel yemekçi ekleme
 
@@ -124,6 +128,42 @@
 - **Gerekçe:** JSON API entegrasyonu sürdürülebilir; ücretsiz; resmi kaynak.
 - **Alternatif:** TÜİK Excel scraping (kırılgan), 3. parti API (maliyetli).
 - **Etki:** `app/Services/InflationDataFetcher.php` EVDS HTTP istemcisi. EVDS hesabı UYSA tarafından açılacak (ücretsiz, e-Devlet ile).
+
+## ADR-013a — Backend framework: Laravel 11 (ADR-001 ek karar)
+
+- **Tarih:** 2026-05-08
+- **Durum:** Kabul edildi
+- **Bağlam:** ADR-001 framework seçimini Faz 1 başına ertelemişti. Kullanıcı bu 3 yeni özelliği (enflasyon, admin pivot, hızlı teklif) **Faz 1 ile paralel** geliştirmek istediği için karar vakti şimdi geldi.
+- **Karar:** **Laravel 11** kullanılacak. Saf PHP'den vazgeçildi.
+- **Gerekçe:**
+  1. Eloquent ORM `inflation_sources`/`inflation_indices` gibi karmaşık ilişkileri ve soft delete'i hazır verir.
+  2. Migration sistemi (`database/migrations/*.php`) PRD'nin "direkt SQL ASLA" kuralına en uygun.
+  3. Queue (`Jobs/`) — `FetchInflationIndicesJob`, mail gönderim için zorunlu.
+  4. Blade — admin panel + müşteri sayfaları için hızlı.
+  5. Sanctum/Fortify auth — Faz 1'i hızlandırır.
+  6. Türkçe kaynak ve ekosistem yaygın.
+- **Alternatif:** Saf PHP (yavaş, KVKK akışı için fazla manuel iş), Symfony (öğrenme süresi), CodeIgniter (modern değil).
+- **Etki:** `composer.json` Laravel 11 paketleriyle güncellenecek (`laravel/framework`, `laravel/sanctum`, `spatie/laravel-permission`). `app/` yapısı Laravel'e uyumlu (`app/Http/Controllers/`, `app/Models/`). `composer install` Faz 1.0a başında çalıştırılacak (kullanıcı onayıyla).
+
+## ADR-013b — Enflasyon: 4 panel + özel admin formülleri (ADR-009 üzerine)
+
+- **Tarih:** 2026-05-08
+- **Durum:** Kabul edildi
+- **Bağlam:** ADR-009 başlangıçta sadece müşteri (anasayfa) için planlanmıştı. Kullanıcı kararı genişletti: **3 panelde** + **admin'in oluşturduğu özel isimli formüller**.
+- **Karar:** Enflasyon hesaplayıcı modülü 3 panelde (admin/yemekçi/müşteri) görünür. Admin paneli ayrıca **kaynak yönetimi** sağlar — UYSA kendi sektörel endekslerini (`UYSA Et Endeksi`, `UYSA Sebze Endeksi` vb.) oluşturabilir, aylık değerleri elle girebilir.
+- **Gerekçe:** UYSA'nın saha verisinden kendi endeksini üretmesi, rekabet avantajı + müşterilere "yemekçi sektörü için en doğru endeks" mesajı.
+- **Alternatif:** Sadece resmi 4 kaynak (esnek değil), tüm formülleri kullanıcının yazması (güvenlik riski — formula injection).
+- **Etki:** `inflation_sources` tablosu sabit ENUM yerine satır bazlı; `source_type ENUM('tuik_api','enag_manual','custom_admin')` + `tuik_evds_code` + `is_official` + `created_by_admin_id`. Migration dosyaları Faz 0.5 başında yazılır.
+
+## ADR-013c — Geliştirme stratejisi: paralel iş paketleri (revize)
+
+- **Tarih:** 2026-05-08
+- **Durum:** Kabul edildi (kullanıcı seçimi)
+- **Bağlam:** Plan dosyası başlangıçta seri bir faz akışı önermişti (Faz 0.5 → Faz 1 → ...). Kullanıcı paralel geliştirme istedi.
+- **Karar:** Faz 1 (DB + Auth + KYC) ile **Faz 0.5 (enflasyon)** + **Faz 3.5 (admin pivot)** + **Faz 3 hızlı teklif iyileştirmeleri** paralel iş paketleri olarak yürütülür. Tek bir Claude oturumunda tek paket; oturumlar arası git dalları ile çakışma minimuma iner.
+- **Gerekçe:** Kullanıcı önceliklendirmesi; 3 yeni özelliğin temel akışla bağımsız olması (enflasyon DB'den ayrı, admin pivot DB'ye paralel, hızlı teklif wizard üzerine katman).
+- **Alternatif:** Seri (geç çıkar), tek mega oturum (riskli, context window).
+- **Etki:** Branch stratejisi: `feature/faz-1-db-auth`, `feature/faz-0.5-enflasyon`, `feature/faz-3.5-admin-pivot`, `feature/faz-3-hizli-teklif`. PR review sonrası `dev` dalına merge. Mevcut `claude/start-yemekhaneci-project-xCJFu` Faz 0 entry'si; bu commit sonrası kapanır.
 
 ## ADR-013 — Branch stratejisi: dev/staging/main + feature dalları
 

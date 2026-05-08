@@ -3,8 +3,9 @@
 > Bu dosya **her faz sonunda güncellenir**. Durum işaretleri: ☐ başlanmadı · ◐ devam ediyor · ☑ tamamlandı.
 
 **Son güncelleme:** 2026-05-08
-**Aktif faz:** Faz 0 → Faz 1 geçişi
-**Repo:** [uysalfaruk19/yemekhaneci](https://github.com/uysalfaruk19/yemekhaneci)
+**Aktif faz:** Faz 0 ☑ → Faz 0.5 + Faz 1 paralel başlangıç
+**Strateji:** Paralel iş paketleri (ADR-013c)
+**Repo:** [uysalfaruk19/yemekhaneci](https://github.com/uysalfaruk19/yemekhaneci) — `claude/start-yemekhaneci-project-xCJFu`
 
 ---
 
@@ -12,16 +13,20 @@
 
 | Faz | Başlık | Süre | Durum | Başlangıç | Bitiş |
 |-----|--------|------|:-----:|-----------|-------|
-| Faz 0 | Proje Başlatma | 1 hafta | ◐ | 2026-05-08 | — |
-| Faz 1 | Temel (DB + Auth + KYC) | 3 hafta | ☐ | — | — |
+| **Faz 0** | Proje Başlatma | 1 hafta | ☑ | 2026-05-08 | 2026-05-08 |
+| **Faz 0.5** ⚡ | **Enflasyon Hesaplayıcı (3 panel + özel formül)** | 1-2 hafta | ◐ | 2026-05-08 | — |
+| **Faz 1** ⚡ | Temel (DB + Auth + KYC) — paralel | 3 hafta | ◐ | 2026-05-08 | — |
 | Faz 2 | Yemekçi Maliyet Paneli | 3 hafta | ☐ | — | — |
-| Faz 3 | Anasayfa Wizard + Fiyat Motoru | 3 hafta | ☐ | — | — |
+| Faz 3 | Anasayfa Wizard + Fiyat Motoru + **Hızlı Teklif** | 4 hafta | ☐ | — | — |
+| **Faz 3.5** ⚡ | **Admin Teklif Pivot + Manuel Yemekçi Ekleme** | 2 hafta | ☐ | — | — |
 | Faz 4 | Mail / Lead Capture / KVKK | 2 hafta | ☐ | — | — |
 | Faz 5 | Menü Kataloğu | 2 hafta | ☐ | — | — |
 | Faz 6 | Sipariş + Ödeme | 3 hafta | ☐ | — | — |
 | Faz 7 | Teklif + Mesajlaşma + Yorum | 2 hafta | ☐ | — | — |
 | Faz 8 | Beta / Pilot | 3 hafta | ☐ | — | — |
 | Faz 9 | Lansman + Büyüme | sürekli | ☐ | — | — |
+
+⚡ = Kullanıcı talebiyle eklenen / genişletilen iş paketleri (PRD v3.0 dışı, v3.1'de spec edilecek).
 
 ---
 
@@ -64,7 +69,59 @@
 
 ---
 
-## Faz 1 — Temel (DB + Auth + KYC) — *Planlanıyor*
+## Faz 0.5 — Enflasyon Hesaplayıcı (3 Panel + Özel Formül) ⚡
+
+**Süre hedefi:** 1-2 hafta · **Sorumlu:** Geliştirme ekibi · **Spec:** `docs/PRD_25_Enflasyon_Hesaplayici.md`
+
+### Kapsam
+
+3 panelde de erişilebilir enflasyon hesaplayıcı:
+- **Müşteri tarafı (anasayfa):** `/araclar/enflasyon-hesaplayici` — SEO + lead capture
+- **Yemekçi paneli:** `/yemekci/araclar/enflasyon` — kendi fiyat güncelleme önerileri
+- **Admin paneli:** `/yonetim/araclar/enflasyon` + kaynak yönetimi (`/yonetim/sistem/enflasyon-kaynaklari`)
+
+### Veri Kaynakları
+
+| Kaynak | Tip | Yöntem |
+|--------|:---:|--------|
+| TÜİK TÜFE genel | Resmî | TCMB EVDS API (`TP.FG.J0`) |
+| TÜİK TÜFE gıda alt grubu | Resmî | TCMB EVDS API (`TP.FG.J01`) |
+| TÜİK Yİ-ÜFE | Resmî | TCMB EVDS API (`TP.FE.OKTG01`) |
+| ENAG TÜFE | Bağımsız | Admin manuel aylık giriş |
+| **Özel formüller** | UYSA iç | Admin oluşturur, aylık değer girer (`UYSA Et Endeksi` vb.) |
+
+### Alt Görevler
+
+| # | Görev | Durum | Not |
+|---|-------|:-----:|-----|
+| 0.5.1 | DB migration (`inflation_sources`, `inflation_indices`, `inflation_calculations`) | ◐ | Bu commit |
+| 0.5.2 | Seed: 4 resmî kaynak | ◐ | Bu commit |
+| 0.5.3 | PRD Bölüm 25 yazımı | ◐ | Bu commit (`docs/PRD_25_Enflasyon_Hesaplayici.md`) |
+| 0.5.4 | TCMB EVDS API hesabı (UYSA) | ☐ | UYSA — e-Devlet ile ücretsiz başvuru |
+| 0.5.5 | EVDS endeks kodları doğrulama | ☐ | API key alınınca |
+| 0.5.6 | `app/Services/InflationCalculator.php` | ☐ | Ortak servis (3 panel) |
+| 0.5.7 | `app/Services/InflationDataFetcher.php` | ☐ | EVDS HTTP istemcisi |
+| 0.5.8 | `app/Jobs/FetchInflationIndicesJob.php` (cron) | ☐ | Her ayın 5'i |
+| 0.5.9 | Müşteri sayfası (anasayfa) | ☐ | Blade + Alpine.js + Chart.js |
+| 0.5.10 | Yemekçi paneli sayfası | ☐ | Auth gerekir → Faz 1.0b sonrası |
+| 0.5.11 | Admin paneli sayfası + kaynak yönetimi | ☐ | Auth + admin role gerekir |
+| 0.5.12 | Admin: özel formül oluştur + aylık veri gir | ☐ | CRUD UI |
+| 0.5.13 | Lead capture (`POST /api/v1/enflasyon/mail-gonder`) | ☐ | KVKK onayı + IP/UA kayıt |
+| 0.5.14 | Rate limit (IP başı 30/saat) | ☐ | Redis tabanlı |
+| 0.5.15 | Unit + Feature testler | ☐ | Hesap doğruluğu kritik |
+
+### Kabul Kriterleri
+
+- [ ] 3 panelde de hesaplayıcı çalışıyor.
+- [ ] 4 resmî kaynak seed'lendi; TÜİK API ile aylık veri otomatik geliyor.
+- [ ] Admin yeni bir özel kaynak oluşturup aylık değer girebiliyor.
+- [ ] Müşteri sayfasında lead capture KVKK onayıyla çalışıyor.
+- [ ] Cron her ayın 5'inde çalışıyor (test: manuel tetikleme).
+- [ ] Hesaplama formülü doğru: `end_price = start_price × (end_index / start_index)`.
+
+---
+
+## Faz 1 — Temel (DB + Auth + KYC) — *Paralel başladı* ⚡
 
 ### Alt Görevler (Taslak)
 
