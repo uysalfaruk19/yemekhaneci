@@ -8,8 +8,11 @@
         <p class="text-secondary mb-0 small">Yemekhaneci.com.tr — Faz 0.5 demo · 12 modül Faz 1+ ile gelecek.</p>
       </div>
       <div class="d-flex gap-2">
-        <a href="/araclar/enflasyon-hesaplayici" class="btn btn-outline-brand">
+        <a href="/yonetim/araclar/enflasyon" class="btn btn-outline-brand">
           <i class="bi bi-graph-up-arrow me-1"></i>Enflasyon Aracı
+        </a>
+        <a href="/yonetim/sistem/enflasyon-kaynaklari" class="btn btn-light border">
+          <i class="bi bi-database-gear me-1"></i>Kaynaklar
         </a>
         <form method="post" action="/cikis-yap" class="m-0">
           <?= csrf_field() ?>
@@ -48,7 +51,14 @@
             <div class="list-group-item d-flex justify-content-between"><span><strong>Pazarlama araçları</strong> · Kupon, kampanya, toplu iletişim</span><span class="badge bg-secondary">Faz 4+</span></div>
             <div class="list-group-item d-flex justify-content-between"><span><strong>Sistem ayarları</strong> · Komisyon oranları, kategori, API key</span><span class="badge bg-secondary">Faz 1</span></div>
             <div class="list-group-item d-flex justify-content-between"><span><strong>Audit log (denetim izi)</strong> · 7 yıl saklama (KVKK)</span><span class="badge bg-secondary">Faz 1</span></div>
-            <div class="list-group-item d-flex justify-content-between bg-light"><span><strong>Enflasyon kaynak yönetimi</strong> · TÜİK API + ENAG manuel + UYSA özel formülleri</span><span class="badge bg-success">Hazır (kaynak yönetim Faz 0.5.11)</span></div>
+            <a href="/yonetim/araclar/enflasyon" class="list-group-item list-group-item-action d-flex justify-content-between bg-light">
+              <span><strong>Enflasyon hesaplayıcı (admin)</strong> · 3 panel ortak motor + sektör analizi</span>
+              <span class="badge bg-success">Hazır <i class="bi bi-arrow-right ms-1"></i></span>
+            </a>
+            <a href="/yonetim/sistem/enflasyon-kaynaklari" class="list-group-item list-group-item-action d-flex justify-content-between">
+              <span><strong>Enflasyon kaynak yönetimi</strong> · TÜİK API + ENAG manuel + UYSA özel formülleri</span>
+              <span class="badge bg-warning text-dark">Liste hazır · CRUD Faz 0.5.12</span>
+            </a>
           </div>
         </div>
       </div>

@@ -8,7 +8,7 @@
         <p class="text-secondary mb-0 small">Yemekhaneci.com.tr — Faz 0.5 demo · Faz 2'de 6 sekmeli maliyet matrisi açılacak.</p>
       </div>
       <div class="d-flex gap-2">
-        <a href="/araclar/enflasyon-hesaplayici" class="btn btn-outline-brand">
+        <a href="/yemekci/araclar/enflasyon" class="btn btn-outline-brand">
           <i class="bi bi-graph-up-arrow me-1"></i>Enflasyon Hesaplayıcı
         </a>
         <form method="post" action="/cikis-yap" class="m-0">
@@ -76,10 +76,10 @@
           <div><strong>Müsaitlik takvimi</strong><div class="text-secondary small">Tarih bazlı kapasite blokları</div></div>
           <span class="badge bg-secondary">Faz 5</span>
         </div>
-        <div class="list-group-item d-flex justify-content-between align-items-center">
-          <div><strong>Enflasyon hesaplayıcı</strong><div class="text-secondary small">Maliyet güncelleme önerisi (3 panel ortak)</div></div>
-          <span class="badge bg-success">Hazır</span>
-        </div>
+        <a href="/yemekci/araclar/enflasyon" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+          <div><strong>Enflasyon hesaplayıcı</strong><div class="text-secondary small">Maliyet güncelleme önerisi (3 panel ortak motor)</div></div>
+          <span class="badge bg-success">Hazır <i class="bi bi-arrow-right ms-1"></i></span>
+        </a>
       </div>
     </div>
   </div>
