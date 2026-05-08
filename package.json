@@ -1,0 +1,53 @@
+{
+  "name": "yemekhaneci",
+  "version": "0.1.0",
+  "description": "Yemekhaneci.com.tr frontend build (Bootstrap 5 + Alpine.js + Vite).",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint:js": "eslint 'public/assets/js/**/*.{js,mjs}' 'resources/**/*.js'",
+    "lint:js:fix": "eslint --fix 'public/assets/js/**/*.{js,mjs}' 'resources/**/*.js'",
+    "lint:css": "stylelint 'resources/**/*.{css,scss}' 'public/assets/css/**/*.css'",
+    "lint:css:fix": "stylelint --fix 'resources/**/*.{css,scss}' 'public/assets/css/**/*.css'",
+    "format": "prettier --write 'resources/**/*.{js,css,scss,html}' 'public/assets/**/*.{js,css}'",
+    "format:check": "prettier --check 'resources/**/*.{js,css,scss,html}' 'public/assets/**/*.{js,css}'"
+  },
+  "devDependencies": {
+    "vite": "^5.4.0",
+    "sass": "^1.79.0",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.47",
+    "eslint": "^9.10.0",
+    "@eslint/js": "^9.10.0",
+    "globals": "^15.9.0",
+    "prettier": "^3.3.3",
+    "stylelint": "^16.9.0",
+    "stylelint-config-standard": "^36.0.1",
+    "stylelint-config-standard-scss": "^13.1.0"
+  },
+  "dependencies": {
+    "bootstrap": "^5.3.3",
+    "bootstrap-icons": "^1.11.3",
+    "@popperjs/core": "^2.11.8",
+    "alpinejs": "^3.14.1",
+    "@alpinejs/persist": "^3.14.1",
+    "@alpinejs/mask": "^3.14.1",
+    "@alpinejs/intersect": "^3.14.1",
+    "leaflet": "^1.9.4",
+    "chart.js": "^4.4.4",
+    "imask": "^7.6.1"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead",
+    "not ie 11"
+  ]
+}

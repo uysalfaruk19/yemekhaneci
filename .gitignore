@@ -1,0 +1,71 @@
+# --- Ortam değişkenleri ve gizli dosyalar ---
+.env
+.env.*
+!.env.example
+
+# --- PHP / Composer ---
+/vendor/
+composer.phar
+composer.lock
+.phpunit.result.cache
+.phpunit.cache/
+.php-cs-fixer.cache
+
+# --- Node / Frontend build ---
+/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store/
+.parcel-cache/
+.cache/
+dist/
+build/
+
+# --- Public build çıktıları (tutmak yerine üretilir) ---
+/public/assets/css/*.min.css
+/public/assets/js/*.min.js
+/public/build/
+/public/hot
+/public/mix-manifest.json
+
+# --- Kullanıcı yüklemeleri (production'da object storage'a gider) ---
+/public/uploads/*
+!/public/uploads/.gitkeep
+
+# --- Storage (log, cache, session, framework) ---
+/storage/logs/*
+!/storage/logs/.gitkeep
+/storage/cache/*
+!/storage/cache/.gitkeep
+/storage/sessions/*
+!/storage/sessions/.gitkeep
+/storage/framework/*
+!/storage/framework/.gitkeep
+*.log
+
+# --- IDE / Editör ---
+.idea/
+.vscode/
+*.iml
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# --- OS geçici dosyaları ---
+*~
+.#*
+\#*\#
+
+# --- Test çıktıları ---
+/coverage/
+/.nyc_output/
+clover.xml
+phpunit.xml
+
+# --- Yedekler ---
+*.bak
+*.backup
+*.sql.gz

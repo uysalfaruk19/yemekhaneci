@@ -1,0 +1,149 @@
+# Yemekhaneci.com.tr — Mimari Karar Kayıtları (ADR)
+
+> Her büyük teknik karar burada **tarih, bağlam, karar, gerekçe, alternatif, etki** ile kayıt altına alınır.
+> Format: ADR-lite. Yeni karar ekleyince numara artırılır, eski kararlar **silinmez** (status alanı ile güncellenir).
+
+---
+
+## ADR-001 — Backend dili: PHP 8.2
+
+- **Tarih:** 2026-05-08
+- **Durum:** Kabul edildi
+- **Bağlam:** UYSA ekibi PHP'de deneyimli; mevcut Hostinger VPS'i PHP odaklı.
+- **Karar:** Backend dili PHP 8.2 olacak. Framework seçimi (saf PHP / Laravel 11 / Symfony) **Faz 1 başında** ayrı ADR ile karar verilecek.
+- **Gerekçe:** Ekip uzmanlığı; PHP 8.2'nin tip sistemi (readonly, enum, fibers) modern projeler için yeterli.
+- **Alternatif:** Node.js + TypeScript (ekip uzmanlığı az), Python + Django (ekip uzmanlığı yok), Go (öğrenme eğrisi yüksek).
+- **Etki:** `composer.json` yazıldı, `vendor/` Faz 1 başında doldurulacak. PHP 8.2+ docker imajı staging'e kurulacak.
+
+## ADR-002 — Veritabanı: MySQL 8 + utf8mb4_turkish_ci
+
+- **Tarih:** 2026-05-08
+- **Durum:** Kabul edildi
+- **Bağlam:** Türkçe karakterler ve sıralama (örn. "İ"/"ı" doğru sırasıyla); Hostinger VPS MySQL 8 ile geliyor.
+- **Karar:** Tüm tablolar `utf8mb4` charset, `utf8mb4_turkish_ci` collation. PostgreSQL kullanılmayacak.
+- **Gerekçe:** Türkçe sıralama doğru (`utf8mb4_unicode_ci` "İ"yi yanlış sıralar); MySQL 8'in JSON, FULLTEXT, SPATIAL özellikleri PRD'nin ihtiyaçlarına yeter.
+- **Alternatif:** PostgreSQL (Türkçe collation eklentisi gerekli, ekip deneyimi az).
+- **Etki:** `database_schema.sql` zaten bu collation ile yazıldı; `.env.example`'da `DB_COLLATION=utf8mb4_turkish_ci` sabit.
+
+## ADR-003 — Frontend: Bootstrap 5 + Alpine.js (jQuery yasak)
+
+- **Tarih:** 2026-05-08
+- **Durum:** Kabul edildi
+- **Bağlam:** Hızlı geliştirme + SEO + minimum JS bundle ihtiyacı; admin panelde React 19 isteniyor.
+- **Karar:** Public + supplier + customer panellerinde Bootstrap 5 utility classes + Alpine.js. jQuery KESİNLİKLE kullanılmayacak. Admin panelde karmaşık UI için React 19 (sadece `/yonetim/*` rotalarında).
+- **Gerekçe:** Bootstrap 5 hazır responsive grid + komponentler; Alpine.js light reactive (15KB) state için yeterli; React mass dashboard'da olgunlaşmış.
+- **Alternatif:** Vue 3 (ekip uzmanlığı az), Tailwind + HTMX (öğrenme süresi).
+- **Etki:** `package.json`'a `bootstrap`, `alpinejs`, `vite` eklendi. Admin React paketi ayrı çalışma (Faz 4 sonrası).
+
+## ADR-004 — Sunucu: Hostinger VPS + Traefik + Let's Encrypt
+
+- **Tarih:** 2026-05-08
+- **Durum:** Kabul edildi (UYSA mevcut altyapıdan)
+- **Bağlam:** UYSA'nın halihazırda Hostinger VPS aboneliği var; Traefik tecrübesi mevcut.
+- **Karar:** Ubuntu 22.04 + Docker + Traefik (otomatik Let's Encrypt SSL) + MariaDB 10.6 (MySQL 8 uyumlu) + Redis 7. AWS/GCP'a geçilmeyecek (MVP için maliyet).
+- **Gerekçe:** Aylık maliyet düşük (~₺500), tecrübeli; ölçeklenince AWS Lightsail veya Hetzner'a geçiş kolay.
+- **Alternatif:** AWS EC2 + RDS (10x maliyet), Vercel + PlanetScale (PHP'ye uygun değil).
+- **Etki:** Faz 0.10-0.13 alt görevleri (VPS + DNS + SSL + staging) UYSA tarafından yapılacak.
+
+## ADR-005 — Ödeme: iyzico birincil, PayTR yedek/B2B
+
+- **Tarih:** 2026-05-08
+- **Durum:** Kabul edildi
+- **Bağlam:** Türkiye'de en yaygın iki kart ödeme sağlayıcısı; iyzico API ergonomisi daha iyi, PayTR taksitte daha esnek.
+- **Karar:** Birincil iyzico (kart, 3D Secure, otomatik komisyon ayrımı), PayTR yedek (taksit + B2B kurumsal kart). Banka havalesi paralel (manual onaylı).
+- **Gerekçe:** iyzico Türk müşterinin tanıdığı; PayTR'nin "Bireysel" ve "İşyeri" modu B2B akışı kolaylaştırır.
+- **Alternatif:** Stripe (Türkiye'de sınırlı), Garanti Sanal POS (entegrasyonu eski).
+- **Etki:** `.env.example`'da iki sağlayıcı için API key alanı; `app/Services/PaymentService.php` factory pattern ile sağlayıcı seçimi.
+
+## ADR-006 — E-posta: PostMark birincil, SendGrid yedek
+
+- **Tarih:** 2026-05-08
+- **Durum:** Kabul edildi
+- **Bağlam:** Transactional mail deliverability kritik (lead capture + sipariş bildirim).
+- **Karar:** PostMark birincil (transactional fokus, %99+ deliverability). SendGrid yedek (PostMark down olduğunda fallback).
+- **Gerekçe:** PostMark Türkiye gönderimlerinde Gmail/Hotmail spam'a düşmüyor; SendGrid promosyon mailde daha güçlü.
+- **Alternatif:** Mailgun (deliverability düşük), AWS SES (DNS karmaşıklığı).
+- **Etki:** `app/Services/MailService.php` provider abstraction; PostMark fail olunca otomatik SendGrid'e düşüş.
+
+## ADR-007 — Cache, Queue, Session, Rate Limit: Redis 7
+
+- **Tarih:** 2026-05-08
+- **Durum:** Kabul edildi
+- **Bağlam:** PRD birden fazla yerde Redis varsayıyor (rate limit, cache, queue).
+- **Karar:** Tek Redis instance (DB 0 cache, DB 1 queue, DB 2 sessions, DB 3 rate limit) — VPS aynı makinede çalışır.
+- **Gerekçe:** İşlem hızı kritik; tek noktadan yönetim; Redis 7'nin streams + ACL özellikleri yeterli.
+- **Alternatif:** Memcached (queue desteklemez), DB-tabanlı session (yavaş).
+- **Etki:** `.env.example`'da `REDIS_HOST/PORT/PASSWORD/DB`; `predis/predis` composer paketi.
+
+## ADR-008 — İlk 6 ay sıfır komisyon (pilot kampanya)
+
+- **Tarih:** 2026-05-08
+- **Durum:** Kabul edildi (PRD bölüm 12 uyarınca)
+- **Bağlam:** Yemekçilerin platforma güveni MVP'nin başarı koşulu; ilk 100 yemekçiyi çekmek için risk azaltma.
+- **Karar:** Yemekçi onaylandıktan sonra ilk 6 ay tüm kanallarda komisyon **%0**. 7. aydan itibaren PRD bölüm 12 oranları.
+- **Gerekçe:** Pazar girişi için klasik land-and-expand; UYSA'nın pazarlama mesajı ("Sıfır risk başla").
+- **Alternatif:** İlk 3 ay komisyon (ekibin ilk önerisi); kademeli (%2-4-6 artış).
+- **Etki:** `commission_rules` tablosu (Faz 1'de eklenecek) `pilot_zero_until` alanı tutar; sipariş başına `app/Services/CommissionCalculator.php` bu tarihi kontrol eder. `.env.example: COMMISSION_FREE_PILOT_MONTHS=6`.
+
+## ADR-009 — Faz 0.5: Anasayfa enflasyon hesaplayıcı (PRD dışı)
+
+- **Tarih:** 2026-05-08
+- **Durum:** Kabul edildi
+- **Bağlam:** Kullanıcı talebi (2026-05-08): yemek fiyatı için tarih bazlı enflasyon hesaplayıcı butonu. PRD v3.0'da yok. SEO + lead capture açısından lansmandan önce hayata geçirilmesi öneriyle kabul edildi.
+- **Karar:** Faz 1'den önce **Faz 0.5** olarak `/enflasyon-hesaplayici/yemek-fiyati` sayfası tasarlanır. Veri kaynakları: TÜİK TÜFE / TÜFE Gıda / Yİ-ÜFE (TCMB EVDS API üzerinden otomatik) + ENAG TÜFE (admin manuel). PRD'ye **Bölüm 25** olarak eklenir.
+- **Gerekçe:** Türkiye'de "yemek enflasyon hesaplayıcı" Google'da rakipsiz arama; SEO trafik + e-posta capture + KVKK uyumlu lead pool.
+- **Alternatif:** Tamamen lansman sonrası (kaçırılan SEO fırsatı), tüm endeksleri manuel (her ay UYSA çalışan eforu).
+- **Etki:** Yeni tablolar: `inflation_indices`, `inflation_calculations`. Yeni servis: `InflationCalculator`, `InflationDataFetcher`. Yeni cron: `FetchInflationIndicesJob` (her ayın 5'i). Faz 1 başlamadan önce 1 haftalık iş paketi.
+
+## ADR-010 — Faz 3.5: Admin "Teklif Pivot" + manuel yemekçi ekleme
+
+- **Tarih:** 2026-05-08
+- **Durum:** Kabul edildi
+- **Bağlam:** Kullanıcı talebi (2026-05-08): "her şey admin panelinden yönetilmeli; kim kime teklif vermiş izlenmeli". Demo admin paneldeki "Teklifler" modülü placeholder; PRD bölüm 4.5 detaylı ama UI implementasyonu yok.
+- **Karar:** Faz 3 (wizard) sonrası **Faz 3.5** olarak admin tarafında pivot/timeline + manuel yemekçi ekleme akışı tek başına bir iş paketi. Pilot operasyon için kritik.
+- **Gerekçe:** UYSA saha ekibi telefonla anlaştığı yemekçiyi panelden açacak; teklif iz takibi günlük operasyonun bel kemiği.
+- **Alternatif:** Faz 1'e ekle (DB+Auth ile karışır, riski artırır), Faz 7'ye ertele (pilot operasyonu körleştirir).
+- **Etki:** Yeni servisler: `QuotePivotService`, `SupplierAdminService`, `AuditLogService` genişletme. Yeni admin route'lar (`/yonetim/yemekciler/yeni`, `/yonetim/teklifler/pivot`, `/yonetim/teklifler/akis`). 2 haftalık iş paketi.
+
+## ADR-011 — Faz 3 sezgisel "Hızlı Teklif" modu (3 soru, 60 saniye)
+
+- **Tarih:** 2026-05-08
+- **Durum:** Kabul edildi
+- **Bağlam:** Kullanıcı talebi (2026-05-08): "kullanıcılar çok kolay sezgisel şekilde teklif alabilmeli". PRD'deki 9 soru wizard mobil ilk-ziyarette uzun.
+- **Karar:** Anasayfa hero CTA'da **3 soru hızlı teklif** (kişi sayısı + öğün + tarih+lokasyon) varsayılan; "Detaylı yapmak istersen" linki 9 soruya yönlendirir. A/B testi (%50/%50) Faz 3 lansmanında ölçülür.
+- **Gerekçe:** Mobil dönüşüm artırma; PRD'nin 9 soru detayı kaybedilmez (link).
+- **Alternatif:** Sadece 9 soru (statüko, mobilde drop-off yüksek), tek soru (yetersiz veri).
+- **Etki:** Yeni servis: `QuickQuoteService`, `SimilarRequestFinder`, `SmartDefaultsHelper`. Yeni route: `/hizli-teklif`. Faz 3'e +1 hafta.
+
+## ADR-012 — TÜİK verisi: TCMB EVDS API (TÜİK API değil)
+
+- **Tarih:** 2026-05-08
+- **Durum:** Kabul edildi (Faz 0.5 başında doğrulanacak)
+- **Bağlam:** TÜİK'in açık veri portalı CSV/Excel sağlar (otomasyon zor). TCMB EVDS (Elektronik Veri Dağıtım Sistemi) JSON API döndürür ve TÜİK endekslerini aynı tutar.
+- **Karar:** Birincil veri kaynağı **TCMB EVDS** (`evds2.tcmb.gov.tr/service/`) — TÜFE genel (`TP.FG.J0`), TÜFE gıda alt grubu (`TP.FG.J01`), Yİ-ÜFE (`TP.FE.OKTG01`). ENAG için admin manuel girişi. Endeks kodları Faz 0.5 başında final doğrulama yapılacak (TCMB veri tabanı zaman zaman güncelleniyor).
+- **Gerekçe:** JSON API entegrasyonu sürdürülebilir; ücretsiz; resmi kaynak.
+- **Alternatif:** TÜİK Excel scraping (kırılgan), 3. parti API (maliyetli).
+- **Etki:** `app/Services/InflationDataFetcher.php` EVDS HTTP istemcisi. EVDS hesabı UYSA tarafından açılacak (ücretsiz, e-Devlet ile).
+
+## ADR-013 — Branch stratejisi: dev/staging/main + feature dalları
+
+- **Tarih:** 2026-05-08
+- **Durum:** Kabul edildi (CLAUDE.md uyarınca)
+- **Bağlam:** Tek geliştirici Faz 1'e kadar; pilot sonrası ekip büyüyebilir.
+- **Karar:** `main` (production, tag-based deploy), `staging` (auto-deploy on merge), `dev` (entegrasyon), `feature/*`/`fix/*`/`refactor/*` (geliştirme dalları). Mevcut `claude/start-yemekhaneci-project-xCJFu` Faz 0 dalıdır; merge sonrası silinecek.
+- **Gerekçe:** Standart Git Flow benzeri; CI/CD entegrasyonu kolay.
+- **Alternatif:** Trunk-based (tek dev için fazla risk), GitHub Flow (staging eksik).
+- **Etki:** Faz 1 sonu staging deploy; her merge'de otomatik smoke test.
+
+---
+
+## Bekleyen Kararlar (Açık)
+
+- **ADR-001 ek (Faz 1):** Saf PHP mı Laravel 11 mi? — Faz 1 başında ekip oturumu.
+- **ADR-014 (Faz 4):** WhatsApp Business API sağlayıcı — direkt Meta mı, Twilio mu, Netgsm mı?
+- **ADR-015 (Faz 6):** E-fatura sağlayıcı — ParamPos mu Foriba mı?
+- **ADR-016 (Faz 7):** Yemekçi performans skor algoritması — basit ağırlıklı ortalama mı, Bayesian mı?
+
+---
+
+**Format:** Yeni karar eklerken numara artır, başlığı eklemeyi unutma. Statü değişikliği "Süperseded by ADR-XYZ" notu ile yapılır; kayıt silinmez.
