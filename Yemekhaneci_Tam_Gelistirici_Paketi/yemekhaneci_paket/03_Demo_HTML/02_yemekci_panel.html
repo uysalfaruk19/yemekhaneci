@@ -1,0 +1,2105 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yemekhaneci.com.tr — Yemekçi Maliyet Paneli</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --brand-primary: #6B1F2A;
+    --brand-primary-soft: #8B2635;
+    --brand-accent: #C9A961;
+    --brand-cream: #FAF6F0;
+    --brand-cream-dark: #F0E9DD;
+    --ink: #1F1815;
+    --ink-soft: #5A4A42;
+    --ink-muted: #8B7E76;
+    --line: #E5DCD0;
+    --success: #2F6B4A;
+    --success-light: #E8F5E9;
+    --warning: #C9882B;
+    --info: #1B5E7C;
+    --info-light: #E1F0F4;
+    --shadow-sm: 0 2px 8px rgba(107, 31, 42, 0.06);
+    --shadow-md: 0 8px 24px rgba(107, 31, 42, 0.10);
+    --shadow-lg: 0 20px 48px rgba(107, 31, 42, 0.15);
+  }
+
+  body {
+    font-family: 'Manrope', sans-serif;
+    background: var(--brand-cream);
+    color: var(--ink);
+    line-height: 1.55;
+    min-height: 100vh;
+  }
+
+  /* ============== HEADER ============== */
+  .panel-header {
+    background: white;
+    border-bottom: 1px solid var(--line);
+    padding: 16px 24px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: var(--shadow-sm);
+  }
+  .panel-header-inner {
+    max-width: 1280px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+  }
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--ink-muted);
+  }
+  .breadcrumb a {
+    color: var(--brand-primary);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .breadcrumb .sep { opacity: 0.4; }
+  .panel-user {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+  }
+  .avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--brand-primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+  }
+
+  /* ============== LAYOUT ============== */
+  .container {
+    max-width: 1280px;
+    margin: 24px auto;
+    padding: 0 24px;
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 24px;
+  }
+  @media (max-width: 1024px) {
+    .container { grid-template-columns: 1fr; }
+    .sidebar { position: static !important; }
+  }
+
+  /* ============== SAYFA BAŞLIK ============== */
+  .page-title {
+    margin-bottom: 20px;
+  }
+  .page-title h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 32px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 4px;
+    letter-spacing: -0.01em;
+  }
+  .page-title p {
+    font-size: 14px;
+    color: var(--ink-soft);
+  }
+
+  /* ============== TAB NAV ============== */
+  .tabs {
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .tab-nav {
+    display: flex;
+    border-bottom: 1px solid var(--line);
+    background: var(--brand-cream);
+    overflow-x: auto;
+  }
+  .tab-nav button {
+    padding: 14px 20px;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    color: var(--ink-soft);
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .tab-nav button:hover {
+    color: var(--brand-primary);
+    background: white;
+  }
+  .tab-nav button.active {
+    color: var(--brand-primary);
+    border-bottom-color: var(--brand-primary);
+    background: white;
+  }
+  .tab-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    background: var(--brand-cream-dark);
+    color: var(--ink-muted);
+    border-radius: 50%;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .tab-nav button.active .tab-num {
+    background: var(--brand-primary);
+    color: white;
+  }
+
+  .tab-content {
+    padding: 28px;
+    min-height: 500px;
+  }
+  @media (max-width: 640px) {
+    .tab-content { padding: 20px 16px; }
+  }
+  .tab-pane { display: none; }
+  .tab-pane.active { display: block; animation: fadeIn 0.3s; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+  .pane-header {
+    margin-bottom: 20px;
+  }
+  .pane-header h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+  .pane-header p {
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+
+  /* ============== FORM ============== */
+  .form-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .form-row:last-child { border-bottom: none; }
+  .form-label {
+    flex: 1;
+    font-size: 14px;
+    color: var(--ink);
+    font-weight: 500;
+  }
+  .form-label .sub {
+    display: block;
+    font-size: 12px;
+    color: var(--ink-muted);
+    font-weight: 400;
+    margin-top: 2px;
+  }
+  .form-input {
+    width: 130px;
+    padding: 9px 12px;
+    border: 1.5px solid var(--line);
+    border-radius: 5px;
+    font-size: 14px;
+    font-family: 'JetBrains Mono', monospace;
+    text-align: right;
+    background: white;
+    color: var(--ink);
+    transition: all 0.15s;
+  }
+  .form-input:focus {
+    outline: none;
+    border-color: var(--brand-primary);
+    box-shadow: 0 0 0 3px rgba(107, 31, 42, 0.1);
+  }
+  .form-suffix {
+    font-size: 12px;
+    color: var(--ink-muted);
+    min-width: 50px;
+  }
+
+  /* ============== MATRIX TABLE ============== */
+  .matrix-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-top: 12px;
+  }
+  .matrix-table th, .matrix-table td {
+    padding: 10px;
+    border: 1px solid var(--line);
+    text-align: center;
+    font-size: 13px;
+  }
+  .matrix-table th {
+    background: var(--brand-cream);
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .matrix-table th:first-child { background: var(--brand-cream-dark); }
+  .matrix-table .row-label {
+    background: var(--brand-cream);
+    text-align: left;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .matrix-table .seg-eko { color: var(--success); }
+  .matrix-table .seg-gen { color: var(--info); }
+  .matrix-table .seg-pre { color: var(--brand-primary); }
+  .matrix-input {
+    width: 100%;
+    border: none;
+    background: transparent;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    padding: 4px;
+    color: var(--ink);
+  }
+  .matrix-input:focus {
+    outline: none;
+    background: rgba(107, 31, 42, 0.04);
+  }
+
+  /* ============== INFO BOX ============== */
+  .info-box {
+    margin-top: 16px;
+    padding: 14px 16px;
+    background: var(--info-light);
+    border-left: 3px solid var(--info);
+    border-radius: 4px;
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+  .info-box strong { color: var(--info); }
+  .info-box.warning { background: #FFF8E7; border-left-color: var(--warning); }
+  .info-box.warning strong { color: var(--warning); }
+
+  /* ============== SECTION ============== */
+  .section { margin-top: 24px; }
+  .section + .section { padding-top: 24px; border-top: 1px solid var(--line); }
+  .section-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--brand-primary);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* Personel grup */
+  .personel-grup {
+    margin-bottom: 18px;
+  }
+  .personel-grup-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 10px;
+    padding: 8px 12px;
+    background: var(--brand-cream);
+    border-radius: 5px;
+  }
+
+  /* ============== SLIDER ============== */
+  .slider-row {
+    padding: 16px 0;
+  }
+  .slider-row label {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  .slider-row label .val {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--brand-primary);
+    font-weight: 700;
+  }
+  input[type="range"] {
+    width: 100%;
+    accent-color: var(--brand-primary);
+  }
+
+  /* ============== SAVE BTN ============== */
+  .actions {
+    margin-top: 28px;
+    padding-top: 20px;
+    border-top: 1.5px solid var(--line);
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+  }
+  .btn {
+    padding: 11px 22px;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s;
+  }
+  .btn-primary {
+    background: var(--brand-primary);
+    color: white;
+  }
+  .btn-primary:hover {
+    background: var(--brand-primary-soft);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(107, 31, 42, 0.25);
+  }
+  .btn-ghost {
+    background: white;
+    color: var(--brand-primary);
+    border: 1.5px solid var(--brand-primary);
+  }
+  .btn-ghost:hover { background: var(--brand-cream); }
+
+  /* ============== SIDEBAR (CANLI ÖNİZLEME) ============== */
+  .sidebar {
+    position: sticky;
+    top: 90px;
+    align-self: start;
+  }
+  .preview-card {
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+  }
+  .preview-header {
+    background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-primary-soft) 100%);
+    color: white;
+    padding: 18px 20px;
+    position: relative;
+  }
+  .preview-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--brand-accent);
+  }
+  .preview-header h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+  .preview-header p {
+    font-size: 12px;
+    opacity: 0.9;
+  }
+  .preview-body { padding: 20px; }
+
+  .preview-scenario {
+    padding: 12px 14px;
+    background: var(--brand-cream);
+    border-radius: 6px;
+    font-size: 12px;
+    color: var(--ink-soft);
+    margin-bottom: 16px;
+    line-height: 1.6;
+  }
+  .preview-scenario strong { color: var(--ink); }
+
+  .preview-section {
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px dashed var(--line);
+  }
+  .preview-section:last-child { border-bottom: none; }
+  .preview-section-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--ink-muted);
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .preview-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 0;
+    font-size: 13px;
+  }
+  .preview-row .pl { color: var(--ink-soft); }
+  .preview-row .pv {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .preview-row.total {
+    margin-top: 6px;
+    padding-top: 8px;
+    border-top: 1.5px solid var(--ink);
+    font-weight: 700;
+  }
+  .preview-row.total .pv {
+    color: var(--brand-primary);
+    font-size: 15px;
+  }
+
+  .preview-final {
+    margin-top: 12px;
+    padding: 18px;
+    background: linear-gradient(135deg, #FFF8EC 0%, #FAF6F0 100%);
+    border: 2px solid var(--brand-accent);
+    border-radius: 8px;
+    text-align: center;
+  }
+  .preview-final-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink-muted);
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .preview-final-price {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--brand-primary);
+    line-height: 1;
+  }
+  .preview-final-unit {
+    font-size: 11px;
+    color: var(--ink-muted);
+    margin-top: 4px;
+  }
+  .preview-final-month {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--brand-accent);
+    font-size: 12px;
+    color: var(--ink-soft);
+  }
+  .preview-final-month strong {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--ink);
+    font-size: 14px;
+  }
+
+  .scenario-controls {
+    background: var(--brand-cream);
+    padding: 12px 14px;
+    border-radius: 6px;
+    margin-bottom: 14px;
+  }
+  .scenario-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 12px;
+  }
+  .scenario-row:last-child { margin-bottom: 0; }
+  .scenario-row label { color: var(--ink-soft); font-weight: 500; }
+  .scenario-row select, .scenario-row input {
+    padding: 4px 8px;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    font-size: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    background: white;
+  }
+  .scenario-row input[type="number"] { width: 80px; text-align: right; }
+
+  /* ============== MENU TEMPLATE STYLES ============== */
+  .menu-item-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 14px;
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    margin-bottom: 8px;
+  }
+  .menu-item-icon {
+    font-size: 28px;
+    width: 40px;
+    text-align: center;
+  }
+  .menu-item-body { flex: 1; }
+  .menu-item-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 2px;
+  }
+  .menu-item-desc {
+    font-size: 12px;
+    color: var(--ink-muted);
+  }
+  .menu-item-status {
+    padding: 4px 10px;
+    background: var(--success-light);
+    color: var(--success);
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 12px;
+  }
+
+  .dagilim-preview {
+    margin-top: 12px;
+    padding: 14px;
+    background: var(--info-light);
+    border-radius: 6px;
+    border-left: 3px solid var(--info);
+    font-size: 13px;
+    color: var(--ink);
+  }
+  .dagilim-preview .dag-title {
+    font-weight: 700;
+    color: var(--info);
+    margin-bottom: 6px;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .dagilim-preview .dag-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .dagilim-preview .dag-item {
+    padding: 4px 10px;
+    background: white;
+    border-radius: 4px;
+    font-size: 12px;
+    border: 1px solid var(--line);
+  }
+
+  .toggle-btn-small {
+    padding: 8px 14px;
+    border: 1.5px solid var(--line);
+    background: white;
+    border-radius: 5px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--ink-soft);
+    font-family: inherit;
+  }
+  .toggle-btn-small:hover { border-color: var(--brand-primary); }
+  .toggle-btn-small.active {
+    background: var(--brand-primary);
+    border-color: var(--brand-primary);
+    color: white;
+  }
+
+  .checkbox-item-large {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    margin-bottom: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.2s;
+  }
+  .checkbox-item-large:has(input:checked) {
+    background: var(--success-light);
+    border-color: var(--success);
+  }
+  .checkbox-item-large input { accent-color: var(--brand-primary); }
+
+  .cesit-summary {
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .cesit-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  .cesit-item:last-child { border-bottom: none; }
+  .cesit-icon { font-size: 18px; width: 28px; text-align: center; }
+  .cesit-name { flex: 1; font-size: 14px; color: var(--ink); }
+  .cesit-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    color: var(--brand-primary);
+    font-size: 16px;
+    min-width: 30px;
+    text-align: center;
+  }
+  .cesit-total {
+    background: var(--brand-cream);
+    font-weight: 700;
+  }
+  .cesit-total .cesit-name { font-weight: 700; color: var(--ink); }
+  .cesit-total .cesit-count {
+    font-size: 22px;
+    color: var(--brand-primary);
+  }
+
+  /* ========= MENU PREVIEW (Yemekçi panelinde) ========= */
+  .menu-preview-yemekci {
+    background: linear-gradient(135deg, #FFF8EC 0%, #FAF6F0 100%);
+    border: 2px solid var(--brand-accent);
+    border-radius: 10px;
+    padding: 18px 20px;
+  }
+  .menu-preview-yemekci-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+    padding-bottom: 12px;
+    border-bottom: 1px dashed var(--brand-accent);
+  }
+  .menu-preview-yemekci-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--brand-primary);
+    line-height: 1;
+  }
+  .menu-preview-yemekci-sub {
+    font-size: 12px;
+    color: var(--ink-soft);
+    margin-top: 4px;
+    font-weight: 600;
+  }
+  .menu-preview-yemekci-badge {
+    padding: 5px 12px;
+    background: var(--brand-primary);
+    color: white;
+    border-radius: 14px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .menu-preview-yemekci-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .menu-preview-yemekci-pill {
+    padding: 8px 14px;
+    background: white;
+    border: 1.5px solid var(--brand-accent);
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    animation: pillIn 0.25s;
+  }
+  .menu-preview-yemekci-pill.fixed {
+    background: rgba(201, 169, 97, 0.15);
+    border-color: rgba(201, 169, 97, 0.4);
+  }
+  @keyframes pillIn {
+    from { opacity: 0; transform: scale(0.8) translateY(-4px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  /* ============== KAYIT ONAY ROZETİ ============== */
+  .kayit-onay {
+    display: none;
+    margin-top: 20px;
+    padding: 20px 24px;
+    background: linear-gradient(135deg, #E8F5E9 0%, #F1F8F4 100%);
+    border: 2px solid var(--success);
+    border-radius: 10px;
+    align-items: center;
+    gap: 18px;
+    animation: slideUp 0.4s ease;
+  }
+  .kayit-onay.visible { display: flex; }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .kayit-onay-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--success);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .kayit-onay-body { flex: 1; }
+  .kayit-onay-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--success);
+    margin-bottom: 2px;
+  }
+  .kayit-onay-desc {
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  .kayit-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+    background: white;
+    color: var(--success);
+    border: 1.5px solid var(--success);
+    border-radius: 5px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  .kayit-link:hover {
+    background: var(--success);
+    color: white;
+  }
+
+  /* ============== BAĞLANTI DURUMU (üstte) ============== */
+  .baglanti-durumu {
+    background: var(--brand-cream);
+    border-bottom: 1px solid var(--line);
+    padding: 10px 24px;
+    font-size: 13px;
+    color: var(--ink-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .baglanti-durumu strong { color: var(--brand-primary); }
+  .baglanti-durumu .dot-live {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: var(--success);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+</style>
+</head>
+<body>
+
+<!-- BAĞLANTI DURUMU -->
+<div class="baglanti-durumu">
+  <span class="dot-live"></span>
+  Bu panel <strong>UYSA Yemek</strong> hesabınız için. Kaydettiğiniz maliyetler
+  müşteri fiyat hesaplama sayfasında <strong>otomatik kullanılır</strong>.
+</div>
+
+<!-- HEADER -->
+<header class="panel-header">
+  <div class="panel-header-inner">
+    <div class="breadcrumb">
+      <a href="#">Yemekçi Paneli</a>
+      <span class="sep">/</span>
+      <a href="#">Ayarlar</a>
+      <span class="sep">/</span>
+      <span>Maliyet Tanımlamaları</span>
+    </div>
+    <div class="panel-user">
+      <span style="color: var(--ink-soft);">UYSA Yemek</span>
+      <div class="avatar">UY</div>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+  <!-- ANA İÇERİK -->
+  <main>
+    <div class="page-title">
+      <h1>Maliyet Tanımlamaları</h1>
+      <p>Buradaki bilgiler müşterilere gösterilen fiyatlandırmanın temelini oluşturur. Doğru ve güncel tutmanız önemlidir.</p>
+    </div>
+
+    <div class="tabs">
+      <nav class="tab-nav">
+        <button data-tab="yemek" class="active"><span class="tab-num">1</span> Yemek Maliyeti</button>
+        <button data-tab="personel"><span class="tab-num">2</span> Personel</button>
+        <button data-tab="sabit"><span class="tab-num">3</span> Sabit Giderler</button>
+        <button data-tab="mutfak"><span class="tab-num">4</span> Mutfak Yatırım</button>
+        <button data-tab="kar"><span class="tab-num">5</span> Kar Marjı</button>
+        <button data-tab="menu"><span class="tab-num">6</span> Menü Şablonu</button>
+      </nav>
+
+      <div class="tab-content">
+
+        <!-- ===== TAB 1: YEMEK MALİYETİ ===== -->
+        <div class="tab-pane active" data-pane="yemek">
+          <div class="pane-header">
+            <h2>Yemek Maliyeti Matrisi</h2>
+            <p>Segment ve menü çeşidine göre öğün başı hammadde + üretim maliyetleriniz (personel hariç). Bu rakamlar gerçek maliyetinize göre güncel olmalıdır.</p>
+          </div>
+
+          <table class="matrix-table">
+            <thead>
+              <tr>
+                <th>Segment / Çeşit</th>
+                <th>3 Çeşit</th>
+                <th>4 Çeşit</th>
+                <th>5 Çeşit</th>
+                <th>6+ Çeşit</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="row-label seg-eko">📦 Ekonomik</td>
+                <td><input type="number" class="matrix-input" data-seg="ekonomik" data-cesit="3" value="40"> ₺</td>
+                <td><input type="number" class="matrix-input" data-seg="ekonomik" data-cesit="4" value="50"> ₺</td>
+                <td><input type="number" class="matrix-input" data-seg="ekonomik" data-cesit="5" value="60"> ₺</td>
+                <td><input type="number" class="matrix-input" data-seg="ekonomik" data-cesit="6" value="72"> ₺</td>
+              </tr>
+              <tr>
+                <td class="row-label seg-gen">⭐ Genel</td>
+                <td><input type="number" class="matrix-input" data-seg="genel" data-cesit="3" value="60"> ₺</td>
+                <td><input type="number" class="matrix-input" data-seg="genel" data-cesit="4" value="75"> ₺</td>
+                <td><input type="number" class="matrix-input" data-seg="genel" data-cesit="5" value="92"> ₺</td>
+                <td><input type="number" class="matrix-input" data-seg="genel" data-cesit="6" value="110"> ₺</td>
+              </tr>
+              <tr>
+                <td class="row-label seg-pre">👑 Premium</td>
+                <td><input type="number" class="matrix-input" data-seg="premium" data-cesit="3" value="105"> ₺</td>
+                <td><input type="number" class="matrix-input" data-seg="premium" data-cesit="4" value="135"> ₺</td>
+                <td><input type="number" class="matrix-input" data-seg="premium" data-cesit="5" value="170"> ₺</td>
+                <td><input type="number" class="matrix-input" data-seg="premium" data-cesit="6" value="210"> ₺</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="info-box">
+            <strong>ⓘ Not:</strong> Bu rakamlar yalnızca yemeğin <strong>hammadde + mutfak üretim</strong> maliyetidir. Personel, kira, elektrik gibi giderler diğer sekmelerde tanımlanır ve formül otomatik hesaplar.
+          </div>
+        </div>
+
+        <!-- ===== TAB 2: PERSONEL ===== -->
+        <div class="tab-pane" data-pane="personel">
+          <div class="pane-header">
+            <h2>Personel Maliyetleri (Aylık Brüt)</h2>
+            <p>Pozisyon ve deneyim seviyesine göre aylık personel maliyetleriniz. SGK, vergi ve yan haklar dahil olmak üzere brüt rakamı girin.</p>
+          </div>
+
+          <div class="personel-grup">
+            <div class="personel-grup-title">👨‍🍳 Mutfak Personeli</div>
+            <div class="form-row">
+              <div class="form-label">Aşçıbaşı (Senior)<span class="sub">10+ yıl deneyim, baş aşçı</span></div>
+              <input type="number" class="form-input" data-personel="ascibasi_senior" value="48000">
+              <span class="form-suffix">₺/ay</span>
+            </div>
+            <div class="form-row">
+              <div class="form-label">Aşçı (Senior)<span class="sub">5-10 yıl deneyim</span></div>
+              <input type="number" class="form-input" data-personel="asci_senior" value="35000">
+              <span class="form-suffix">₺/ay</span>
+            </div>
+            <div class="form-row">
+              <div class="form-label">Aşçı (Junior)<span class="sub">0-5 yıl deneyim</span></div>
+              <input type="number" class="form-input" data-personel="asci_junior" value="25000">
+              <span class="form-suffix">₺/ay</span>
+            </div>
+            <div class="form-row">
+              <div class="form-label">Yardımcı Aşçı / Hazırlık<span class="sub">Sebze hazırlık, malzeme</span></div>
+              <input type="number" class="form-input" data-personel="yardimci" value="20000">
+              <span class="form-suffix">₺/ay</span>
+            </div>
+          </div>
+
+          <div class="personel-grup">
+            <div class="personel-grup-title">🍽️ Servis Personeli</div>
+            <div class="form-row">
+              <div class="form-label">Servis Şefi (Senior)<span class="sub">Ekip lideri, 5+ yıl</span></div>
+              <input type="number" class="form-input" data-personel="servis_senior" value="28000">
+              <span class="form-suffix">₺/ay</span>
+            </div>
+            <div class="form-row">
+              <div class="form-label">Servis Personeli (Junior)<span class="sub">Standart servis</span></div>
+              <input type="number" class="form-input" data-personel="servis_junior" value="22000">
+              <span class="form-suffix">₺/ay</span>
+            </div>
+          </div>
+
+          <div class="personel-grup">
+            <div class="personel-grup-title">🧽 Destek Personeli</div>
+            <div class="form-row">
+              <div class="form-label">Bulaşıkçı / Temizlik<span class="sub">Mutfak ve servis sonrası</span></div>
+              <input type="number" class="form-input" data-personel="bulasik" value="20000">
+              <span class="form-suffix">₺/ay</span>
+            </div>
+            <div class="form-row">
+              <div class="form-label">Şoför<span class="sub">Teslimat ve lojistik</span></div>
+              <input type="number" class="form-input" data-personel="sofor" value="26000">
+              <span class="form-suffix">₺/ay</span>
+            </div>
+            <div class="form-row">
+              <div class="form-label">Operasyon Sorumlusu<span class="sub">Saha yönetimi</span></div>
+              <input type="number" class="form-input" data-personel="operasyon" value="32000">
+              <span class="form-suffix">₺/ay</span>
+            </div>
+          </div>
+
+          <div class="info-box">
+            <strong>ⓘ Şablon Personel Atama:</strong> Her sipariş için varsayılan kaç personel atanacağını "Hibrit" mantıkla burada tanımlayabilir, sipariş bazında değiştirebilirsiniz. Şablonu aşağıda kişi başına oran olarak belirleyin.
+          </div>
+
+          <div class="section">
+            <div class="section-title">Şablon: 100 kişilik bir sipariş için varsayılan personel</div>
+            <div class="form-row">
+              <div class="form-label">Aşçı (Senior + Junior toplam)</div>
+              <input type="number" class="form-input" data-sablon="asci" value="2">
+              <span class="form-suffix">kişi</span>
+            </div>
+            <div class="form-row">
+              <div class="form-label">Yardımcı / Hazırlık</div>
+              <input type="number" class="form-input" data-sablon="yardimci" value="1">
+              <span class="form-suffix">kişi</span>
+            </div>
+            <div class="form-row">
+              <div class="form-label">Servis (Senior + Junior toplam)</div>
+              <input type="number" class="form-input" data-sablon="servis" value="3">
+              <span class="form-suffix">kişi</span>
+            </div>
+            <div class="form-row">
+              <div class="form-label">Bulaşık / Temizlik</div>
+              <input type="number" class="form-input" data-sablon="bulasik" value="1">
+              <span class="form-suffix">kişi</span>
+            </div>
+            <div class="form-row">
+              <div class="form-label">Şoför / Operasyon</div>
+              <input type="number" class="form-input" data-sablon="lojistik" value="1">
+              <span class="form-suffix">kişi</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== TAB 3: SABİT GİDERLER ===== -->
+        <div class="tab-pane" data-pane="sabit">
+          <div class="pane-header">
+            <h2>Aylık Sabit Giderler</h2>
+            <p>İşletmenizin aylık düzenli giderleri. Bu giderlerin ne kadarının her siparişe yükleneceğini manuel oran ile belirleyebilirsiniz.</p>
+          </div>
+
+          <div class="form-row">
+            <div class="form-label">Mutfak Kira<span class="sub">Aylık kira bedeli</span></div>
+            <input type="number" class="form-input" data-sabit="kira" value="45000">
+            <span class="form-suffix">₺/ay</span>
+          </div>
+          <div class="form-row">
+            <div class="form-label">Elektrik / Su / Doğalgaz<span class="sub">Aylık ortalama</span></div>
+            <input type="number" class="form-input" data-sabit="enerji" value="22000">
+            <span class="form-suffix">₺/ay</span>
+          </div>
+          <div class="form-row">
+            <div class="form-label">Araç Giderleri<span class="sub">Yakıt, bakım, sigorta</span></div>
+            <input type="number" class="form-input" data-sabit="arac" value="18000">
+            <span class="form-suffix">₺/ay</span>
+          </div>
+          <div class="form-row">
+            <div class="form-label">İşletme Sigortası<span class="sub">Aylık prim</span></div>
+            <input type="number" class="form-input" data-sabit="sigorta" value="4500">
+            <span class="form-suffix">₺/ay</span>
+          </div>
+          <div class="form-row">
+            <div class="form-label">Muhasebe / Müşavirlik<span class="sub">Aylık ücret</span></div>
+            <input type="number" class="form-input" data-sabit="muhasebe" value="6000">
+            <span class="form-suffix">₺/ay</span>
+          </div>
+          <div class="form-row">
+            <div class="form-label">İnternet / Telefon / Yazılım<span class="sub">Tüm dijital giderler</span></div>
+            <input type="number" class="form-input" data-sabit="dijital" value="3500">
+            <span class="form-suffix">₺/ay</span>
+          </div>
+          <div class="form-row">
+            <div class="form-label">Diğer Overhead<span class="sub">Pazarlama, kırtasiye, vs.</span></div>
+            <input type="number" class="form-input" data-sabit="diger" value="8000">
+            <span class="form-suffix">₺/ay</span>
+          </div>
+
+          <div class="info-box warning">
+            <strong>⚠️ Manuel Dağıtım Oranı:</strong> Sabit giderlerinizin <strong>her bir siparişe ne kadarını yüklemek</strong> istediğinizi aşağıdaki slider ile belirleyin. Bu oran, yemekçi olarak portföyünüzdeki sipariş sayısı ve hacmine göre değişir.
+          </div>
+
+          <div class="section">
+            <div class="section-title">Sabit Gider Yükleme Oranı</div>
+            <div class="slider-row">
+              <label>
+                <span>Bu siparişe yüklenen sabit gider oranı</span>
+                <span class="val" id="sabitOranVal">15%</span>
+              </label>
+              <input type="range" id="sabitOran" min="5" max="50" value="15" step="1">
+              <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--ink-muted); margin-top:4px;">
+                <span>%5 (büyük portföy)</span>
+                <span>%50 (tek müşteri)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== TAB 4: MUTFAK YATIRIM ===== -->
+        <div class="tab-pane" data-pane="mutfak">
+          <div class="pane-header">
+            <h2>Mutfak Yatırım Birim Fiyatları</h2>
+            <p>Müşteri sahasında mutfak kuracaksanız, ekipmanların gerçek alış fiyatlarınızı buraya girin. Sistem amortisman süresine göre aylık maliyete dağıtır.</p>
+          </div>
+
+          <div class="form-row">
+            <div class="form-label">🔥 Endüstriyel Ocak / Set</div>
+            <input type="number" class="form-input" data-mutfak="ocak" value="55000">
+            <span class="form-suffix">₺</span>
+          </div>
+          <div class="form-row">
+            <div class="form-label">🧯 Sanayi Fırın</div>
+            <input type="number" class="form-input" data-mutfak="firin" value="78000">
+            <span class="form-suffix">₺</span>
+          </div>
+          <div class="form-row">
+            <div class="form-label">🧽 Endüstriyel Bulaşık Makinesi</div>
+            <input type="number" class="form-input" data-mutfak="bulasik" value="42000">
+            <span class="form-suffix">₺</span>
+          </div>
+          <div class="form-row">
+            <div class="form-label">❄️ Soğutucu Dolap</div>
+            <input type="number" class="form-input" data-mutfak="dolap" value="32000">
+            <span class="form-suffix">₺</span>
+          </div>
+          <div class="form-row">
+            <div class="form-label">📦 Depo Rafları / Kiler</div>
+            <input type="number" class="form-input" data-mutfak="depo" value="18000">
+            <span class="form-suffix">₺</span>
+          </div>
+          <div class="form-row">
+            <div class="form-label">💨 Davlumbaz Sistemi</div>
+            <input type="number" class="form-input" data-mutfak="davlumbaz" value="38000">
+            <span class="form-suffix">₺</span>
+          </div>
+          <div class="form-row">
+            <div class="form-label">🪑 Yemekhane Salon Kurulumu</div>
+            <input type="number" class="form-input" data-mutfak="yemekhane" value="95000">
+            <span class="form-suffix">₺</span>
+          </div>
+          <div class="form-row">
+            <div class="form-label">🍲 Self-Servis Hat Sistemi</div>
+            <input type="number" class="form-input" data-mutfak="hat" value="48000">
+            <span class="form-suffix">₺</span>
+          </div>
+
+          <div class="section">
+            <div class="section-title">Amortisman Süresi</div>
+            <div class="slider-row">
+              <label>
+                <span>Yatırımın aylık dağıtılacağı süre</span>
+                <span class="val" id="amortismanVal">24 ay</span>
+              </label>
+              <input type="range" id="amortismanAy" min="12" max="60" value="24" step="6">
+              <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--ink-muted); margin-top:4px;">
+                <span>12 ay (kısa kontrat)</span>
+                <span>60 ay (uzun vadeli)</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="info-box">
+            <strong>ⓘ Örnek:</strong> 100.000 ₺ ekipman, 24 ay amortisman → ay başı <strong>4.167 ₺</strong> sabit gider olarak siparişe eklenir.
+          </div>
+        </div>
+
+        <!-- ===== TAB 5: KAR MARJI ===== -->
+        <div class="tab-pane" data-pane="kar">
+          <div class="pane-header">
+            <h2>Kar Marjı Stratejisi</h2>
+            <p>Kar marjınız üç bileşenin toplamıdır: segment bazlı + hacim indirimi + özel düzeltme. Tümü kombine olarak hesaplanır.</p>
+          </div>
+
+          <div class="section">
+            <div class="section-title">A. Segment Bazlı Kar Marjı</div>
+
+            <div class="slider-row">
+              <label>
+                <span class="seg-eko" style="color:var(--success);">📦 Ekonomik segment marjı</span>
+                <span class="val" id="marjEkoVal">18%</span>
+              </label>
+              <input type="range" id="marjEko" min="5" max="40" value="18" step="1">
+            </div>
+
+            <div class="slider-row">
+              <label>
+                <span class="seg-gen" style="color:var(--info);">⭐ Genel segment marjı</span>
+                <span class="val" id="marjGenVal">25%</span>
+              </label>
+              <input type="range" id="marjGen" min="5" max="50" value="25" step="1">
+            </div>
+
+            <div class="slider-row">
+              <label>
+                <span class="seg-pre" style="color:var(--brand-primary);">👑 Premium segment marjı</span>
+                <span class="val" id="marjPreVal">35%</span>
+              </label>
+              <input type="range" id="marjPre" min="10" max="80" value="35" step="1">
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-title">B. Hacim İndirim Politikası</div>
+            <p style="font-size:13px; color:var(--ink-soft); margin-bottom:10px;">Büyük hacimli siparişlerde marjdan indirim yaparsanız müşteri çekersiniz. Negatif değerler indirim demek.</p>
+
+            <div class="form-row">
+              <div class="form-label">100 kişiden büyük siparişlerde<span class="sub">100-199 kişi aralığı</span></div>
+              <input type="number" class="form-input" id="hacim100" value="-2">
+              <span class="form-suffix">% indirim</span>
+            </div>
+            <div class="form-row">
+              <div class="form-label">200+ kişilik siparişlerde<span class="sub">200-499 kişi aralığı</span></div>
+              <input type="number" class="form-input" id="hacim200" value="-4">
+              <span class="form-suffix">% indirim</span>
+            </div>
+            <div class="form-row">
+              <div class="form-label">500+ kişilik siparişlerde<span class="sub">500 ve üzeri</span></div>
+              <input type="number" class="form-input" id="hacim500" value="-7">
+              <span class="form-suffix">% indirim</span>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-title">C. Genel Marj Düzeltmesi</div>
+            <div class="slider-row">
+              <label>
+                <span>Tüm siparişlere ek/eksi marj</span>
+                <span class="val" id="marjOzelVal">0%</span>
+              </label>
+              <input type="range" id="marjOzel" min="-15" max="20" value="0" step="1">
+              <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--ink-muted); margin-top:4px;">
+                <span>-%15 (agresif fiyatlama)</span>
+                <span>+%20 (premium pozisyon)</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="info-box">
+            <strong>ⓘ Nihai Marj Formülü:</strong>
+            <code style="display:block; margin-top:6px; padding:8px; background:white; border-radius:4px; font-size:12px;">
+            nihai_marj = segment_marji + hacim_indirimi + ozel_duzeltme
+            </code>
+            Örnek: Genel segment (%25) + 200 kişilik (-%4) + Özel (%0) = <strong>%21 nihai marj</strong>
+          </div>
+        </div>
+
+        <!-- ===== TAB 6: MENÜ ŞABLONU ===== -->
+        <div class="tab-pane" data-pane="menu">
+          <div class="pane-header">
+            <h2>Menü Şablonu Yapısı</h2>
+            <p>Standart bir öğün menünüzün hangi bileşenlerden oluştuğunu tanımlayın. Bu yapı, müşteri wizard'ında "çeşit sayısı" hesabını otomatikleştirir ve maliyet matrisi ile uyumlu çalışır.</p>
+          </div>
+
+          <!-- SABİT BİLEŞENLER -->
+          <div class="section">
+            <div class="section-title">📌 Sabit Bileşenler (Her Menüde Var)</div>
+
+            <div class="menu-item-row">
+              <div class="menu-item-icon">🥣</div>
+              <div class="menu-item-body">
+                <div class="menu-item-title">Çorba</div>
+                <div class="menu-item-desc">Mercimek, Ezogelin, Şehriye, Tarhana, Düğün, Yayla, Tavuksuyu — günlük rotasyon</div>
+              </div>
+              <div class="menu-item-status">✓ Sabit</div>
+            </div>
+
+            <div class="menu-item-row">
+              <div class="menu-item-icon">🍖</div>
+              <div class="menu-item-body">
+                <div class="menu-item-title">Ana Yemek</div>
+                <div class="menu-item-desc">Et / Tavuk / Sebze ana yemek — döner, kebap, köfte, kavurma, dolma vs.</div>
+              </div>
+              <div class="menu-item-status">✓ Sabit</div>
+            </div>
+
+            <div class="menu-item-row">
+              <div class="menu-item-icon">🍚</div>
+              <div class="menu-item-body">
+                <div class="menu-item-title">Yardımcı Yemek</div>
+                <div class="menu-item-desc">Pilav, makarna, börek, erişte, bulgur — her gün rotasyon</div>
+              </div>
+              <div class="menu-item-status">✓ Sabit</div>
+            </div>
+
+            <div class="menu-item-row">
+              <div class="menu-item-icon">🍞</div>
+              <div class="menu-item-body">
+                <div class="menu-item-title">Ekmek (2 dilim, 272 kkal)</div>
+                <div class="menu-item-desc">Standart günlük ekmek tahsisi, fiyata dahil</div>
+              </div>
+              <div class="menu-item-status">✓ Sabit</div>
+            </div>
+          </div>
+
+          <!-- DİNAMİK: SALATA BAR -->
+          <div class="section">
+            <div class="section-title">🥗 Salata Bar (Dinamik)</div>
+            <p style="font-size:13px; color:var(--ink-soft); margin-bottom:14px;">Salata bar çeşit sayısını girin. 1-4 arası otomatik dağılım yapılır, 5+ için kendiniz belirleyin.</p>
+
+            <div class="form-row">
+              <div class="form-label">Salata bar çeşit sayısı</div>
+              <input type="number" class="form-input" id="salataAdet" value="1" min="1" max="10">
+              <span class="form-suffix">çeşit</span>
+            </div>
+
+            <div id="salataDagilim" class="dagilim-preview"></div>
+
+            <div id="salataManuel" style="display:none; margin-top:14px; padding:14px; background:var(--brand-cream); border-radius:6px;">
+              <div style="font-size:13px; font-weight:600; margin-bottom:10px;">Manuel Dağılım (5+ çeşit için):</div>
+              <div class="form-row" style="padding:6px 0;">
+                <div class="form-label" style="font-size:13px;">🥬 Klasik salata (mevsim, çoban, vb.)</div>
+                <input type="number" class="form-input manuel-salata" data-tip="salata" value="0" min="0">
+                <span class="form-suffix">adet</span>
+              </div>
+              <div class="form-row" style="padding:6px 0;">
+                <div class="form-label" style="font-size:13px;">🫒 Zeytinyağlı (yaprak sarma, fasulye, vb.)</div>
+                <input type="number" class="form-input manuel-salata" data-tip="zeytinyagli" value="0" min="0">
+                <span class="form-suffix">adet</span>
+              </div>
+              <div class="form-row" style="padding:6px 0;">
+                <div class="form-label" style="font-size:13px;">🧆 Meze (haydari, ezme, çiğköfte, vb.)</div>
+                <input type="number" class="form-input manuel-salata" data-tip="meze" value="0" min="0">
+                <span class="form-suffix">adet</span>
+              </div>
+              <div class="form-row" style="padding:6px 0;">
+                <div class="form-label" style="font-size:13px;">🍝 Yardımcı (kısır, makarna salatası, vb.)</div>
+                <input type="number" class="form-input manuel-salata" data-tip="yardimci" value="0" min="0">
+                <span class="form-suffix">adet</span>
+              </div>
+              <div id="manuelToplam" style="margin-top:10px; padding:8px; background:white; border-radius:4px; font-size:12px; color:var(--ink-soft);">
+                Toplam: <strong>0</strong> çeşit
+              </div>
+            </div>
+
+            <div class="info-box" style="margin-top:14px;">
+              <strong>📋 Otomatik Dağılım Kuralları:</strong>
+              <table style="width:100%; margin-top:8px; font-size:12px; border-collapse:collapse;">
+                <tr><td style="padding:4px 8px; border-bottom:1px dashed #ccc;"><strong>1 çeşit</strong></td><td style="padding:4px 8px; border-bottom:1px dashed #ccc;">→ 1 Salata</td></tr>
+                <tr><td style="padding:4px 8px; border-bottom:1px dashed #ccc;"><strong>2 çeşit</strong></td><td style="padding:4px 8px; border-bottom:1px dashed #ccc;">→ 1 Salata + 1 Zeytinyağlı</td></tr>
+                <tr><td style="padding:4px 8px; border-bottom:1px dashed #ccc;"><strong>3 çeşit</strong></td><td style="padding:4px 8px; border-bottom:1px dashed #ccc;">→ 2 Salata + 1 Zeytinyağlı</td></tr>
+                <tr><td style="padding:4px 8px; border-bottom:1px dashed #ccc;"><strong>4 çeşit</strong></td><td style="padding:4px 8px; border-bottom:1px dashed #ccc;">→ 2 Salata + 1 Zeytinyağlı + 1 Meze</td></tr>
+                <tr><td style="padding:4px 8px;"><strong>5+ çeşit</strong></td><td style="padding:4px 8px;">→ Manuel dağılım girilir</td></tr>
+              </table>
+            </div>
+          </div>
+
+          <!-- DİNAMİK: TATLI/MEYVE/MEŞRUBAT -->
+          <div class="section">
+            <div class="section-title">🍰 Tatlı / Meyve / Meşrubat (Dinamik Döngü)</div>
+            <p style="font-size:13px; color:var(--ink-soft); margin-bottom:14px;">Bu bileşen menünüzde olsun mu? Olursa, döngüye hangi seçenekler dahil olsun?</p>
+
+            <div class="form-row">
+              <div class="form-label">Bu bileşen menüde var mı?</div>
+              <div class="toggle-row" style="display:flex; gap:8px;">
+                <button type="button" class="toggle-btn-small active" data-tatli-toggle="evet">Evet, dahil</button>
+                <button type="button" class="toggle-btn-small" data-tatli-toggle="hayir">Hayır</button>
+              </div>
+            </div>
+
+            <div id="tatliDetay" style="margin-top:14px; padding:14px; background:var(--brand-cream); border-radius:6px;">
+              <div style="font-size:13px; font-weight:600; margin-bottom:10px;">Döngüye Dahil Edilecek Seçenekler:</div>
+              <p style="font-size:12px; color:var(--ink-muted); margin-bottom:12px;">Seçtiğiniz seçenekler haftalık menüde rotasyon olarak görünür. Örnek: Pazartesi tatlı, Salı meyve, Çarşamba meşrubat.</p>
+
+              <label class="checkbox-item-large">
+                <input type="checkbox" data-tatli="tatli" checked> 🍰 Tatlı (sütlaç, supangle, magnolya, kazandibi, trileçe, brownie, kek, şekerpare vb.)
+              </label>
+              <label class="checkbox-item-large">
+                <input type="checkbox" data-tatli="meyve" checked> 🍎 Meyve (mevsim meyvesi)
+              </label>
+              <label class="checkbox-item-large">
+                <input type="checkbox" data-tatli="mesrubat" checked> 🥤 Meşrubat (kola, gazoz, soda, ayran)
+              </label>
+
+              <div class="form-row" style="padding:8px 0; margin-top:8px; border-top:1px dashed var(--line);">
+                <div class="form-label" style="font-size:13px;">Haftalık dağılım (gün)</div>
+                <div style="font-size:12px; color:var(--ink-muted);" id="tatliDagilimText">Seçili: 3 seçenek → her seçenek hafta içi 1-2 gün</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- DİNAMİK: AYRAN/YOĞURT -->
+          <div class="section">
+            <div class="section-title">🥛 Ayran / Yoğurt</div>
+            <p style="font-size:13px; color:var(--ink-soft); margin-bottom:14px;">Ayran ve yoğurt sabit mi? Yoksa menüye göre değişsin mi?</p>
+
+            <div class="form-row">
+              <div class="form-label">Yaklaşım</div>
+              <div class="toggle-row" style="display:flex; gap:8px; flex-wrap:wrap;">
+                <button type="button" class="toggle-btn-small" data-ayran="sabit-ayran">Sabit Ayran</button>
+                <button type="button" class="toggle-btn-small" data-ayran="sabit-yogurt">Sabit Yoğurt</button>
+                <button type="button" class="toggle-btn-small" data-ayran="ikisi">Sabit İkisi (Ayran + Yoğurt)</button>
+                <button type="button" class="toggle-btn-small active" data-ayran="menuye-gore">Menüye Göre Değişsin</button>
+              </div>
+            </div>
+
+            <div id="ayranDetay" style="margin-top:14px; padding:14px; background:var(--brand-cream); border-radius:6px;">
+              <div style="font-size:13px; font-weight:600; margin-bottom:10px;">Menüye Göre Eşleştirme Mantığı:</div>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; font-size:12px;">
+                <div style="padding:8px; background:white; border-radius:4px;">🍖 <strong>Etli ana yemekle</strong> → Ayran</div>
+                <div style="padding:8px; background:white; border-radius:4px;">🥗 <strong>Sebze/dolma yemekle</strong> → Yoğurt</div>
+                <div style="padding:8px; background:white; border-radius:4px;">🍝 <strong>Hamur işi yemekle</strong> → Ayran</div>
+                <div style="padding:8px; background:white; border-radius:4px;">🌶️ <strong>Acılı/baharatlı yemekle</strong> → Yoğurt</div>
+              </div>
+              <p style="font-size:11px; color:var(--ink-muted); margin-top:10px; font-style:italic;">
+                Bu mantık otomatik atanır, ama yemekçi günlük menüde manuel değiştirebilir.
+              </p>
+            </div>
+          </div>
+
+          <!-- CANLI MENÜ ÖNİZLEMESİ -->
+          <div class="section">
+            <div class="section-title">🧮 Menünüzün Görünümü</div>
+
+            <div class="menu-preview-yemekci" id="menuPreviewYemekci">
+              <div class="menu-preview-yemekci-head">
+                <div>
+                  <div class="menu-preview-yemekci-title">🍽️ Standart Menünüz</div>
+                  <div class="menu-preview-yemekci-sub" id="cesitYemekciSub">6 çeşit / öğün</div>
+                </div>
+                <div class="menu-preview-yemekci-badge" id="cesitYemekciBadge">Standart</div>
+              </div>
+              <div class="menu-preview-yemekci-items" id="cesitYemekciItems">
+                <!-- JS dolduracak -->
+              </div>
+            </div>
+
+            <div class="info-box" style="margin-top:14px;">
+              <strong>ⓘ Maliyet Kaçağı Yok:</strong> Menüde olan <strong>her bileşen</strong> (sabit ayran/yoğurt dahil) toplam çeşit sayısına eklenir ve <strong>Sekme 1: Yemek Maliyeti</strong> matrisindeki ilgili hücreden okunur.
+              Örneğin yapınız "6 çeşit Genel" ise matrisin "Genel × 6+ çeşit" hücresi gerçek maliyetinizi yansıtmalıdır.
+            </div>
+            <div id="cesitUyari" class="info-box warning" style="display:none; margin-top:10px;"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-ghost" id="sifirlaBtn">Sıfırla</button>
+      <button class="btn btn-primary" id="kaydetBtn">💾 Maliyetleri Kaydet</button>
+    </div>
+
+    <!-- KAYIT ONAY ROZETİ -->
+    <div id="kayitOnay" class="kayit-onay">
+      <div class="kayit-onay-icon">✓</div>
+      <div class="kayit-onay-body">
+        <div class="kayit-onay-title">Maliyetler kaydedildi!</div>
+        <div class="kayit-onay-desc">
+          Müşteri fiyat hesaplama sayfası artık <strong>UYSA Yemek</strong>'in maliyetlerini kullanacak.
+        </div>
+        <div class="kayit-onay-actions">
+          <a href="../yemekhaneci-fiyat-hesaplama.html" target="_blank" class="kayit-link">→ Müşteri sayfasını test et</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ===== SIDEBAR: CANLI ÖNİZLEME ===== -->
+  <aside class="sidebar">
+    <div class="preview-card">
+      <div class="preview-header">
+        <h3>Canlı Fiyat Önizleme</h3>
+        <p>Maliyet değişikliklerini anında görün</p>
+      </div>
+
+      <div class="preview-body">
+        <!-- Senaryo Kontrolleri -->
+        <div class="scenario-controls">
+          <div style="font-size:11px; font-weight:700; color:var(--ink); margin-bottom:8px; text-transform:uppercase; letter-spacing:0.05em;">Test Senaryosu</div>
+          <div class="scenario-row">
+            <label>Kişi sayısı</label>
+            <input type="number" id="prevKisi" value="150" min="1">
+          </div>
+          <div class="scenario-row">
+            <label>Segment</label>
+            <select id="prevSegment">
+              <option value="ekonomik">Ekonomik</option>
+              <option value="genel" selected>Genel</option>
+              <option value="premium">Premium</option>
+            </select>
+          </div>
+          <div class="scenario-row">
+            <label>Çeşit</label>
+            <select id="prevCesit">
+              <option value="3">3 çeşit</option>
+              <option value="4" selected>4 çeşit</option>
+              <option value="5">5 çeşit</option>
+              <option value="6">6+ çeşit</option>
+            </select>
+          </div>
+          <div class="scenario-row">
+            <label>Aylık iş günü</label>
+            <input type="number" id="prevGun" value="22" min="20" max="30">
+          </div>
+        </div>
+
+        <!-- Hesaplama Detayı -->
+        <div class="preview-section">
+          <div class="preview-section-title">Birim Maliyet (öğün başı)</div>
+          <div class="preview-row"><span class="pl">Hammadde + üretim</span><span class="pv" id="prHam">— ₺</span></div>
+          <div class="preview-row"><span class="pl">Personel payı</span><span class="pv" id="prPer">— ₺</span></div>
+          <div class="preview-row"><span class="pl">Sabit gider payı</span><span class="pv" id="prSab">— ₺</span></div>
+          <div class="preview-row total"><span class="pl">Toplam birim maliyet</span><span class="pv" id="prMal">— ₺</span></div>
+        </div>
+
+        <div class="preview-section">
+          <div class="preview-section-title">Kar Marjı Detayı</div>
+          <div class="preview-row"><span class="pl">Segment marjı</span><span class="pv" id="prMs">—%</span></div>
+          <div class="preview-row"><span class="pl">Hacim ayarı</span><span class="pv" id="prMh">—%</span></div>
+          <div class="preview-row"><span class="pl">Özel düzeltme</span><span class="pv" id="prMo">—%</span></div>
+          <div class="preview-row total"><span class="pl">Nihai marj</span><span class="pv" id="prMn">—%</span></div>
+        </div>
+
+        <!-- Final -->
+        <div class="preview-final">
+          <div class="preview-final-label">Müşteriye Önerilen Fiyat</div>
+          <div class="preview-final-price" id="prFiyat">— ₺</div>
+          <div class="preview-final-unit">kişi başı / öğün</div>
+          <div class="preview-final-month">
+            Aylık tahmini ciro: <strong id="prAylik">— ₺</strong>
+          </div>
+        </div>
+
+        <div class="preview-scenario" style="margin-top:14px;">
+          <strong>ℹ️ Not:</strong> Bu önizleme yukarıdaki maliyetleri kullanır. Gerçek müşteri fiyatı, müşterinin wizard'ta belirttiği <strong>tüm parametrelere</strong> (cumartesi, kumanya, personel, mutfak yatırımı vb.) göre hesaplanır.
+        </div>
+      </div>
+    </div>
+  </aside>
+
+</div>
+
+<script>
+  // ============== STATE ==============
+  const data = {
+    yemek: {
+      ekonomik: { '3': 40, '4': 50, '5': 60, '6': 72 },
+      genel:    { '3': 60, '4': 75, '5': 92, '6': 110 },
+      premium:  { '3': 105, '4': 135, '5': 170, '6': 210 }
+    },
+    personel: {
+      ascibasi_senior: 48000,
+      asci_senior: 35000,
+      asci_junior: 25000,
+      yardimci: 20000,
+      servis_senior: 28000,
+      servis_junior: 22000,
+      bulasik: 20000,
+      sofor: 26000,
+      operasyon: 32000
+    },
+    sablon: {
+      // 100 kişilik sipariş için varsayılan
+      asci: 2,
+      yardimci: 1,
+      servis: 3,
+      bulasik: 1,
+      lojistik: 1
+    },
+    sabit: {
+      kira: 45000,
+      enerji: 22000,
+      arac: 18000,
+      sigorta: 4500,
+      muhasebe: 6000,
+      dijital: 3500,
+      diger: 8000
+    },
+    sabitOran: 15, // %
+    mutfak: {
+      ocak: 55000, firin: 78000, bulasik: 42000, dolap: 32000,
+      depo: 18000, davlumbaz: 38000, yemekhane: 95000, hat: 48000
+    },
+    amortismanAy: 24,
+    marj: {
+      ekonomik: 18,
+      genel: 25,
+      premium: 35,
+      hacim: { '100': -2, '200': -4, '500': -7 },
+      ozel: 0
+    }
+  };
+
+  // ============== TAB SWITCHING ==============
+  document.querySelectorAll('.tab-nav button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-nav button').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelector(`[data-pane="${btn.dataset.tab}"]`).classList.add('active');
+    });
+  });
+
+  // ============== INPUT HANDLERS ==============
+  // Yemek matrisi
+  document.querySelectorAll('[data-seg]').forEach(input => {
+    input.addEventListener('input', () => {
+      data.yemek[input.dataset.seg][input.dataset.cesit] = parseFloat(input.value) || 0;
+      hesapla();
+    });
+  });
+
+  // Personel
+  document.querySelectorAll('[data-personel]').forEach(input => {
+    input.addEventListener('input', () => {
+      data.personel[input.dataset.personel] = parseFloat(input.value) || 0;
+      hesapla();
+    });
+  });
+
+  // Şablon personel
+  document.querySelectorAll('[data-sablon]').forEach(input => {
+    input.addEventListener('input', () => {
+      data.sablon[input.dataset.sablon] = parseFloat(input.value) || 0;
+      hesapla();
+    });
+  });
+
+  // Sabit giderler
+  document.querySelectorAll('[data-sabit]').forEach(input => {
+    input.addEventListener('input', () => {
+      data.sabit[input.dataset.sabit] = parseFloat(input.value) || 0;
+      hesapla();
+    });
+  });
+
+  // Sabit oran slider
+  const sabitOranEl = document.getElementById('sabitOran');
+  sabitOranEl.addEventListener('input', () => {
+    data.sabitOran = parseInt(sabitOranEl.value);
+    document.getElementById('sabitOranVal').textContent = data.sabitOran + '%';
+    hesapla();
+  });
+
+  // Mutfak
+  document.querySelectorAll('[data-mutfak]').forEach(input => {
+    input.addEventListener('input', () => {
+      data.mutfak[input.dataset.mutfak] = parseFloat(input.value) || 0;
+      hesapla();
+    });
+  });
+
+  // Amortisman
+  const amortismanEl = document.getElementById('amortismanAy');
+  amortismanEl.addEventListener('input', () => {
+    data.amortismanAy = parseInt(amortismanEl.value);
+    document.getElementById('amortismanVal').textContent = data.amortismanAy + ' ay';
+    hesapla();
+  });
+
+  // Kar marjı sliderları
+  ['Eko', 'Gen', 'Pre'].forEach(seg => {
+    const el = document.getElementById('marj' + seg);
+    el.addEventListener('input', () => {
+      const key = { Eko: 'ekonomik', Gen: 'genel', Pre: 'premium' }[seg];
+      data.marj[key] = parseInt(el.value);
+      document.getElementById('marj' + seg + 'Val').textContent = el.value + '%';
+      hesapla();
+    });
+  });
+
+  // Hacim
+  ['100', '200', '500'].forEach(h => {
+    const el = document.getElementById('hacim' + h);
+    el.addEventListener('input', () => {
+      data.marj.hacim[h] = parseFloat(el.value) || 0;
+      hesapla();
+    });
+  });
+
+  // Özel marj
+  const ozelEl = document.getElementById('marjOzel');
+  ozelEl.addEventListener('input', () => {
+    data.marj.ozel = parseInt(ozelEl.value);
+    document.getElementById('marjOzelVal').textContent =
+      (data.marj.ozel >= 0 ? '+' : '') + data.marj.ozel + '%';
+    hesapla();
+  });
+
+  // Senaryo kontrolleri
+  ['prevKisi', 'prevSegment', 'prevCesit', 'prevGun'].forEach(id => {
+    document.getElementById(id).addEventListener('input', hesapla);
+  });
+
+  // ============== ANA HESAPLAMA FORMÜLÜ ==============
+  function hesapla() {
+    // Senaryo değerleri
+    const kisi = parseInt(document.getElementById('prevKisi').value) || 0;
+    const segment = document.getElementById('prevSegment').value;
+    const cesit = document.getElementById('prevCesit').value;
+    const isGunu = parseInt(document.getElementById('prevGun').value) || 22;
+
+    if (kisi <= 0) return;
+
+    // ADIM 1: Yemek (hammadde) maliyeti
+    const yemekMaliyeti = data.yemek[segment][cesit];
+
+    // ADIM 2: Personel maliyeti dağıtımı
+    // Şablon: 100 kişi için kaç personel - bu ölçeklendirilir
+    const olcek = kisi / 100;
+    const sipPers = {
+      asci: Math.ceil(data.sablon.asci * olcek),
+      yardimci: Math.ceil(data.sablon.yardimci * olcek),
+      servis: Math.ceil(data.sablon.servis * olcek),
+      bulasik: Math.ceil(data.sablon.bulasik * olcek),
+      lojistik: Math.ceil(data.sablon.lojistik * olcek)
+    };
+
+    // Personel ortalama maliyetleri (junior+senior karışımı)
+    const ortPersMaliyet = {
+      asci: (data.personel.asci_senior + data.personel.asci_junior) / 2,
+      yardimci: data.personel.yardimci,
+      servis: (data.personel.servis_senior + data.personel.servis_junior) / 2,
+      bulasik: data.personel.bulasik,
+      lojistik: (data.personel.sofor + data.personel.operasyon) / 2
+    };
+
+    let aylikPersMaliyet = 0;
+    Object.keys(sipPers).forEach(k => {
+      aylikPersMaliyet += sipPers[k] * ortPersMaliyet[k];
+    });
+
+    // Aylık toplam öğün
+    const aylikOgun = kisi * isGunu;
+    const personelPerOgun = aylikPersMaliyet / aylikOgun;
+
+    // ADIM 3: Sabit gider dağıtımı (manuel oran)
+    const aylikSabit = Object.values(data.sabit).reduce((a, b) => a + b, 0);
+    const sabitPay = aylikSabit * (data.sabitOran / 100);
+    const sabitPerOgun = sabitPay / aylikOgun;
+
+    // ADIM 4: Mutfak yatırım (önizlemede dahil etmiyoruz, çünkü senaryoda yok)
+    // (Gerçek wizard'da müşteri hangi ekipmanı seçtiyse o eklenir)
+
+    // ADIM 5: Birim maliyet
+    const birimMaliyet = yemekMaliyeti + personelPerOgun + sabitPerOgun;
+
+    // ADIM 6: Marj hesabı
+    const segMarj = data.marj[segment];
+    let hacimMarj = 0;
+    if (kisi >= 500) hacimMarj = data.marj.hacim['500'];
+    else if (kisi >= 200) hacimMarj = data.marj.hacim['200'];
+    else if (kisi >= 100) hacimMarj = data.marj.hacim['100'];
+    const ozelMarj = data.marj.ozel;
+    const nihaiMarj = segMarj + hacimMarj + ozelMarj;
+
+    // ADIM 7: Satış fiyatı
+    const satisFiyati = birimMaliyet * (1 + nihaiMarj / 100);
+
+    // ADIM 8: Aylık ciro
+    const aylikCiro = satisFiyati * aylikOgun;
+
+    // ============== EKRANI GÜNCELLE ==============
+    const fmt = (n) => n.toLocaleString('tr-TR', { maximumFractionDigits: 2, minimumFractionDigits: 2 });
+    const fmt0 = (n) => Math.round(n).toLocaleString('tr-TR');
+
+    document.getElementById('prHam').textContent = fmt(yemekMaliyeti) + ' ₺';
+    document.getElementById('prPer').textContent = fmt(personelPerOgun) + ' ₺';
+    document.getElementById('prSab').textContent = fmt(sabitPerOgun) + ' ₺';
+    document.getElementById('prMal').textContent = fmt(birimMaliyet) + ' ₺';
+
+    document.getElementById('prMs').textContent = (segMarj >= 0 ? '+' : '') + segMarj + '%';
+    document.getElementById('prMh').textContent = (hacimMarj >= 0 ? '+' : '') + hacimMarj + '%';
+    document.getElementById('prMo').textContent = (ozelMarj >= 0 ? '+' : '') + ozelMarj + '%';
+    document.getElementById('prMn').textContent = (nihaiMarj >= 0 ? '+' : '') + nihaiMarj + '%';
+
+    document.getElementById('prFiyat').textContent = fmt(satisFiyati) + ' ₺';
+    document.getElementById('prAylik').textContent = fmt0(aylikCiro) + ' ₺';
+  }
+
+  // ============== MENÜ ŞABLONU MANTIĞI ==============
+  const menuState = {
+    salataAdet: 1,
+    salataManuel: { salata: 0, zeytinyagli: 0, meze: 0, yardimci: 0 },
+    tatliAktif: true,
+    tatliSecenekler: { tatli: true, meyve: true, mesrubat: true },
+    ayranTip: 'menuye-gore'
+  };
+
+  // Salata bar - otomatik dağılım kuralları
+  function salataDagilimHesapla(adet) {
+    const kural = {
+      1: { salata: 1, zeytinyagli: 0, meze: 0, yardimci: 0 },
+      2: { salata: 1, zeytinyagli: 1, meze: 0, yardimci: 0 },
+      3: { salata: 2, zeytinyagli: 1, meze: 0, yardimci: 0 },
+      4: { salata: 2, zeytinyagli: 1, meze: 1, yardimci: 0 }
+    };
+    return kural[adet] || null;
+  }
+
+  function salataDagilimGoster() {
+    const adet = parseInt(document.getElementById('salataAdet').value) || 1;
+    menuState.salataAdet = adet;
+    const dagilimEl = document.getElementById('salataDagilim');
+    const manuelEl = document.getElementById('salataManuel');
+
+    if (adet <= 4) {
+      const dag = salataDagilimHesapla(adet);
+      menuState.salataManuel = dag;
+      manuelEl.style.display = 'none';
+
+      const items = [];
+      if (dag.salata) items.push(`🥬 ${dag.salata} Salata`);
+      if (dag.zeytinyagli) items.push(`🫒 ${dag.zeytinyagli} Zeytinyağlı`);
+      if (dag.meze) items.push(`🧆 ${dag.meze} Meze`);
+
+      dagilimEl.innerHTML = `
+        <div class="dag-title">⚙️ Otomatik Dağılım (${adet} çeşit)</div>
+        <div class="dag-items">
+          ${items.map(i => `<span class="dag-item">${i}</span>`).join('')}
+        </div>
+      `;
+    } else {
+      manuelEl.style.display = 'block';
+      // Default önerilen dağılım: 5+ için akıllı varsayım
+      const onerilen = {
+        salata: Math.ceil(adet * 0.4),
+        zeytinyagli: Math.floor(adet * 0.3),
+        meze: Math.floor(adet * 0.2),
+        yardimci: 0
+      };
+      const fark = adet - (onerilen.salata + onerilen.zeytinyagli + onerilen.meze);
+      onerilen.yardimci = Math.max(0, fark);
+
+      // Inputları doldur (sadece ilk açılışta)
+      if (parseInt(document.querySelector('[data-tip="salata"]').value) === 0) {
+        document.querySelector('[data-tip="salata"]').value = onerilen.salata;
+        document.querySelector('[data-tip="zeytinyagli"]').value = onerilen.zeytinyagli;
+        document.querySelector('[data-tip="meze"]').value = onerilen.meze;
+        document.querySelector('[data-tip="yardimci"]').value = onerilen.yardimci;
+        menuState.salataManuel = onerilen;
+      }
+
+      manuelToplamGuncelle();
+
+      dagilimEl.innerHTML = `
+        <div class="dag-title">📝 Manuel Dağılım (${adet} çeşit) — Aşağıdan girin</div>
+      `;
+    }
+
+    cesitToplamGuncelle();
+  }
+
+  function manuelToplamGuncelle() {
+    const t = ['salata', 'zeytinyagli', 'meze', 'yardimci'].reduce((sum, k) => {
+      const v = parseInt(document.querySelector(`[data-tip="${k}"]`).value) || 0;
+      menuState.salataManuel[k] = v;
+      return sum + v;
+    }, 0);
+    const target = menuState.salataAdet;
+    const el = document.getElementById('manuelToplam');
+    if (t === target) {
+      el.style.background = 'var(--success-light)';
+      el.innerHTML = `Toplam: <strong>${t}</strong> çeşit ✓ (hedef ${target})`;
+    } else {
+      el.style.background = '#FFF3E0';
+      el.innerHTML = `Toplam: <strong>${t}</strong> çeşit ⚠️ (hedef ${target}, fark ${target - t})`;
+    }
+  }
+
+  document.getElementById('salataAdet').addEventListener('input', salataDagilimGoster);
+  document.querySelectorAll('.manuel-salata').forEach(inp => {
+    inp.addEventListener('input', () => {
+      manuelToplamGuncelle();
+      cesitToplamGuncelle();
+    });
+  });
+
+  // Tatlı toggle
+  document.querySelectorAll('[data-tatli-toggle]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-tatli-toggle]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      menuState.tatliAktif = btn.dataset.tatliToggle === 'evet';
+      document.getElementById('tatliDetay').style.display = menuState.tatliAktif ? 'block' : 'none';
+      document.getElementById('cesitTatliRow').style.display = menuState.tatliAktif ? 'flex' : 'none';
+      cesitToplamGuncelle();
+    });
+  });
+
+  // Tatlı checkboxları
+  document.querySelectorAll('[data-tatli]').forEach(cb => {
+    cb.addEventListener('change', () => {
+      menuState.tatliSecenekler[cb.dataset.tatli] = cb.checked;
+      const sayi = Object.values(menuState.tatliSecenekler).filter(Boolean).length;
+      document.getElementById('tatliDagilimText').textContent =
+        `Seçili: ${sayi} seçenek → ${sayi > 0 ? 'haftalık rotasyonda kullanılır' : '⚠️ en az 1 seçenek seçin'}`;
+      cesitToplamGuncelle();
+    });
+  });
+
+  // Ayran toggle
+  document.querySelectorAll('[data-ayran]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-ayran]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      menuState.ayranTip = btn.dataset.ayran;
+
+      const detay = document.getElementById('ayranDetay');
+      if (btn.dataset.ayran === 'menuye-gore') {
+        detay.style.display = 'block';
+      } else {
+        detay.style.display = 'none';
+      }
+
+      // "Sabit ikisi" durumu çeşit sayısını 2 yapar
+      cesitToplamGuncelle();
+    });
+  });
+
+  // Toplam çeşit hesapla — MALİYET KAÇAĞI OLMASIN — pill-based preview
+  function cesitToplamGuncelle() {
+    let toplam = 3; // sabit: çorba + ana + yardımcı yemek
+    const pills = [];
+
+    // Sabit bileşenler (görsel olarak gösterilir, çeşit sayısına da dahil)
+    pills.push({ icon: '🥣', text: 'Çorba', fixed: true });
+    pills.push({ icon: '🍖', text: 'Ana yemek', fixed: true });
+    pills.push({ icon: '🍚', text: 'Pilav/Makarna', fixed: true });
+    pills.push({ icon: '🍞', text: 'Ekmek', fixed: true });
+
+    // Salata bar — manuel veya otomatik dağılımı pill olarak göster
+    const salataAdet = menuState.salataAdet || 1;
+    if (salataAdet <= 4) {
+      const dag = salataDagilimHesapla(salataAdet);
+      if (dag) {
+        if (dag.salata) pills.push({ icon: '🥬', text: dag.salata > 1 ? `${dag.salata} Salata` : 'Salata' });
+        if (dag.zeytinyagli) pills.push({ icon: '🫒', text: dag.zeytinyagli > 1 ? `${dag.zeytinyagli} Zeytinyağlı` : 'Zeytinyağlı' });
+        if (dag.meze) pills.push({ icon: '🧆', text: dag.meze > 1 ? `${dag.meze} Meze` : 'Meze' });
+      }
+    } else {
+      // Manuel dağılım — kullanıcının girdikleri
+      const m = menuState.salataManuel;
+      if (m.salata > 0) pills.push({ icon: '🥬', text: m.salata > 1 ? `${m.salata} Salata` : 'Salata' });
+      if (m.zeytinyagli > 0) pills.push({ icon: '🫒', text: m.zeytinyagli > 1 ? `${m.zeytinyagli} Zeytinyağlı` : 'Zeytinyağlı' });
+      if (m.meze > 0) pills.push({ icon: '🧆', text: m.meze > 1 ? `${m.meze} Meze` : 'Meze' });
+      if (m.yardimci > 0) pills.push({ icon: '🌾', text: m.yardimci > 1 ? `${m.yardimci} Kısır/Salata` : 'Kısır/Salata' });
+    }
+    toplam += salataAdet;
+
+    // Tatlı/Meyve/Meşrubat — en az 1 seçenek olmalı
+    if (menuState.tatliAktif) {
+      const secenekSayisi = Object.values(menuState.tatliSecenekler).filter(Boolean).length;
+      if (secenekSayisi > 0) {
+        // Hangi seçeneklerin aktif olduğunu detaylı göster
+        const aktifler = [];
+        if (menuState.tatliSecenekler.tatli) aktifler.push('Tatlı');
+        if (menuState.tatliSecenekler.meyve) aktifler.push('Meyve');
+        if (menuState.tatliSecenekler.mesrubat) aktifler.push('Meşrubat');
+        pills.push({ icon: '🍰', text: aktifler.join('/') });
+        toplam += 1;
+      }
+    }
+
+    // Ayran/Yoğurt — HİÇBİR DURUMDA SIFIR DEĞİL
+    let ayranCesit = 1;
+    if (menuState.ayranTip === 'ikisi') {
+      pills.push({ icon: '🥛', text: 'Ayran' });
+      pills.push({ icon: '🥣', text: 'Yoğurt' });
+      ayranCesit = 2;
+    } else if (menuState.ayranTip === 'sabit-yogurt') {
+      pills.push({ icon: '🥛', text: 'Yoğurt' });
+    } else if (menuState.ayranTip === 'menuye-gore') {
+      pills.push({ icon: '🥛', text: 'Ayran/Yoğurt rotasyon' });
+    } else {
+      pills.push({ icon: '🥛', text: 'Ayran' });
+    }
+    toplam += ayranCesit;
+
+    // UI: pill'leri yaz
+    const itemsEl = document.getElementById('cesitYemekciItems');
+    if (itemsEl) {
+      itemsEl.innerHTML = pills.map(p =>
+        `<span class="menu-preview-yemekci-pill ${p.fixed ? 'fixed' : ''}">${p.icon} ${p.text}</span>`
+      ).join('');
+    }
+
+    // Üst başlık
+    const subEl = document.getElementById('cesitYemekciSub');
+    if (subEl) subEl.textContent = `${toplam} çeşit / öğün`;
+
+    // Badge: çeşit sayısına göre seviye
+    const badge = document.getElementById('cesitYemekciBadge');
+    if (badge) {
+      if (toplam <= 4) { badge.textContent = 'Sade'; badge.style.background = 'var(--ink-soft)'; }
+      else if (toplam <= 5) { badge.textContent = 'Ekonomik'; badge.style.background = 'var(--success)'; }
+      else if (toplam <= 6) { badge.textContent = 'Standart'; badge.style.background = 'var(--info)'; }
+      else if (toplam <= 7) { badge.textContent = 'Zengin'; badge.style.background = 'var(--brand-primary)'; }
+      else { badge.textContent = 'Premium'; badge.style.background = 'var(--purple, #6B46C1)'; }
+    }
+
+    // Maliyet matrisi uyarısı: 6'dan büyükse uyar
+    const uyariEl = document.getElementById('cesitUyari');
+    if (uyariEl) {
+      if (toplam > 6) {
+        uyariEl.style.display = 'block';
+        uyariEl.innerHTML = `⚠️ <strong>Toplam ${toplam} çeşit</strong>: Maliyet matrisinde "6+ çeşit" sütunu kullanılır. Daha doğru fiyatlama için matristeki "6+ çeşit" hücrelerini gerçek maliyetinize göre güncelleyin.`;
+      } else {
+        uyariEl.style.display = 'none';
+      }
+    }
+  }
+
+  // ============== LOCALSTORAGE KAYIT/YÜKLE ==============
+  // Köprü: Yemekçi paneli ↔ Müşteri wizard
+  const STORAGE_KEY = 'yemekhaneci_yemekci_maliyetleri';
+
+  function maliyetleriKaydet() {
+    const tumVeri = {
+      yemekci: 'UYSA Yemek',  // Demo: tek yemekçi
+      kayitTarihi: new Date().toISOString(),
+      data: data,           // tüm maliyet matrisi, personel, sabit, mutfak, marj
+      menuState: menuState  // menü şablonu
+    };
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(tumVeri));
+      const onayEl = document.getElementById('kayitOnay');
+      onayEl.classList.add('visible');
+      // 8 saniye sonra otomatik gizle
+      clearTimeout(window._onayTimer);
+      window._onayTimer = setTimeout(() => onayEl.classList.remove('visible'), 8000);
+      // Aşağı scroll
+      setTimeout(() => onayEl.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+    } catch (e) {
+      alert('Kaydetme sırasında hata oluştu: ' + e.message);
+    }
+  }
+
+  function maliyetleriYukle() {
+    try {
+      const ham = localStorage.getItem(STORAGE_KEY);
+      if (!ham) return false;
+      const tumVeri = JSON.parse(ham);
+      if (tumVeri.data) Object.assign(data, tumVeri.data);
+      if (tumVeri.menuState) Object.assign(menuState, tumVeri.menuState);
+      // UI'ı güncelle (input'ları doldur)
+      uiYansit();
+      return true;
+    } catch (e) {
+      console.error('Yükleme hatası:', e);
+      return false;
+    }
+  }
+
+  function uiYansit() {
+    // Yemek matrisi
+    Object.entries(data.yemek).forEach(([seg, cesits]) => {
+      Object.entries(cesits).forEach(([c, v]) => {
+        const el = document.querySelector(`[data-seg="${seg}"][data-cesit="${c}"]`);
+        if (el) el.value = v;
+      });
+    });
+    // Personel
+    Object.entries(data.personel).forEach(([k, v]) => {
+      const el = document.querySelector(`[data-personel="${k}"]`);
+      if (el) el.value = v;
+    });
+    // Şablon
+    Object.entries(data.sablon).forEach(([k, v]) => {
+      const el = document.querySelector(`[data-sablon="${k}"]`);
+      if (el) el.value = v;
+    });
+    // Sabit
+    Object.entries(data.sabit).forEach(([k, v]) => {
+      const el = document.querySelector(`[data-sabit="${k}"]`);
+      if (el) el.value = v;
+    });
+    // Sabit oran
+    document.getElementById('sabitOran').value = data.sabitOran;
+    document.getElementById('sabitOranVal').textContent = data.sabitOran + '%';
+    // Mutfak
+    Object.entries(data.mutfak).forEach(([k, v]) => {
+      const el = document.querySelector(`[data-mutfak="${k}"]`);
+      if (el) el.value = v;
+    });
+    // Amortisman
+    document.getElementById('amortismanAy').value = data.amortismanAy;
+    document.getElementById('amortismanVal').textContent = data.amortismanAy + ' ay';
+    // Marj
+    document.getElementById('marjEko').value = data.marj.ekonomik;
+    document.getElementById('marjEkoVal').textContent = data.marj.ekonomik + '%';
+    document.getElementById('marjGen').value = data.marj.genel;
+    document.getElementById('marjGenVal').textContent = data.marj.genel + '%';
+    document.getElementById('marjPre').value = data.marj.premium;
+    document.getElementById('marjPreVal').textContent = data.marj.premium + '%';
+    document.getElementById('hacim100').value = data.marj.hacim['100'];
+    document.getElementById('hacim200').value = data.marj.hacim['200'];
+    document.getElementById('hacim500').value = data.marj.hacim['500'];
+    document.getElementById('marjOzel').value = data.marj.ozel;
+    document.getElementById('marjOzelVal').textContent =
+      (data.marj.ozel >= 0 ? '+' : '') + data.marj.ozel + '%';
+  }
+
+  function maliyetleriSifirla() {
+    if (!confirm('Tüm maliyetler varsayılan değerlere sıfırlanacak. Devam edilsin mi?')) return;
+    localStorage.removeItem(STORAGE_KEY);
+    location.reload();
+  }
+
+  // Buton bağlantıları
+  document.getElementById('kaydetBtn').addEventListener('click', maliyetleriKaydet);
+  document.getElementById('sifirlaBtn').addEventListener('click', maliyetleriSifirla);
+
+  // Sayfa açılışında kayıtlı veriyi yükle
+  const yuklendi = maliyetleriYukle();
+  if (yuklendi) {
+    console.log('✓ Kayıtlı maliyetler yüklendi');
+  }
+
+  // İlk yükleme
+  hesapla();
+  salataDagilimGoster();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1716 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yemekhaneci.com.tr — Yönetici Paneli</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --brand-primary: #6B1F2A;
+    --brand-primary-soft: #8B2635;
+    --brand-accent: #C9A961;
+    --brand-cream: #FAF6F0;
+    --brand-cream-dark: #F0E9DD;
+    --ink: #1F1815;
+    --ink-soft: #5A4A42;
+    --ink-muted: #8B7E76;
+    --line: #E5DCD0;
+    --line-strong: #D4C9B8;
+
+    --bg-app: #F7F3ED;
+    --bg-sidebar: #2A1F1B;
+    --bg-sidebar-hover: #3A2A24;
+    --bg-sidebar-active: var(--brand-primary);
+    --sidebar-text: #D4C9B8;
+    --sidebar-text-active: #fff;
+    --sidebar-text-muted: #8B7B6F;
+
+    --success: #2F6B4A;
+    --success-light: #E8F5E9;
+    --warning: #C9882B;
+    --warning-light: #FFF3E0;
+    --danger: #C53030;
+    --danger-light: #FED7D7;
+    --info: #1B5E7C;
+    --info-light: #E1F0F4;
+    --purple: #6B46C1;
+    --purple-light: #EDE7F6;
+
+    --shadow-xs: 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-sm: 0 2px 8px rgba(107, 31, 42, 0.06);
+    --shadow-md: 0 8px 24px rgba(107, 31, 42, 0.10);
+    --shadow-lg: 0 20px 48px rgba(107, 31, 42, 0.15);
+  }
+
+  body {
+    font-family: 'Manrope', -apple-system, sans-serif;
+    background: var(--bg-app);
+    color: var(--ink);
+    line-height: 1.5;
+    overflow-x: hidden;
+  }
+
+  /* ============== APP LAYOUT ============== */
+  .app {
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ============== SIDEBAR ============== */
+  .sidebar {
+    width: 240px;
+    background: var(--bg-sidebar);
+    color: var(--sidebar-text);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    height: 100vh;
+    overflow-y: auto;
+    z-index: 100;
+    transition: transform 0.3s;
+  }
+  .sidebar::-webkit-scrollbar { width: 6px; }
+  .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+
+  .sidebar-brand {
+    padding: 22px 22px 18px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .brand-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: white;
+    letter-spacing: -0.01em;
+  }
+  .brand-logo .dot { color: var(--brand-accent); }
+  .brand-tag {
+    font-size: 10px;
+    color: var(--sidebar-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-top: 2px;
+    font-weight: 600;
+  }
+
+  .sidebar-section {
+    padding: 14px 16px 4px;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--sidebar-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .sidebar-nav {
+    list-style: none;
+    padding: 4px 8px;
+  }
+  .sidebar-nav li {
+    margin-bottom: 1px;
+  }
+  .sidebar-nav a {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 9px 12px;
+    color: var(--sidebar-text);
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.15s;
+    cursor: pointer;
+  }
+  .sidebar-nav a:hover {
+    background: var(--bg-sidebar-hover);
+    color: white;
+  }
+  .sidebar-nav a.active {
+    background: var(--bg-sidebar-active);
+    color: white;
+    font-weight: 600;
+  }
+  .sidebar-nav .nav-icon {
+    font-size: 16px;
+    width: 20px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .sidebar-nav .nav-badge {
+    margin-left: auto;
+    background: var(--brand-accent);
+    color: var(--ink);
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 10px;
+  }
+  .sidebar-nav .nav-badge.danger { background: var(--danger); color: white; }
+  .sidebar-nav .nav-badge.warning { background: var(--warning); color: white; }
+
+  .sidebar-footer {
+    margin-top: auto;
+    padding: 14px 16px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    background: rgba(0,0,0,0.2);
+  }
+  .sidebar-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .sidebar-user .avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--brand-primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+  .sidebar-user-info { flex: 1; min-width: 0; }
+  .sidebar-user-name {
+    font-size: 13px;
+    color: white;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .sidebar-user-role {
+    font-size: 11px;
+    color: var(--sidebar-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* ============== MAIN ============== */
+  .main {
+    flex: 1;
+    margin-left: 240px;
+    min-height: 100vh;
+  }
+
+  .topbar {
+    background: white;
+    border-bottom: 1px solid var(--line);
+    padding: 14px 28px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    box-shadow: var(--shadow-xs);
+  }
+  .mobile-menu-btn {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 22px;
+    color: var(--ink);
+    cursor: pointer;
+    padding: 4px;
+  }
+  .topbar-search {
+    flex: 1;
+    max-width: 400px;
+    position: relative;
+  }
+  .topbar-search input {
+    width: 100%;
+    padding: 9px 14px 9px 36px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    font-size: 13px;
+    background: var(--bg-app);
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+  .topbar-search input:focus {
+    outline: none;
+    background: white;
+    border-color: var(--brand-primary);
+  }
+  .topbar-search::before {
+    content: '🔍';
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 14px;
+    opacity: 0.5;
+  }
+
+  .topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-left: auto;
+  }
+  .icon-btn {
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--line);
+    background: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.15s;
+    position: relative;
+  }
+  .icon-btn:hover { background: var(--bg-app); border-color: var(--brand-primary); }
+  .icon-btn .dot-notif {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 8px;
+    height: 8px;
+    background: var(--danger);
+    border: 2px solid white;
+    border-radius: 50%;
+  }
+
+  /* ============== CONTENT ============== */
+  .content {
+    padding: 24px 28px;
+  }
+
+  .page-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .page-head h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 30px;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.2;
+    margin-bottom: 2px;
+    letter-spacing: -0.01em;
+  }
+  .page-head p {
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+  .page-head-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    padding: 9px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-primary {
+    background: var(--brand-primary);
+    color: white;
+  }
+  .btn-primary:hover { background: var(--brand-primary-soft); transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+  .btn-ghost {
+    background: white;
+    color: var(--brand-primary);
+    border: 1px solid var(--line);
+  }
+  .btn-ghost:hover { background: var(--bg-app); border-color: var(--brand-primary); }
+  .btn-success { background: var(--success); color: white; }
+  .btn-success:hover { background: #245A3B; }
+  .btn-danger { background: var(--danger); color: white; }
+
+  /* ============== KPI CARDS ============== */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px;
+    margin-bottom: 22px;
+  }
+  .kpi-card {
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 16px 18px;
+    transition: all 0.2s;
+  }
+  .kpi-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
+  .kpi-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .kpi-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .kpi-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+  .kpi-icon.green { background: var(--success-light); }
+  .kpi-icon.blue { background: var(--info-light); }
+  .kpi-icon.orange { background: var(--warning-light); }
+  .kpi-icon.purple { background: var(--purple-light); }
+  .kpi-icon.red { background: var(--danger-light); }
+
+  .kpi-value {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1;
+    margin-bottom: 6px;
+    letter-spacing: -0.01em;
+  }
+  .kpi-trend {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .kpi-trend.up { color: var(--success); }
+  .kpi-trend.down { color: var(--danger); }
+  .kpi-trend-period {
+    color: var(--ink-muted);
+    font-weight: 500;
+  }
+
+  /* ============== GRID LAYOUT ============== */
+  .row {
+    display: grid;
+    gap: 16px;
+    margin-bottom: 22px;
+  }
+  .row.two { grid-template-columns: 2fr 1fr; }
+  .row.three { grid-template-columns: 1fr 1fr 1fr; }
+  @media (max-width: 1024px) {
+    .row.two, .row.three { grid-template-columns: 1fr; }
+  }
+
+  /* ============== CARD ============== */
+  .card {
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .card-head {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .card-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .card-sub {
+    font-size: 12px;
+    color: var(--ink-muted);
+    margin-top: 2px;
+  }
+  .card-body { padding: 18px; }
+  .card-body.flush { padding: 0; }
+
+  /* ============== CHART ============== */
+  .chart-container {
+    height: 250px;
+    position: relative;
+  }
+  .chart-svg {
+    width: 100%;
+    height: 100%;
+  }
+  .chart-legend {
+    display: flex;
+    gap: 16px;
+    margin-top: 8px;
+    font-size: 11px;
+  }
+  .chart-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--ink-soft);
+  }
+  .chart-legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+  }
+
+  /* ============== TABLE ============== */
+  .table-wrap {
+    overflow-x: auto;
+  }
+  table.data {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  table.data thead {
+    background: var(--bg-app);
+  }
+  table.data th {
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--line-strong);
+  }
+  table.data td {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--line);
+    color: var(--ink);
+    vertical-align: middle;
+  }
+  table.data tr:last-child td { border-bottom: none; }
+  table.data tr:hover { background: rgba(107, 31, 42, 0.02); }
+
+  .num { font-family: 'JetBrains Mono', monospace; }
+  .muted { color: var(--ink-muted); }
+
+  /* Status badges */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 9px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .badge.success { background: var(--success-light); color: var(--success); }
+  .badge.warning { background: var(--warning-light); color: var(--warning); }
+  .badge.danger { background: var(--danger-light); color: var(--danger); }
+  .badge.info { background: var(--info-light); color: var(--info); }
+  .badge.purple { background: var(--purple-light); color: var(--purple); }
+  .badge.muted { background: var(--bg-app); color: var(--ink-soft); }
+
+  /* User cell */
+  .user-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .user-cell .avatar-sm {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--brand-cream-dark);
+    color: var(--brand-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 11px;
+    flex-shrink: 0;
+  }
+  .user-cell-info { line-height: 1.3; min-width: 0; }
+  .user-cell-name {
+    font-weight: 600;
+    color: var(--ink);
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .user-cell-meta {
+    font-size: 11px;
+    color: var(--ink-muted);
+  }
+
+  /* Action buttons */
+  .row-actions {
+    display: flex;
+    gap: 4px;
+  }
+  .row-action {
+    width: 28px;
+    height: 28px;
+    border: 1px solid var(--line);
+    background: white;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+  .row-action:hover { border-color: var(--brand-primary); background: var(--bg-app); }
+  .row-action.danger:hover { border-color: var(--danger); background: var(--danger-light); }
+
+  /* ============== ACTIVITY FEED ============== */
+  .activity-list {
+    list-style: none;
+  }
+  .activity-item {
+    display: flex;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .activity-item:last-child { border-bottom: none; }
+  .activity-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .activity-content { flex: 1; min-width: 0; }
+  .activity-text {
+    font-size: 13px;
+    color: var(--ink);
+    line-height: 1.4;
+  }
+  .activity-text strong { color: var(--brand-primary); font-weight: 600; }
+  .activity-time {
+    font-size: 11px;
+    color: var(--ink-muted);
+    margin-top: 2px;
+  }
+
+  /* ============== FILTER BAR ============== */
+  .filter-bar {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+    padding: 12px;
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    align-items: center;
+  }
+  .filter-bar select, .filter-bar input {
+    padding: 7px 12px;
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    font-size: 13px;
+    background: white;
+    font-family: inherit;
+    color: var(--ink);
+  }
+  .filter-bar input { flex: 1; min-width: 200px; }
+  .filter-bar select:focus, .filter-bar input:focus {
+    outline: none;
+    border-color: var(--brand-primary);
+  }
+
+  /* ============== PAGE VIEWS (TABS) ============== */
+  .page-view { display: none; }
+  .page-view.active { display: block; animation: fadeIn 0.2s; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* Empty states */
+  .empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--ink-muted);
+  }
+  .empty-icon {
+    font-size: 36px;
+    margin-bottom: 12px;
+    opacity: 0.4;
+  }
+
+  /* ============== RESPONSIVE ============== */
+  @media (max-width: 768px) {
+    .sidebar {
+      transform: translateX(-100%);
+    }
+    .sidebar.open {
+      transform: translateX(0);
+      box-shadow: 0 0 30px rgba(0,0,0,0.3);
+    }
+    .main { margin-left: 0; }
+    .mobile-menu-btn { display: block; }
+    .content { padding: 16px; }
+    .topbar { padding: 12px 16px; }
+    .topbar-search { display: none; }
+  }
+
+  /* ============== TOAST ============== */
+  .toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: var(--ink);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 6px;
+    font-size: 13px;
+    box-shadow: var(--shadow-lg);
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.3s;
+    z-index: 200;
+  }
+  .toast.show {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  .toast.success { background: var(--success); }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ========== SIDEBAR ========== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-logo">Yemekhaneci<span class="dot">.</span></div>
+      <div class="brand-tag">Yönetim Paneli</div>
+    </div>
+
+    <div class="sidebar-section">Genel</div>
+    <ul class="sidebar-nav">
+      <li><a class="nav-link active" data-page="dashboard"><span class="nav-icon">📊</span> Dashboard</a></li>
+      <li><a class="nav-link" data-page="aktivite"><span class="nav-icon">📡</span> Canlı Aktivite</a></li>
+    </ul>
+
+    <div class="sidebar-section">Operasyon</div>
+    <ul class="sidebar-nav">
+      <li><a class="nav-link" data-page="onaylar"><span class="nav-icon">✅</span> Yemekçi Onayları <span class="nav-badge warning">7</span></a></li>
+      <li><a class="nav-link" data-page="kullanicilar"><span class="nav-icon">👥</span> Kullanıcılar</a></li>
+      <li><a class="nav-link" data-page="yemekciler"><span class="nav-icon">🍳</span> Yemekçiler</a></li>
+      <li><a class="nav-link" data-page="siparisler"><span class="nav-icon">📦</span> Siparişler</a></li>
+      <li><a class="nav-link" data-page="teklifler"><span class="nav-icon">💬</span> Teklifler</a></li>
+      <li><a class="nav-link" data-page="anlasmazlik"><span class="nav-icon">⚖️</span> Anlaşmazlıklar <span class="nav-badge danger">3</span></a></li>
+    </ul>
+
+    <div class="sidebar-section">İçerik</div>
+    <ul class="sidebar-nav">
+      <li><a class="nav-link" data-page="moderasyon"><span class="nav-icon">🛡️</span> Moderasyon <span class="nav-badge">12</span></a></li>
+      <li><a class="nav-link" data-page="menuler"><span class="nav-icon">🍽️</span> Menüler & Paketler</a></li>
+      <li><a class="nav-link" data-page="kategoriler"><span class="nav-icon">📂</span> Kategoriler</a></li>
+    </ul>
+
+    <div class="sidebar-section">Finans</div>
+    <ul class="sidebar-nav">
+      <li><a class="nav-link" data-page="finans"><span class="nav-icon">💰</span> Finansal Genel Bakış</a></li>
+      <li><a class="nav-link" data-page="komisyonlar"><span class="nav-icon">📈</span> Komisyonlar</a></li>
+      <li><a class="nav-link" data-page="odemeler"><span class="nav-icon">🏦</span> Yemekçi Ödemeleri</a></li>
+      <li><a class="nav-link" data-page="faturalar"><span class="nav-icon">🧾</span> Faturalar</a></li>
+    </ul>
+
+    <div class="sidebar-section">Pazarlama</div>
+    <ul class="sidebar-nav">
+      <li><a class="nav-link" data-page="kuponlar"><span class="nav-icon">🎟️</span> Kuponlar & Kampanyalar</a></li>
+      <li><a class="nav-link" data-page="bildirim-pazarlama"><span class="nav-icon">📧</span> Toplu Bildirim</a></li>
+      <li><a class="nav-link" data-page="raporlar"><span class="nav-icon">📑</span> Raporlar</a></li>
+    </ul>
+
+    <div class="sidebar-section">Sistem</div>
+    <ul class="sidebar-nav">
+      <li><a class="nav-link" data-page="ayarlar"><span class="nav-icon">⚙️</span> Sistem Ayarları</a></li>
+      <li><a class="nav-link" data-page="admin-ekip"><span class="nav-icon">🔐</span> Admin Ekibi</a></li>
+      <li><a class="nav-link" data-page="audit-log"><span class="nav-icon">🗂️</span> Audit Log</a></li>
+    </ul>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="avatar">ÖM</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name">Ömer M.</div>
+          <div class="sidebar-user-role">Süper Admin</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ========== MAIN ========== -->
+  <main class="main">
+
+    <header class="topbar">
+      <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
+      <div class="topbar-search">
+        <input type="text" placeholder="Kullanıcı, sipariş, yemekçi ara...">
+      </div>
+      <div class="topbar-actions">
+        <button class="icon-btn" title="Bildirimler">🔔<span class="dot-notif"></span></button>
+        <button class="icon-btn" title="Sistem durumu">🟢</button>
+        <button class="icon-btn" title="Çıkış">🚪</button>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <!-- ============== DASHBOARD ============== -->
+      <div class="page-view active" id="page-dashboard">
+        <div class="page-head">
+          <div>
+            <h1>Dashboard</h1>
+            <p>Tüm sistemin canlı görünümü — son 30 gün</p>
+          </div>
+          <div class="page-head-actions">
+            <button class="btn btn-ghost">📥 Excel İndir</button>
+            <button class="btn btn-primary">🔄 Yenile</button>
+          </div>
+        </div>
+
+        <!-- KPI -->
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-head">
+              <div class="kpi-label">Aylık GMV</div>
+              <div class="kpi-icon green">💰</div>
+            </div>
+            <div class="kpi-value">₺2.847.500</div>
+            <div class="kpi-trend up">↑ %18 <span class="kpi-trend-period">geçen aya göre</span></div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-head">
+              <div class="kpi-label">Aktif Sipariş</div>
+              <div class="kpi-icon blue">📦</div>
+            </div>
+            <div class="kpi-value">147</div>
+            <div class="kpi-trend up">↑ %8 <span class="kpi-trend-period">son 7 gün</span></div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-head">
+              <div class="kpi-label">Komisyon Geliri</div>
+              <div class="kpi-icon orange">💎</div>
+            </div>
+            <div class="kpi-value">₺218.430</div>
+            <div class="kpi-trend up">↑ %22 <span class="kpi-trend-period">geçen aya göre</span></div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-head">
+              <div class="kpi-label">Yeni Kullanıcı</div>
+              <div class="kpi-icon purple">👤</div>
+            </div>
+            <div class="kpi-value">+89</div>
+            <div class="kpi-trend up">↑ %12 <span class="kpi-trend-period">son 30 gün</span></div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-head">
+              <div class="kpi-label">Aktif Yemekçi</div>
+              <div class="kpi-icon green">🍳</div>
+            </div>
+            <div class="kpi-value">52</div>
+            <div class="kpi-trend up">↑ %4 <span class="kpi-trend-period">geçen aya göre</span></div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-head">
+              <div class="kpi-label">Ortalama Puan</div>
+              <div class="kpi-icon orange">⭐</div>
+            </div>
+            <div class="kpi-value">4.6 <span style="font-size:14px; color:var(--ink-muted);">/5</span></div>
+            <div class="kpi-trend up">↑ 0.2 <span class="kpi-trend-period">son 90 gün</span></div>
+          </div>
+        </div>
+
+        <!-- ROW: GRAFIK + AKTIVITE -->
+        <div class="row two">
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <div class="card-title">Aylık Satış Trendi</div>
+                <div class="card-sub">GMV (₺) — son 30 gün</div>
+              </div>
+              <select style="padding:6px 10px; border:1px solid var(--line); border-radius:4px; font-size:12px;">
+                <option>Son 30 gün</option>
+                <option>Son 90 gün</option>
+                <option>Bu yıl</option>
+              </select>
+            </div>
+            <div class="card-body">
+              <div class="chart-container">
+                <svg class="chart-svg" id="chartSales" viewBox="0 0 600 240" preserveAspectRatio="none"></svg>
+              </div>
+              <div class="chart-legend">
+                <div class="chart-legend-item"><div class="chart-legend-dot" style="background:var(--brand-primary);"></div> GMV</div>
+                <div class="chart-legend-item"><div class="chart-legend-dot" style="background:var(--brand-accent);"></div> Komisyon</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <div class="card-title">Son Aktiviteler</div>
+              <a href="#" class="muted" style="font-size:12px;">Tümü →</a>
+            </div>
+            <div class="card-body">
+              <ul class="activity-list">
+                <li class="activity-item">
+                  <div class="activity-icon" style="background:var(--success-light);">📦</div>
+                  <div class="activity-content">
+                    <div class="activity-text"><strong>Anatolia Catering</strong> 15.000 TL'lik sipariş kabul etti</div>
+                    <div class="activity-time">2 dakika önce</div>
+                  </div>
+                </li>
+                <li class="activity-item">
+                  <div class="activity-icon" style="background:var(--info-light);">👤</div>
+                  <div class="activity-content">
+                    <div class="activity-text">Yeni yemekçi başvurusu: <strong>Bursa Mutfak A.Ş.</strong></div>
+                    <div class="activity-time">14 dakika önce</div>
+                  </div>
+                </li>
+                <li class="activity-item">
+                  <div class="activity-icon" style="background:var(--warning-light);">⚠️</div>
+                  <div class="activity-content">
+                    <div class="activity-text">Anlaşmazlık açıldı: Sipariş <strong>#YHC-2026-1432</strong></div>
+                    <div class="activity-time">28 dakika önce</div>
+                  </div>
+                </li>
+                <li class="activity-item">
+                  <div class="activity-icon" style="background:var(--purple-light);">💬</div>
+                  <div class="activity-content">
+                    <div class="activity-text"><strong>Mehmet Demir</strong> teklif talebi oluşturdu (200 kişilik)</div>
+                    <div class="activity-time">1 saat önce</div>
+                  </div>
+                </li>
+                <li class="activity-item">
+                  <div class="activity-icon" style="background:var(--success-light);">⭐</div>
+                  <div class="activity-content">
+                    <div class="activity-text"><strong>Saray Catering</strong> 5 yıldızlı yorum aldı</div>
+                    <div class="activity-time">2 saat önce</div>
+                  </div>
+                </li>
+                <li class="activity-item">
+                  <div class="activity-icon" style="background:var(--danger-light);">🚫</div>
+                  <div class="activity-content">
+                    <div class="activity-text">Spam yorum işaretlendi (otomatik moderasyon)</div>
+                    <div class="activity-time">3 saat önce</div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- ROW: TOP 5 YEMEKÇİ + KATEGORİ DAĞILIM -->
+        <div class="row two">
+          <div class="card">
+            <div class="card-head">
+              <div class="card-title">En Çok Sipariş Alan Yemekçiler (Bu Ay)</div>
+            </div>
+            <div class="card-body flush">
+              <div class="table-wrap">
+                <table class="data">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Yemekçi</th>
+                      <th>Sipariş</th>
+                      <th>GMV</th>
+                      <th>Komisyon</th>
+                      <th>Puan</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><strong>1</strong></td>
+                      <td><div class="user-cell"><div class="avatar-sm">AC</div><div class="user-cell-info"><div class="user-cell-name">Anatolia Catering</div><div class="user-cell-meta">Kocaeli</div></div></div></td>
+                      <td class="num">42</td>
+                      <td class="num"><strong>₺487K</strong></td>
+                      <td class="num">₺38.9K</td>
+                      <td><span class="badge success">⭐ 4.8</span></td>
+                    </tr>
+                    <tr>
+                      <td><strong>2</strong></td>
+                      <td><div class="user-cell"><div class="avatar-sm">SC</div><div class="user-cell-info"><div class="user-cell-name">Saray Catering</div><div class="user-cell-meta">İstanbul</div></div></div></td>
+                      <td class="num">38</td>
+                      <td class="num"><strong>₺412K</strong></td>
+                      <td class="num">₺33.0K</td>
+                      <td><span class="badge success">⭐ 4.7</span></td>
+                    </tr>
+                    <tr>
+                      <td><strong>3</strong></td>
+                      <td><div class="user-cell"><div class="avatar-sm">EM</div><div class="user-cell-info"><div class="user-cell-name">Endüstri Mutfak</div><div class="user-cell-meta">Bursa</div></div></div></td>
+                      <td class="num">31</td>
+                      <td class="num"><strong>₺356K</strong></td>
+                      <td class="num">₺28.5K</td>
+                      <td><span class="badge success">⭐ 4.6</span></td>
+                    </tr>
+                    <tr>
+                      <td><strong>4</strong></td>
+                      <td><div class="user-cell"><div class="avatar-sm">GY</div><div class="user-cell-info"><div class="user-cell-name">Gebze Yemek</div><div class="user-cell-meta">Kocaeli</div></div></div></td>
+                      <td class="num">28</td>
+                      <td class="num"><strong>₺284K</strong></td>
+                      <td class="num">₺22.7K</td>
+                      <td><span class="badge warning">⭐ 4.3</span></td>
+                    </tr>
+                    <tr>
+                      <td><strong>5</strong></td>
+                      <td><div class="user-cell"><div class="avatar-sm">MK</div><div class="user-cell-info"><div class="user-cell-name">Mavi Kepçe</div><div class="user-cell-meta">İzmit</div></div></div></td>
+                      <td class="num">24</td>
+                      <td class="num"><strong>₺238K</strong></td>
+                      <td class="num">₺19.0K</td>
+                      <td><span class="badge success">⭐ 4.7</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <div class="card-title">Kategori Dağılımı</div>
+            </div>
+            <div class="card-body">
+              <div class="chart-container" style="height:200px;">
+                <svg class="chart-svg" id="chartCategory" viewBox="0 0 200 200"></svg>
+              </div>
+              <div style="margin-top:12px; font-size:12px;">
+                <div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px dashed var(--line);">
+                  <span><span style="display:inline-block; width:10px; height:10px; background:#6B1F2A; border-radius:2px; margin-right:8px;"></span>Toplu Yemek</span>
+                  <strong>%52</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px dashed var(--line);">
+                  <span><span style="display:inline-block; width:10px; height:10px; background:#C9A961; border-radius:2px; margin-right:8px;"></span>Kurumsal Davet</span>
+                  <strong>%24</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px dashed var(--line);">
+                  <span><span style="display:inline-block; width:10px; height:10px; background:#1B5E7C; border-radius:2px; margin-right:8px;"></span>Kahvaltı/İkram</span>
+                  <strong>%14</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between; padding:6px 0;">
+                  <span><span style="display:inline-block; width:10px; height:10px; background:#6B46C1; border-radius:2px; margin-right:8px;"></span>Diğer</span>
+                  <strong>%10</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============== CANLI AKTİVİTE ============== -->
+      <div class="page-view" id="page-aktivite">
+        <div class="page-head">
+          <div>
+            <h1>Canlı Aktivite Akışı</h1>
+            <p>Sistemdeki tüm hareketler gerçek zamanlı</p>
+          </div>
+          <div class="page-head-actions">
+            <button class="btn btn-ghost">⏸️ Duraklat</button>
+            <button class="btn btn-ghost">🔧 Filtrele</button>
+          </div>
+        </div>
+
+        <div class="filter-bar">
+          <select>
+            <option>Tüm aktiviteler</option>
+            <option>Sadece siparişler</option>
+            <option>Sadece teklifler</option>
+            <option>Sadece kayıtlar</option>
+            <option>Sadece anlaşmazlıklar</option>
+          </select>
+          <select>
+            <option>Bugün</option>
+            <option>Son 24 saat</option>
+            <option>Son 7 gün</option>
+            <option>Bu ay</option>
+          </select>
+          <input type="text" placeholder="Kullanıcı veya yemekçi adı...">
+        </div>
+
+        <div class="card">
+          <div class="card-body">
+            <ul class="activity-list" id="canliAktivite">
+              <!-- JS ile doldurulacak -->
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============== ONAYLAR ============== -->
+      <div class="page-view" id="page-onaylar">
+        <div class="page-head">
+          <div>
+            <h1>Yemekçi Onayları</h1>
+            <p>Bekleyen başvurular — KYC ve belge doğrulama</p>
+          </div>
+        </div>
+
+        <div class="filter-bar">
+          <select><option>Onay bekleyen (7)</option><option>Belge eksik (3)</option><option>Reddedilen</option></select>
+          <input type="text" placeholder="Firma adı veya vergi numarası...">
+        </div>
+
+        <div class="card">
+          <div class="card-body flush">
+            <div class="table-wrap">
+              <table class="data">
+                <thead>
+                  <tr>
+                    <th>Firma</th>
+                    <th>Vergi No</th>
+                    <th>Şehir</th>
+                    <th>Belgeler</th>
+                    <th>Başvuru Tarihi</th>
+                    <th>Durum</th>
+                    <th>Aksiyon</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><div class="user-cell"><div class="avatar-sm">BM</div><div class="user-cell-info"><div class="user-cell-name">Bursa Mutfak A.Ş.</div><div class="user-cell-meta">İrtibat: Ahmet Yılmaz</div></div></div></td>
+                    <td class="num">3245678901</td>
+                    <td>Bursa</td>
+                    <td><span class="badge success">5/5 ✓</span></td>
+                    <td class="num muted">07.05.2026</td>
+                    <td><span class="badge warning">İnceleme</span></td>
+                    <td><div class="row-actions"><button class="row-action" title="Detay">👁️</button><button class="row-action" title="Onayla">✅</button><button class="row-action danger" title="Reddet">❌</button></div></td>
+                  </tr>
+                  <tr>
+                    <td><div class="user-cell"><div class="avatar-sm">EC</div><div class="user-cell-info"><div class="user-cell-name">Ege Catering Ltd.</div><div class="user-cell-meta">İrtibat: Zeynep Kaya</div></div></div></td>
+                    <td class="num">8765432109</td>
+                    <td>İzmir</td>
+                    <td><span class="badge warning">4/5 ⚠</span></td>
+                    <td class="num muted">06.05.2026</td>
+                    <td><span class="badge warning">Belge Eksik</span></td>
+                    <td><div class="row-actions"><button class="row-action">👁️</button><button class="row-action">📧</button><button class="row-action danger">❌</button></div></td>
+                  </tr>
+                  <tr>
+                    <td><div class="user-cell"><div class="avatar-sm">AY</div><div class="user-cell-info"><div class="user-cell-name">Anadolu Yemekçilik</div><div class="user-cell-meta">İrtibat: Mehmet Demir</div></div></div></td>
+                    <td class="num">1234567890</td>
+                    <td>Ankara</td>
+                    <td><span class="badge success">5/5 ✓</span></td>
+                    <td class="num muted">06.05.2026</td>
+                    <td><span class="badge warning">İnceleme</span></td>
+                    <td><div class="row-actions"><button class="row-action">👁️</button><button class="row-action">✅</button><button class="row-action danger">❌</button></div></td>
+                  </tr>
+                  <tr>
+                    <td><div class="user-cell"><div class="avatar-sm">ŞS</div><div class="user-cell-info"><div class="user-cell-name">Şefler Sofrası</div><div class="user-cell-meta">İrtibat: Ali Veli</div></div></div></td>
+                    <td class="num">5544332211</td>
+                    <td>İstanbul</td>
+                    <td><span class="badge danger">2/5 ❌</span></td>
+                    <td class="num muted">05.05.2026</td>
+                    <td><span class="badge danger">Eksik</span></td>
+                    <td><div class="row-actions"><button class="row-action">👁️</button><button class="row-action">📧</button><button class="row-action danger">❌</button></div></td>
+                  </tr>
+                  <tr>
+                    <td><div class="user-cell"><div class="avatar-sm">KB</div><div class="user-cell-info"><div class="user-cell-name">Karadeniz Bereketi</div><div class="user-cell-meta">İrtibat: Ayşe Hanım</div></div></div></td>
+                    <td class="num">9988776655</td>
+                    <td>Trabzon</td>
+                    <td><span class="badge success">5/5 ✓</span></td>
+                    <td class="num muted">04.05.2026</td>
+                    <td><span class="badge warning">İnceleme</span></td>
+                    <td><div class="row-actions"><button class="row-action">👁️</button><button class="row-action">✅</button><button class="row-action danger">❌</button></div></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============== KULLANICILAR ============== -->
+      <div class="page-view" id="page-kullanicilar">
+        <div class="page-head">
+          <div>
+            <h1>Kullanıcılar</h1>
+            <p>Tüm sistem kullanıcıları (Kurumsal + Bireysel + Yemekçi + Admin)</p>
+          </div>
+          <div class="page-head-actions">
+            <button class="btn btn-ghost">📥 CSV Export</button>
+            <button class="btn btn-primary">+ Kullanıcı Ekle</button>
+          </div>
+        </div>
+
+        <div class="filter-bar">
+          <select><option>Tüm tipler</option><option>Kurumsal Müşteri</option><option>Bireysel Müşteri</option><option>Yemekçi</option><option>Admin</option></select>
+          <select><option>Tüm durumlar</option><option>Aktif</option><option>Askıya alınmış</option><option>Yasaklı</option></select>
+          <input type="text" placeholder="Ad, e-posta, telefon...">
+        </div>
+
+        <div class="card">
+          <div class="card-body flush">
+            <div class="table-wrap">
+              <table class="data">
+                <thead>
+                  <tr><th>Kullanıcı</th><th>Tip</th><th>İletişim</th><th>Kayıt</th><th>Son Giriş</th><th>Toplam Sipariş</th><th>Durum</th><th></th></tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><div class="user-cell"><div class="avatar-sm">MD</div><div class="user-cell-info"><div class="user-cell-name">Mehmet Demir</div><div class="user-cell-meta">İK Müdürü, ABC Fabrika</div></div></div></td>
+                    <td><span class="badge info">Kurumsal</span></td>
+                    <td><div style="font-size:12px; line-height:1.4;">m.demir@abc.com<br><span class="muted">+90 532 *** ** 12</span></div></td>
+                    <td class="num muted">15.03.2026</td>
+                    <td class="num muted">2 saat önce</td>
+                    <td class="num"><strong>34</strong></td>
+                    <td><span class="badge success">Aktif</span></td>
+                    <td><div class="row-actions"><button class="row-action">👁️</button><button class="row-action">✏️</button><button class="row-action danger">🚫</button></div></td>
+                  </tr>
+                  <tr>
+                    <td><div class="user-cell"><div class="avatar-sm">AH</div><div class="user-cell-info"><div class="user-cell-name">Ayşe Hanım</div><div class="user-cell-meta">Birey</div></div></div></td>
+                    <td><span class="badge purple">Bireysel</span></td>
+                    <td><div style="font-size:12px; line-height:1.4;">ayse@gmail.com<br><span class="muted">+90 555 *** ** 88</span></div></td>
+                    <td class="num muted">22.04.2026</td>
+                    <td class="num muted">1 gün önce</td>
+                    <td class="num"><strong>3</strong></td>
+                    <td><span class="badge success">Aktif</span></td>
+                    <td><div class="row-actions"><button class="row-action">👁️</button><button class="row-action">✏️</button><button class="row-action danger">🚫</button></div></td>
+                  </tr>
+                  <tr>
+                    <td><div class="user-cell"><div class="avatar-sm">AC</div><div class="user-cell-info"><div class="user-cell-name">Anatolia Catering</div><div class="user-cell-meta">Yemekçi - Kocaeli</div></div></div></td>
+                    <td><span class="badge warning">Yemekçi</span></td>
+                    <td><div style="font-size:12px; line-height:1.4;">info@anatolia.com<br><span class="muted">+90 262 *** ** 00</span></div></td>
+                    <td class="num muted">10.01.2026</td>
+                    <td class="num muted">5 dakika önce</td>
+                    <td class="num"><strong>247</strong></td>
+                    <td><span class="badge success">Aktif</span></td>
+                    <td><div class="row-actions"><button class="row-action">👁️</button><button class="row-action">✏️</button><button class="row-action danger">🚫</button></div></td>
+                  </tr>
+                  <tr>
+                    <td><div class="user-cell"><div class="avatar-sm">FK</div><div class="user-cell-info"><div class="user-cell-name">Fatma Kaya</div><div class="user-cell-meta">Birey</div></div></div></td>
+                    <td><span class="badge purple">Bireysel</span></td>
+                    <td><div style="font-size:12px; line-height:1.4;">f.kaya@yahoo.com<br><span class="muted">+90 533 *** ** 45</span></div></td>
+                    <td class="num muted">01.05.2026</td>
+                    <td class="num muted">3 gün önce</td>
+                    <td class="num"><strong>1</strong></td>
+                    <td><span class="badge muted">Pasif</span></td>
+                    <td><div class="row-actions"><button class="row-action">👁️</button><button class="row-action">✏️</button><button class="row-action danger">🚫</button></div></td>
+                  </tr>
+                  <tr>
+                    <td><div class="user-cell"><div class="avatar-sm">EG</div><div class="user-cell-info"><div class="user-cell-name">Emrullah Gökhan</div><div class="user-cell-meta">UYSA Yemek</div></div></div></td>
+                    <td><span class="badge danger">Admin</span></td>
+                    <td><div style="font-size:12px; line-height:1.4;">e.gokhan@uysa.com<br><span class="muted">+90 532 *** ** 99</span></div></td>
+                    <td class="num muted">01.01.2026</td>
+                    <td class="num muted">15 dakika önce</td>
+                    <td class="num">-</td>
+                    <td><span class="badge success">Aktif</span></td>
+                    <td><div class="row-actions"><button class="row-action">👁️</button><button class="row-action">✏️</button><button class="row-action danger">🚫</button></div></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============== SİPARİŞLER ============== -->
+      <div class="page-view" id="page-siparisler">
+        <div class="page-head">
+          <div>
+            <h1>Siparişler</h1>
+            <p>Tüm sipariş geçmişi ve durum yönetimi</p>
+          </div>
+          <div class="page-head-actions">
+            <button class="btn btn-ghost">📊 İstatistik</button>
+            <button class="btn btn-primary">+ Manuel Sipariş</button>
+          </div>
+        </div>
+
+        <div class="filter-bar">
+          <select><option>Tüm durumlar</option><option>Bekleyen</option><option>Kabul Edildi</option><option>Hazırlanıyor</option><option>Teslim Edildi</option><option>İptal</option></select>
+          <select><option>Bu ay</option><option>Bu hafta</option><option>Son 30 gün</option><option>Tüm zamanlar</option></select>
+          <input type="text" placeholder="Sipariş no, müşteri, yemekçi...">
+        </div>
+
+        <div class="card">
+          <div class="card-body flush">
+            <div class="table-wrap">
+              <table class="data">
+                <thead>
+                  <tr><th>Sipariş No</th><th>Müşteri</th><th>Yemekçi</th><th>Tarih</th><th>Tutar</th><th>Komisyon</th><th>Durum</th><th></th></tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="num"><strong>YHC-2026-1487</strong></td>
+                    <td><div class="user-cell"><div class="avatar-sm">MD</div><div class="user-cell-info"><div class="user-cell-name">M. Demir</div><div class="user-cell-meta">ABC Fabrika</div></div></div></td>
+                    <td>Anatolia Catering</td>
+                    <td class="num muted">07.05.2026 14:30</td>
+                    <td class="num"><strong>₺18.450</strong></td>
+                    <td class="num">₺1.476</td>
+                    <td><span class="badge warning">Hazırlanıyor</span></td>
+                    <td><div class="row-actions"><button class="row-action">👁️</button><button class="row-action">✏️</button></div></td>
+                  </tr>
+                  <tr>
+                    <td class="num"><strong>YHC-2026-1486</strong></td>
+                    <td><div class="user-cell"><div class="avatar-sm">AH</div><div class="user-cell-info"><div class="user-cell-name">A. Hanım</div><div class="user-cell-meta">Bireysel</div></div></div></td>
+                    <td>Saray Catering</td>
+                    <td class="num muted">07.05.2026 12:15</td>
+                    <td class="num"><strong>₺7.200</strong></td>
+                    <td class="num">₺576</td>
+                    <td><span class="badge info">Yolda</span></td>
+                    <td><div class="row-actions"><button class="row-action">👁️</button><button class="row-action">✏️</button></div></td>
+                  </tr>
+                  <tr>
+                    <td class="num"><strong>YHC-2026-1485</strong></td>
+                    <td><div class="user-cell"><div class="avatar-sm">XY</div><div class="user-cell-info"><div class="user-cell-name">XYZ Holding</div><div class="user-cell-meta">Kurumsal</div></div></div></td>
+                    <td>Endüstri Mutfak</td>
+                    <td class="num muted">06.05.2026 10:00</td>
+                    <td class="num"><strong>₺42.800</strong></td>
+                    <td class="num">₺3.424</td>
+                    <td><span class="badge success">Teslim</span></td>
+                    <td><div class="row-actions"><button class="row-action">👁️</button></div></td>
+                  </tr>
+                  <tr>
+                    <td class="num"><strong>YHC-2026-1484</strong></td>
+                    <td><div class="user-cell"><div class="avatar-sm">FK</div><div class="user-cell-info"><div class="user-cell-name">F. Kaya</div><div class="user-cell-meta">Bireysel</div></div></div></td>
+                    <td>Mavi Kepçe</td>
+                    <td class="num muted">06.05.2026 09:45</td>
+                    <td class="num"><strong>₺3.500</strong></td>
+                    <td class="num">₺280</td>
+                    <td><span class="badge danger">İptal</span></td>
+                    <td><div class="row-actions"><button class="row-action">👁️</button></div></td>
+                  </tr>
+                  <tr>
+                    <td class="num"><strong>YHC-2026-1483</strong></td>
+                    <td><div class="user-cell"><div class="avatar-sm">DM</div><div class="user-cell-info"><div class="user-cell-name">DMG Lojistik</div><div class="user-cell-meta">Kurumsal</div></div></div></td>
+                    <td>Gebze Yemek</td>
+                    <td class="num muted">05.05.2026 16:20</td>
+                    <td class="num"><strong>₺12.300</strong></td>
+                    <td class="num">₺984</td>
+                    <td><span class="badge success">Teslim</span></td>
+                    <td><div class="row-actions"><button class="row-action">👁️</button></div></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============== ANLAŞMAZLIKLAR ============== -->
+      <div class="page-view" id="page-anlasmazlik">
+        <div class="page-head">
+          <div>
+            <h1>Anlaşmazlık Yönetimi</h1>
+            <p>Müşteri ve yemekçi şikayetleri — arabuluculuk paneli</p>
+          </div>
+        </div>
+
+        <div class="kpi-grid">
+          <div class="kpi-card"><div class="kpi-head"><div class="kpi-label">Açık Vaka</div><div class="kpi-icon red">⚠️</div></div><div class="kpi-value">3</div></div>
+          <div class="kpi-card"><div class="kpi-head"><div class="kpi-label">Bu Ay Çözülen</div><div class="kpi-icon green">✓</div></div><div class="kpi-value">14</div></div>
+          <div class="kpi-card"><div class="kpi-head"><div class="kpi-label">Ortalama Çözüm</div><div class="kpi-icon blue">⏱️</div></div><div class="kpi-value">1.8<span style="font-size:14px;">gün</span></div></div>
+          <div class="kpi-card"><div class="kpi-head"><div class="kpi-label">Müşteri Lehine</div><div class="kpi-icon purple">⚖️</div></div><div class="kpi-value">%62</div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="card-title">Açık Anlaşmazlıklar</div></div>
+          <div class="card-body flush">
+            <div class="table-wrap">
+              <table class="data">
+                <thead><tr><th>Vaka No</th><th>Sipariş</th><th>Açan</th><th>Konu</th><th>Açılış</th><th>Tutar</th><th>Durum</th><th></th></tr></thead>
+                <tbody>
+                  <tr>
+                    <td class="num"><strong>#A-2026-098</strong></td>
+                    <td class="num">YHC-2026-1432</td>
+                    <td><span class="badge info">Müşteri</span> M. Demir</td>
+                    <td>Kalite şikayeti — 3 yemek soğuk</td>
+                    <td class="num muted">07.05.2026</td>
+                    <td class="num">₺18.450</td>
+                    <td><span class="badge danger">İncelemede</span></td>
+                    <td><div class="row-actions"><button class="row-action">👁️</button></div></td>
+                  </tr>
+                  <tr>
+                    <td class="num"><strong>#A-2026-097</strong></td>
+                    <td class="num">YHC-2026-1411</td>
+                    <td><span class="badge warning">Yemekçi</span> Saray Catering</td>
+                    <td>Ödeme alınamadı — 5 gün gecikme</td>
+                    <td class="num muted">06.05.2026</td>
+                    <td class="num">₺7.200</td>
+                    <td><span class="badge warning">Beklemede</span></td>
+                    <td><div class="row-actions"><button class="row-action">👁️</button></div></td>
+                  </tr>
+                  <tr>
+                    <td class="num"><strong>#A-2026-096</strong></td>
+                    <td class="num">YHC-2026-1389</td>
+                    <td><span class="badge info">Müşteri</span> XYZ Holding</td>
+                    <td>Geç teslimat (2 saat)</td>
+                    <td class="num muted">04.05.2026</td>
+                    <td class="num">₺42.800</td>
+                    <td><span class="badge danger">İncelemede</span></td>
+                    <td><div class="row-actions"><button class="row-action">👁️</button></div></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============== FİNANS ============== -->
+      <div class="page-view" id="page-finans">
+        <div class="page-head">
+          <div>
+            <h1>Finansal Genel Bakış</h1>
+            <p>Mali durum, komisyon havuzu ve ödeme akışları</p>
+          </div>
+        </div>
+
+        <div class="kpi-grid">
+          <div class="kpi-card"><div class="kpi-head"><div class="kpi-label">Aylık Brüt Gelir</div><div class="kpi-icon green">💰</div></div><div class="kpi-value">₺218.430</div><div class="kpi-trend up">↑ %22</div></div>
+          <div class="kpi-card"><div class="kpi-head"><div class="kpi-label">Yemekçilere Ödenecek</div><div class="kpi-icon orange">📤</div></div><div class="kpi-value">₺2.629.070</div></div>
+          <div class="kpi-card"><div class="kpi-head"><div class="kpi-label">Bekleyen Tahsilat</div><div class="kpi-icon blue">📥</div></div><div class="kpi-value">₺184.500</div></div>
+          <div class="kpi-card"><div class="kpi-head"><div class="kpi-label">Komisyon Havuzu</div><div class="kpi-icon purple">💎</div></div><div class="kpi-value">₺487.230</div></div>
+        </div>
+
+        <div class="row two">
+          <div class="card">
+            <div class="card-head"><div class="card-title">Aylık Komisyon Trendi</div></div>
+            <div class="card-body">
+              <div class="chart-container"><svg class="chart-svg" id="chartFinans" viewBox="0 0 600 240" preserveAspectRatio="none"></svg></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-head"><div class="card-title">Komisyon Dağılımı</div></div>
+            <div class="card-body">
+              <table class="data" style="border:none;">
+                <tbody>
+                  <tr><td>Direkt Sipariş (%8-12)</td><td class="num"><strong>₺142.450</strong></td><td><span class="badge success">%65</span></td></tr>
+                  <tr><td>Reaktif Teklif (%5-7)</td><td class="num"><strong>₺52.180</strong></td><td><span class="badge info">%24</span></td></tr>
+                  <tr><td>Proaktif Paket (%8-12)</td><td class="num"><strong>₺18.900</strong></td><td><span class="badge warning">%9</span></td></tr>
+                  <tr><td>B2B Tedarik (%3-5)</td><td class="num"><strong>₺4.900</strong></td><td><span class="badge muted">%2</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============== AYARLAR ============== -->
+      <div class="page-view" id="page-ayarlar">
+        <div class="page-head">
+          <div>
+            <h1>Sistem Ayarları</h1>
+            <p>Platform genel parametreleri</p>
+          </div>
+        </div>
+
+        <div class="row two">
+          <div class="card">
+            <div class="card-head"><div class="card-title">Komisyon Oranları</div></div>
+            <div class="card-body">
+              <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--line);">
+                <div><strong>Direkt Sipariş</strong><div class="muted" style="font-size:12px;">Standart menüden sipariş</div></div>
+                <input type="number" value="10" style="width:70px; padding:8px; border:1px solid var(--line); border-radius:4px; text-align:right; font-family:'JetBrains Mono';"> <span class="muted">%</span>
+              </div>
+              <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--line);">
+                <div><strong>Reaktif Teklif</strong><div class="muted" style="font-size:12px;">Müşteri talebine yanıt</div></div>
+                <input type="number" value="6" style="width:70px; padding:8px; border:1px solid var(--line); border-radius:4px; text-align:right; font-family:'JetBrains Mono';"> <span class="muted">%</span>
+              </div>
+              <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--line);">
+                <div><strong>Proaktif Paket</strong><div class="muted" style="font-size:12px;">Yemekçi paketleri</div></div>
+                <input type="number" value="10" style="width:70px; padding:8px; border:1px solid var(--line); border-radius:4px; text-align:right; font-family:'JetBrains Mono';"> <span class="muted">%</span>
+              </div>
+              <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 0;">
+                <div><strong>B2B Tedarik</strong><div class="muted" style="font-size:12px;">Yemekçiler arası</div></div>
+                <input type="number" value="4" style="width:70px; padding:8px; border:1px solid var(--line); border-radius:4px; text-align:right; font-family:'JetBrains Mono';"> <span class="muted">%</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><div class="card-title">Genel Ayarlar</div></div>
+            <div class="card-body">
+              <div style="padding:10px 0; border-bottom:1px solid var(--line);">
+                <div style="font-weight:600; margin-bottom:6px;">Site Başlığı</div>
+                <input type="text" value="Yemekhaneci.com.tr" style="width:100%; padding:8px; border:1px solid var(--line); border-radius:4px;">
+              </div>
+              <div style="padding:10px 0; border-bottom:1px solid var(--line);">
+                <div style="font-weight:600; margin-bottom:6px;">Destek E-posta</div>
+                <input type="email" value="destek@yemekhaneci.com.tr" style="width:100%; padding:8px; border:1px solid var(--line); border-radius:4px;">
+              </div>
+              <div style="padding:10px 0; border-bottom:1px solid var(--line);">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <div><strong>Bakım Modu</strong><div class="muted" style="font-size:12px;">Site geçici kapatma</div></div>
+                  <label style="position:relative; display:inline-block; width:44px; height:24px;"><input type="checkbox" style="display:none;"><span style="position:absolute; cursor:pointer; inset:0; background:#ccc; border-radius:24px;"></span></label>
+                </div>
+              </div>
+              <div style="padding:10px 0;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <div><strong>Yeni Kayıt Açık</strong><div class="muted" style="font-size:12px;">Yemekçi başvuruları</div></div>
+                  <label style="position:relative; display:inline-block; width:44px; height:24px;"><input type="checkbox" checked style="display:none;"><span style="position:absolute; cursor:pointer; inset:0; background:var(--success); border-radius:24px;"></span></label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============== PLACEHOLDER (diğer sayfalar) ============== -->
+      <div class="page-view" id="page-placeholder">
+        <div class="page-head">
+          <div>
+            <h1 id="placeholderTitle">Bu Sayfa</h1>
+            <p>Yapım aşamasında — Claude Code ile geliştirilecek</p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-body">
+            <div class="empty">
+              <div class="empty-icon">🚧</div>
+              <h3 style="margin-bottom:6px; color:var(--ink);">Bu modül henüz hazırlanmadı</h3>
+              <p style="font-size:13px; max-width:400px; margin:0 auto 14px;">PRD'de tüm spesifikasyonu mevcut. Claude Code ile bu modül 2-4 saat içinde inşa edilebilir.</p>
+              <button class="btn btn-primary">📋 PRD Spesifikasyonunu Gör</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // ============== NAVIGATION ==============
+  const placeholderTitles = {
+    moderasyon: 'İçerik Moderasyonu',
+    menuler: 'Menüler ve Paketler',
+    kategoriler: 'Kategoriler',
+    yemekciler: 'Yemekçiler',
+    teklifler: 'Teklifler',
+    komisyonlar: 'Komisyonlar',
+    odemeler: 'Yemekçi Ödemeleri',
+    faturalar: 'Faturalar',
+    kuponlar: 'Kuponlar ve Kampanyalar',
+    'bildirim-pazarlama': 'Toplu Bildirim',
+    raporlar: 'Raporlar',
+    'admin-ekip': 'Admin Ekibi',
+    'audit-log': 'Audit Log'
+  };
+
+  document.querySelectorAll('.nav-link').forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const page = link.dataset.page;
+
+      document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+      link.classList.add('active');
+
+      document.querySelectorAll('.page-view').forEach(p => p.classList.remove('active'));
+
+      // Hazır sayfa varsa onu göster, yoksa placeholder
+      const targetPage = document.getElementById('page-' + page);
+      if (targetPage) {
+        targetPage.classList.add('active');
+      } else {
+        document.getElementById('page-placeholder').classList.add('active');
+        document.getElementById('placeholderTitle').textContent = placeholderTitles[page] || 'Sayfa';
+      }
+
+      // Mobile sidebar kapat
+      if (window.innerWidth < 768) {
+        document.getElementById('sidebar').classList.remove('open');
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+  }
+
+  // ============== TOAST ==============
+  function showToast(msg, type = 'success') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast show ' + type;
+    setTimeout(() => t.className = 'toast', 3000);
+  }
+
+  // ============== ROW ACTION HANDLERS ==============
+  document.addEventListener('click', (e) => {
+    if (e.target.classList.contains('row-action') || e.target.closest('.row-action')) {
+      const btn = e.target.classList.contains('row-action') ? e.target : e.target.closest('.row-action');
+      const title = btn.title || btn.textContent;
+      showToast(`Aksiyon: ${title} (demo)`);
+    }
+  });
+
+  // ============== SVG CHART: SALES TREND ==============
+  function drawLineChart(svgId, data, color = '#6B1F2A') {
+    const svg = document.getElementById(svgId);
+    if (!svg) return;
+
+    const W = 600, H = 240, padX = 30, padY = 20;
+    const maxY = Math.max(...data) * 1.1;
+    const stepX = (W - padX * 2) / (data.length - 1);
+
+    // Grid çizgileri
+    let grid = '';
+    for (let i = 0; i <= 4; i++) {
+      const y = padY + (H - padY * 2) * (i / 4);
+      grid += `<line x1="${padX}" y1="${y}" x2="${W - padX}" y2="${y}" stroke="#E5DCD0" stroke-dasharray="2,3"/>`;
+      grid += `<text x="${padX - 6}" y="${y + 3}" text-anchor="end" font-size="9" fill="#8B7E76">${Math.round((maxY - maxY * (i / 4)) / 1000)}K</text>`;
+    }
+
+    // Line path
+    const pts = data.map((v, i) => {
+      const x = padX + i * stepX;
+      const y = padY + (H - padY * 2) * (1 - v / maxY);
+      return `${x},${y}`;
+    });
+    const linePath = 'M ' + pts.join(' L ');
+
+    // Area fill
+    const areaPath = `M ${padX},${H - padY} L ${pts.join(' L ')} L ${W - padX},${H - padY} Z`;
+
+    // Dots
+    let dots = '';
+    pts.forEach((p) => {
+      const [x, y] = p.split(',');
+      dots += `<circle cx="${x}" cy="${y}" r="3" fill="${color}"/>`;
+    });
+
+    svg.innerHTML = `
+      ${grid}
+      <path d="${areaPath}" fill="${color}" opacity="0.08"/>
+      <path d="${linePath}" fill="none" stroke="${color}" stroke-width="2"/>
+      ${dots}
+    `;
+  }
+
+  // ============== SVG: DONUT CHART ==============
+  function drawDonut(svgId, data, colors) {
+    const svg = document.getElementById(svgId);
+    if (!svg) return;
+    const total = data.reduce((a, b) => a + b, 0);
+    const cx = 100, cy = 100, r = 70, innerR = 45;
+    let startAngle = -Math.PI / 2;
+    let html = '';
+
+    data.forEach((v, i) => {
+      const angle = (v / total) * Math.PI * 2;
+      const endAngle = startAngle + angle;
+      const large = angle > Math.PI ? 1 : 0;
+      const x1 = cx + r * Math.cos(startAngle);
+      const y1 = cy + r * Math.sin(startAngle);
+      const x2 = cx + r * Math.cos(endAngle);
+      const y2 = cy + r * Math.sin(endAngle);
+      const x3 = cx + innerR * Math.cos(endAngle);
+      const y3 = cy + innerR * Math.sin(endAngle);
+      const x4 = cx + innerR * Math.cos(startAngle);
+      const y4 = cy + innerR * Math.sin(startAngle);
+      html += `<path d="M ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2} L ${x3} ${y3} A ${innerR} ${innerR} 0 ${large} 0 ${x4} ${y4} Z" fill="${colors[i]}"/>`;
+      startAngle = endAngle;
+    });
+
+    html += `<text x="100" y="98" text-anchor="middle" font-family="'Cormorant Garamond'" font-size="22" font-weight="700" fill="#1F1815">100%</text>`;
+    html += `<text x="100" y="115" text-anchor="middle" font-size="10" fill="#8B7E76" letter-spacing="1">TOPLAM</text>`;
+    svg.innerHTML = html;
+  }
+
+  // İlk yükleme - sample data
+  const salesData = [185, 220, 195, 240, 280, 260, 310, 290, 340, 380, 360, 420, 400, 450, 480, 460, 510, 530, 550, 580, 600, 640, 620, 680, 700, 720, 760, 780, 820, 870];
+  drawLineChart('chartSales', salesData, '#6B1F2A');
+
+  drawDonut('chartCategory', [52, 24, 14, 10], ['#6B1F2A', '#C9A961', '#1B5E7C', '#6B46C1']);
+
+  // Finans grafiği (komisyon)
+  const finansData = salesData.map(v => v * 0.08);
+  setTimeout(() => drawLineChart('chartFinans', finansData, '#C9A961'), 100);
+
+  // ============== CANLI AKTİVİTE FEED (örnek) ==============
+  const aktiviteSablonlari = [
+    { icon: '📦', bg: 'var(--success-light)', text: '<strong>{firma}</strong> {tutar} TL\'lik sipariş kabul etti' },
+    { icon: '👤', bg: 'var(--info-light)', text: 'Yeni kullanıcı kaydı: <strong>{musteri}</strong>' },
+    { icon: '💬', bg: 'var(--purple-light)', text: '<strong>{musteri}</strong> teklif talebi oluşturdu ({kisi} kişilik)' },
+    { icon: '⭐', bg: 'var(--success-light)', text: '<strong>{firma}</strong> {puan} yıldızlı yorum aldı' },
+    { icon: '📨', bg: 'var(--info-light)', text: '<strong>{firma}</strong> 3 yeni teklif gönderdi' },
+    { icon: '✅', bg: 'var(--success-light)', text: 'Yemekçi onaylandı: <strong>{firma}</strong>' },
+    { icon: '🔄', bg: 'var(--warning-light)', text: 'Sipariş durumu güncellendi: <strong>YHC-2026-{no}</strong> → Hazırlanıyor' },
+    { icon: '💰', bg: 'var(--success-light)', text: 'Komisyon havuzuna {tutar} TL eklendi' }
+  ];
+  const firmalar = ['Anatolia Catering', 'Saray Catering', 'Endüstri Mutfak', 'Gebze Yemek', 'Mavi Kepçe', 'Bursa Mutfak', 'Anadolu Yemekçilik'];
+  const musteriler = ['M. Demir', 'A. Hanım', 'F. Kaya', 'XYZ Holding', 'DMG Lojistik', 'ABC Fabrika'];
+  const tutarlar = ['8.250', '12.400', '18.450', '24.700', '31.200', '42.800'];
+
+  function rastgeleAktivite() {
+    const sablon = aktiviteSablonlari[Math.floor(Math.random() * aktiviteSablonlari.length)];
+    const text = sablon.text
+      .replace('{firma}', firmalar[Math.floor(Math.random() * firmalar.length)])
+      .replace('{musteri}', musteriler[Math.floor(Math.random() * musteriler.length)])
+      .replace('{tutar}', tutarlar[Math.floor(Math.random() * tutarlar.length)])
+      .replace('{kisi}', [50, 100, 150, 200, 300][Math.floor(Math.random() * 5)])
+      .replace('{puan}', [4, 4.5, 5][Math.floor(Math.random() * 3)])
+      .replace('{no}', Math.floor(Math.random() * 9000) + 1000);
+    return { ...sablon, text };
+  }
+
+  function aktiviteEkle() {
+    const liste = document.getElementById('canliAktivite');
+    if (!liste) return;
+    const akt = rastgeleAktivite();
+    const li = document.createElement('li');
+    li.className = 'activity-item';
+    li.innerHTML = `
+      <div class="activity-icon" style="background:${akt.bg};">${akt.icon}</div>
+      <div class="activity-content">
+        <div class="activity-text">${akt.text}</div>
+        <div class="activity-time">Az önce</div>
+      </div>
+    `;
+    li.style.opacity = '0';
+    liste.insertBefore(li, liste.firstChild);
+    setTimeout(() => li.style.opacity = '1', 50);
+
+    // Son 20 göster
+    while (liste.children.length > 20) liste.removeChild(liste.lastChild);
+  }
+
+  // İlk doldur
+  for (let i = 0; i < 8; i++) aktiviteEkle();
+  // Periyodik ekle (sadece sayfa açıkken)
+  setInterval(() => {
+    if (document.getElementById('page-aktivite').classList.contains('active')) {
+      aktiviteEkle();
+    }
+  }, 5000);
+</script>
+
+</body>
+</html>

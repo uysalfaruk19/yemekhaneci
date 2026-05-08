@@ -1,0 +1,2486 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yemekhaneci.com.tr — Toplu Yemek Fiyat Hesaplayıcı</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --brand-primary: #6B1F2A;       /* derin bordo */
+    --brand-primary-soft: #8B2635;
+    --brand-accent: #C9A961;        /* eski altın */
+    --brand-cream: #FAF6F0;         /* krem zemin */
+    --brand-cream-dark: #F0E9DD;
+    --ink: #1F1815;                 /* metin */
+    --ink-soft: #5A4A42;
+    --ink-muted: #8B7E76;
+    --line: #E5DCD0;
+    --success: #2F6B4A;
+    --shadow-sm: 0 2px 8px rgba(107, 31, 42, 0.06);
+    --shadow-md: 0 8px 24px rgba(107, 31, 42, 0.10);
+    --shadow-lg: 0 20px 48px rgba(107, 31, 42, 0.15);
+  }
+
+  body {
+    font-family: 'Manrope', -apple-system, sans-serif;
+    background: var(--brand-cream);
+    color: var(--ink);
+    line-height: 1.55;
+    min-height: 100vh;
+    background-image:
+      radial-gradient(at 15% 5%, rgba(201, 169, 97, 0.08) 0%, transparent 40%),
+      radial-gradient(at 85% 95%, rgba(107, 31, 42, 0.06) 0%, transparent 40%);
+  }
+
+  /* ============== HEADER ============== */
+  .site-header {
+    background: var(--brand-cream);
+    border-bottom: 1px solid var(--line);
+    padding: 18px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+    background: rgba(250, 246, 240, 0.92);
+  }
+  .header-inner {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--brand-primary);
+    letter-spacing: -0.01em;
+  }
+  .logo .dot { color: var(--brand-accent); }
+  nav { display: flex; gap: 28px; align-items: center; }
+  nav a {
+    color: var(--ink-soft);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+  nav a:hover { color: var(--brand-primary); }
+  .btn-login {
+    border: 1px solid var(--brand-primary);
+    color: var(--brand-primary);
+    padding: 8px 18px;
+    border-radius: 4px;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+  .btn-login:hover { background: var(--brand-primary); color: white; }
+
+  @media (max-width: 768px) {
+    nav { display: none; }
+  }
+
+  /* ============== HERO ============== */
+  .hero {
+    padding: 60px 24px 40px;
+    text-align: center;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .hero-badge {
+    display: inline-block;
+    padding: 6px 14px;
+    background: rgba(201, 169, 97, 0.15);
+    color: #8B6F2D;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .hero h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(36px, 5vw, 56px);
+    font-weight: 600;
+    line-height: 1.1;
+    color: var(--ink);
+    margin-bottom: 18px;
+    letter-spacing: -0.02em;
+  }
+  .hero h1 em {
+    font-style: italic;
+    color: var(--brand-primary);
+    font-weight: 700;
+  }
+  .hero p {
+    font-size: 17px;
+    color: var(--ink-soft);
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  /* ============== WIZARD CARD ============== */
+  .wizard-container {
+    max-width: 920px;
+    margin: 20px auto 80px;
+    padding: 0 16px;
+  }
+  .wizard-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    border: 1px solid var(--line);
+  }
+  .wizard-header {
+    background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-primary-soft) 100%);
+    color: white;
+    padding: 28px 36px;
+    position: relative;
+  }
+  .wizard-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--brand-accent);
+  }
+  .wizard-header h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 26px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .wizard-header p {
+    font-size: 14px;
+    opacity: 0.9;
+  }
+  .yemekci-durumu {
+    margin-top: 12px;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 5px;
+    font-size: 12px;
+    display: none;
+    align-items: center;
+    gap: 8px;
+  }
+  .yemekci-durumu.visible { display: inline-flex; }
+  .yemekci-durumu .check {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    background: var(--brand-accent);
+    color: var(--brand-primary);
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 11px;
+  }
+  .wizard-body { padding: 32px 36px; }
+
+  @media (max-width: 640px) {
+    .wizard-header { padding: 22px 22px; }
+    .wizard-body { padding: 24px 22px; }
+  }
+
+  /* ============== FORM ELEMENTS ============== */
+  .field-group {
+    margin-bottom: 28px;
+    padding-bottom: 28px;
+    border-bottom: 1px solid var(--line);
+  }
+  .field-group:last-of-type {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+  .field-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+  .field-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    background: var(--brand-primary);
+    color: white;
+    border-radius: 50%;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: 'Cormorant Garamond', serif;
+  }
+  .field-help {
+    font-size: 13px;
+    color: var(--ink-muted);
+    margin-bottom: 14px;
+    margin-left: 36px;
+  }
+  .field-content { margin-left: 36px; }
+
+  @media (max-width: 640px) {
+    .field-help, .field-content { margin-left: 0; }
+  }
+
+  /* Input */
+  .input-text, .input-number {
+    width: 100%;
+    max-width: 280px;
+    padding: 12px 14px;
+    border: 1.5px solid var(--line);
+    border-radius: 6px;
+    font-size: 16px;
+    font-family: inherit;
+    color: var(--ink);
+    background: white;
+    transition: all 0.2s;
+  }
+  .input-text:focus, .input-number:focus {
+    outline: none;
+    border-color: var(--brand-primary);
+    box-shadow: 0 0 0 3px rgba(107, 31, 42, 0.1);
+  }
+  .input-suffix {
+    display: inline-flex;
+    align-items: center;
+    color: var(--ink-muted);
+    margin-left: 10px;
+    font-size: 14px;
+  }
+
+  /* Card-style options */
+  .option-row {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  }
+  .option-card {
+    border: 1.5px solid var(--line);
+    background: white;
+    border-radius: 8px;
+    padding: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .option-card:hover {
+    border-color: var(--brand-primary);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+  }
+  .option-card.selected {
+    border-color: var(--brand-primary);
+    background: rgba(107, 31, 42, 0.04);
+    box-shadow: var(--shadow-sm);
+  }
+  .option-card.selected::before {
+    content: '✓';
+    position: absolute;
+  }
+  .option-card .opt-icon {
+    font-size: 24px;
+    display: block;
+    margin-bottom: 6px;
+  }
+  .option-card .opt-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 2px;
+  }
+  .option-card .opt-sub {
+    font-size: 11px;
+    color: var(--ink-muted);
+  }
+
+  /* Toggle (yes/no) */
+  .toggle-row {
+    display: flex;
+    gap: 10px;
+  }
+  .toggle-btn {
+    flex: 1;
+    max-width: 120px;
+    padding: 11px 18px;
+    border: 1.5px solid var(--line);
+    background: white;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--ink-soft);
+    font-family: inherit;
+  }
+  .toggle-btn:hover { border-color: var(--brand-primary); }
+  .toggle-btn.active {
+    background: var(--brand-primary);
+    border-color: var(--brand-primary);
+    color: white;
+  }
+
+  /* Sub-fields (öğün dağılımı, personel) */
+  .sub-fields {
+    display: none;
+    margin-top: 14px;
+    padding: 16px;
+    background: var(--brand-cream);
+    border-radius: 8px;
+    border: 1px solid var(--line);
+  }
+  .sub-fields.visible { display: block; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+
+  .sub-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+  }
+  .sub-row + .sub-row { border-top: 1px dashed var(--line); }
+  .sub-label {
+    font-size: 14px;
+    color: var(--ink);
+    font-weight: 500;
+  }
+  .sub-row input {
+    width: 90px;
+    padding: 7px 10px;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    font-size: 14px;
+    text-align: center;
+  }
+
+  /* Mutfak yatırımı checkboxları */
+  .checkbox-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 8px;
+  }
+  .checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 13px;
+  }
+  .checkbox-item:hover { border-color: var(--brand-primary); }
+  .checkbox-item.checked {
+    background: rgba(107, 31, 42, 0.04);
+    border-color: var(--brand-primary);
+  }
+  .checkbox-item input { accent-color: var(--brand-primary); }
+
+  /* Lokasyon */
+  .location-tabs {
+    display: flex;
+    border-bottom: 1.5px solid var(--line);
+    margin-bottom: 14px;
+  }
+  .location-tab {
+    padding: 10px 16px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--ink-muted);
+    font-weight: 500;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1.5px;
+    font-family: inherit;
+    transition: all 0.2s;
+  }
+  .location-tab.active {
+    color: var(--brand-primary);
+    border-bottom-color: var(--brand-primary);
+    font-weight: 600;
+  }
+  .location-pane { display: none; }
+  .location-pane.active { display: block; }
+
+  .location-input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1.5px solid var(--line);
+    border-radius: 6px;
+    font-size: 15px;
+    font-family: inherit;
+  }
+  .location-input:focus {
+    outline: none;
+    border-color: var(--brand-primary);
+  }
+
+  .gps-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 18px;
+    background: var(--brand-cream-dark);
+    border: 1.5px dashed var(--brand-primary);
+    color: var(--brand-primary);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    transition: all 0.2s;
+    width: 100%;
+    justify-content: center;
+  }
+  .gps-btn:hover {
+    background: var(--brand-primary);
+    color: white;
+    border-style: solid;
+  }
+  .gps-status {
+    margin-top: 10px;
+    font-size: 13px;
+    color: var(--success);
+    display: none;
+  }
+  .gps-status.visible { display: block; }
+
+  /* SUBMIT */
+  .submit-area {
+    margin-top: 32px;
+    padding-top: 28px;
+    border-top: 1.5px solid var(--line);
+    text-align: center;
+  }
+  .btn-calc {
+    background: var(--brand-primary);
+    color: white;
+    border: none;
+    padding: 16px 40px;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    letter-spacing: 0.02em;
+    transition: all 0.2s;
+    box-shadow: 0 4px 12px rgba(107, 31, 42, 0.25);
+  }
+  .btn-calc:hover {
+    background: var(--brand-primary-soft);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(107, 31, 42, 0.35);
+  }
+  .btn-calc:disabled {
+    background: var(--ink-muted);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+  .btn-calc .arrow { margin-left: 8px; }
+
+  /* RESULT */
+  .result-card {
+    display: none;
+    margin-top: 24px;
+    padding: 36px;
+    background: linear-gradient(135deg, #FFF8EC 0%, #FAF6F0 100%);
+    border: 2px solid var(--brand-accent);
+    border-radius: 12px;
+    text-align: center;
+    animation: scaleIn 0.4s ease;
+  }
+  .result-card.visible { display: block; }
+  @keyframes scaleIn { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } }
+
+  .result-label {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink-muted);
+    margin-bottom: 12px;
+    font-weight: 600;
+  }
+  .result-price {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(36px, 6vw, 56px);
+    font-weight: 700;
+    color: var(--brand-primary);
+    margin-bottom: 4px;
+    line-height: 1;
+  }
+  .result-unit {
+    font-size: 14px;
+    color: var(--ink-muted);
+    margin-bottom: 24px;
+  }
+  .result-summary {
+    margin-top: 24px;
+    padding: 18px;
+    background: white;
+    border-radius: 8px;
+    text-align: left;
+    border: 1px solid var(--line);
+  }
+  .summary-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    font-size: 14px;
+  }
+  .summary-row + .summary-row { border-top: 1px dashed var(--line); }
+  .summary-row .label { color: var(--ink-soft); }
+  .summary-row .value { color: var(--ink); font-weight: 600; }
+
+  .result-cta {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 24px;
+    flex-wrap: wrap;
+  }
+  .btn-secondary {
+    background: white;
+    color: var(--brand-primary);
+    border: 1.5px solid var(--brand-primary);
+    padding: 12px 22px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-secondary:hover { background: var(--brand-primary); color: white; }
+  .btn-primary-cta {
+    background: var(--brand-primary);
+    color: white;
+    border: 1.5px solid var(--brand-primary);
+    padding: 12px 22px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-primary-cta:hover { background: var(--brand-primary-soft); }
+
+  /* ========= FİRMA LİSTESİ (ANONİM) ========= */
+  .firma-listesi-wrap {
+    margin-top: 24px;
+    padding: 20px;
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    text-align: left;
+  }
+  .firma-listesi-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--line);
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .firma-listesi-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.2;
+    margin-bottom: 4px;
+  }
+  .firma-listesi-sub {
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+  .firma-listesi-info {
+    padding: 6px 12px;
+    background: var(--brand-cream);
+    color: var(--ink-soft);
+    border-radius: 14px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+  }
+  .firma-listesi {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .firma-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    background: var(--brand-cream);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    transition: all 0.2s;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .firma-row:hover {
+    border-color: var(--brand-primary);
+    background: white;
+    transform: translateX(2px);
+    box-shadow: var(--shadow-sm);
+  }
+  .firma-row-sol {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+  }
+  .firma-row-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: white;
+    border: 1.5px solid var(--brand-accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .firma-row-bilgi {
+    min-width: 0;
+  }
+  .firma-row-isim {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 2px;
+  }
+  .firma-row-meta {
+    font-size: 12px;
+    color: var(--ink-muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .firma-meta-bilgi {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+  }
+  .firma-row-fiyat {
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .firma-row-fiyat-deger {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--brand-primary);
+    line-height: 1;
+  }
+  .firma-row-fiyat-birim {
+    font-size: 11px;
+    color: var(--ink-muted);
+    font-weight: 500;
+    margin-top: 2px;
+  }
+  .firma-listesi-footer {
+    margin-top: 14px;
+    padding: 10px 12px;
+    background: rgba(201, 169, 97, 0.1);
+    border-left: 3px solid var(--brand-accent);
+    border-radius: 4px;
+    font-size: 12px;
+    color: var(--ink-soft);
+  }
+
+  /* ========= MAIL TALEP FORMU ========= */
+  .mail-talep-wrap {
+    margin-top: 20px;
+    padding: 20px;
+    background: white;
+    border: 1.5px solid var(--brand-primary);
+    border-radius: 10px;
+    text-align: left;
+  }
+  .mail-talep-head {
+    margin-bottom: 16px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--line);
+  }
+  .mail-talep-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--brand-primary);
+    margin-bottom: 4px;
+  }
+  .mail-talep-sub {
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+
+  /* Mod seçimi */
+  .mail-mod-secim {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  @media (max-width: 540px) {
+    .mail-mod-secim { grid-template-columns: 1fr; }
+  }
+  .mail-mod-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px;
+    background: white;
+    border: 1.5px solid var(--line);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+    font-family: inherit;
+    position: relative;
+  }
+  .mail-mod-btn:hover {
+    border-color: var(--brand-primary);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+  }
+  .mail-mod-btn.active {
+    border-color: var(--brand-primary);
+    background: rgba(107, 31, 42, 0.04);
+  }
+  .mail-mod-icon {
+    font-size: 28px;
+    flex-shrink: 0;
+  }
+  .mail-mod-icerik { flex: 1; min-width: 0; }
+  .mail-mod-baslik {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 2px;
+  }
+  .mail-mod-aciklama {
+    font-size: 12px;
+    color: var(--ink-muted);
+    line-height: 1.4;
+  }
+  .mail-mod-check {
+    width: 22px;
+    height: 22px;
+    border: 1.5px solid var(--line);
+    border-radius: 50%;
+    color: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+  .mail-mod-btn.active .mail-mod-check {
+    background: var(--brand-primary);
+    border-color: var(--brand-primary);
+    color: white;
+  }
+
+  /* Firma seçim listesi (ayri modu) */
+  .mail-firma-secim {
+    margin-bottom: 16px;
+    padding: 14px;
+    background: var(--brand-cream);
+    border-radius: 8px;
+  }
+  .mail-firma-secim-baslik {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .mail-tum-sec {
+    background: none;
+    border: 1px solid var(--brand-primary);
+    color: var(--brand-primary);
+    padding: 4px 10px;
+    border-radius: 14px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .mail-tum-sec:hover { background: var(--brand-primary); color: white; }
+
+  .mail-firma-listesi {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .mail-firma-cb {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.15s;
+  }
+  .mail-firma-cb:hover { border-color: var(--brand-primary); }
+  .mail-firma-cb input { accent-color: var(--brand-primary); }
+  .mail-firma-cb-isim { flex: 1; font-weight: 500; }
+  .mail-firma-cb-fiyat {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    color: var(--brand-primary);
+    font-size: 12px;
+  }
+
+  /* Mail input */
+  .mail-input-grup {}
+  .mail-input-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .mail-input-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .mail-input {
+    flex: 1;
+    min-width: 200px;
+    padding: 12px 14px;
+    border: 1.5px solid var(--line);
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--ink);
+    background: white;
+    transition: all 0.2s;
+  }
+  .mail-input:focus {
+    outline: none;
+    border-color: var(--brand-primary);
+    box-shadow: 0 0 0 3px rgba(107, 31, 42, 0.1);
+  }
+  .btn-mail-gonder {
+    background: var(--brand-primary);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s;
+    box-shadow: 0 2px 8px rgba(107, 31, 42, 0.2);
+    white-space: nowrap;
+  }
+  .btn-mail-gonder:hover {
+    background: var(--brand-primary-soft);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(107, 31, 42, 0.3);
+  }
+  .btn-mail-gonder:disabled {
+    background: var(--ink-muted);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  .mail-onay-row {
+    margin-top: 10px;
+  }
+  .mail-onay-check {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    font-size: 12px;
+    color: var(--ink-soft);
+    cursor: pointer;
+    line-height: 1.5;
+  }
+  .mail-onay-check input { margin-top: 3px; accent-color: var(--brand-primary); }
+
+  /* Başarı mesajı */
+  .mail-basari {
+    margin-top: 14px;
+    padding: 16px;
+    background: linear-gradient(135deg, #E8F5E9 0%, #F1F8E9 100%);
+    border: 1.5px solid var(--success);
+    border-radius: 8px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    animation: pillIn 0.4s;
+  }
+  .mail-basari-icon {
+    font-size: 28px;
+    flex-shrink: 0;
+  }
+  .mail-basari-icerik { flex: 1; }
+  .mail-basari-baslik {
+    font-weight: 700;
+    color: var(--success);
+    font-size: 15px;
+    margin-bottom: 4px;
+  }
+  .mail-basari-detay {
+    font-size: 13px;
+    color: var(--ink);
+    line-height: 1.5;
+  }
+  .mail-basari-detay strong { color: var(--brand-primary); }
+
+  .disclaimer {
+    margin-top: 20px;
+    font-size: 12px;
+    color: var(--ink-muted);
+    font-style: italic;
+  }
+
+  /* ========= MENU CONFIG (Soru 3) - CHIP STYLE ========= */
+
+  /* CANLI ÖNİZLEME (Üstte) */
+  .menu-preview {
+    background: linear-gradient(135deg, #FFF8EC 0%, #FAF6F0 100%);
+    border: 2px solid var(--brand-accent);
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-bottom: 18px;
+  }
+  .menu-preview-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+    padding-bottom: 12px;
+    border-bottom: 1px dashed var(--brand-accent);
+  }
+  .menu-preview-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--brand-primary);
+    line-height: 1;
+  }
+  .menu-preview-sub {
+    font-size: 12px;
+    color: var(--ink-soft);
+    margin-top: 4px;
+    font-weight: 600;
+  }
+  .menu-preview-badge {
+    padding: 5px 12px;
+    background: var(--brand-primary);
+    color: white;
+    border-radius: 14px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .menu-preview-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .menu-preview-pill {
+    padding: 8px 14px;
+    background: white;
+    border: 1.5px solid var(--brand-accent);
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    animation: pillIn 0.25s;
+  }
+  .menu-preview-pill.fixed {
+    background: rgba(201, 169, 97, 0.15);
+    border-color: rgba(201, 169, 97, 0.4);
+  }
+  @keyframes pillIn {
+    from { opacity: 0; transform: scale(0.8) translateY(-4px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  /* CHIP TABANLI SEÇİMLER (Altta) */
+  .menu-chips-section {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .chips-row {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .chips-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .chips-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .menu-chip {
+    padding: 8px 14px;
+    background: white;
+    border: 1.5px solid var(--line);
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink-soft);
+    cursor: default;
+    transition: all 0.2s;
+    font-family: inherit;
+    white-space: nowrap;
+  }
+  .menu-chip.fixed {
+    background: var(--brand-cream);
+    color: var(--ink);
+    border-color: var(--brand-cream-dark);
+    cursor: default;
+    opacity: 0.85;
+  }
+  .menu-chip.selectable {
+    cursor: pointer;
+  }
+  .menu-chip.selectable:hover {
+    border-color: var(--brand-primary);
+    color: var(--brand-primary);
+    transform: translateY(-1px);
+  }
+  .menu-chip.selectable.active {
+    background: var(--brand-primary);
+    border-color: var(--brand-primary);
+    color: white;
+    font-weight: 600;
+  }
+
+  @media (max-width: 640px) {
+    .menu-preview-head { flex-direction: column; align-items: flex-start; gap: 8px; }
+    .menu-chip { font-size: 12px; padding: 7px 12px; }
+  }
+
+  /* ========= QUICK TAGS & NOTES ========= */
+  .quick-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .quick-tag {
+    padding: 6px 12px;
+    background: white;
+    border: 1.5px solid var(--line);
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink-soft);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+  .quick-tag:hover {
+    border-color: var(--brand-primary);
+    color: var(--brand-primary);
+    transform: translateY(-1px);
+  }
+  .quick-tag.active {
+    background: var(--brand-primary);
+    border-color: var(--brand-primary);
+    color: white;
+  }
+
+  .notes-textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1.5px solid var(--line);
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--ink);
+    background: white;
+    line-height: 1.6;
+    resize: vertical;
+    min-height: 100px;
+    transition: all 0.2s;
+  }
+  .notes-textarea:focus {
+    outline: none;
+    border-color: var(--brand-primary);
+    box-shadow: 0 0 0 3px rgba(107, 31, 42, 0.1);
+  }
+
+  /* HOW IT WORKS - Footer */
+  .how-it-works {
+    max-width: 900px;
+    margin: 0 auto 60px;
+    padding: 0 24px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 24px;
+  }
+  .how-card {
+    text-align: center;
+    padding: 24px;
+  }
+  .how-card .step-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--brand-accent);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .how-card h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+  .how-card p {
+    font-size: 14px;
+    color: var(--ink-soft);
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="header-inner">
+    <div class="logo">Yemekhaneci<span class="dot">.</span></div>
+    <nav>
+      <a href="#">Toplu Yemek</a>
+      <a href="#">Yemekçiler</a>
+      <a href="#">Nasıl Çalışır</a>
+      <a href="#">Yemekçi Ol</a>
+      <a href="#" class="btn-login">Giriş Yap</a>
+    </nav>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <span class="hero-badge">Türkiye'nin tarafsız catering pazaryeri</span>
+  <h1>Yemekhanenizin <em>fiyatını</em> 30 saniyede öğrenin.</h1>
+  <p>İhtiyaçlarınızı belirtin, bölgenizdeki yemekçilerin ortalama fiyatlarını anında görün. Sonra teklif alın, karşılaştırın, seçin.</p>
+</section>
+
+<!-- WIZARD -->
+<div class="wizard-container">
+  <div class="wizard-card">
+
+    <div class="wizard-header">
+      <h2>Toplu Yemek Fiyat Hesaplayıcı</h2>
+      <p>Aşağıdaki bilgileri doldurun, bölgenizdeki ortalama fiyat aralığını anında öğrenin.</p>
+      <div id="yemekciDurumu" class="yemekci-durumu"></div>
+    </div>
+
+    <div class="wizard-body">
+
+      <!-- 1. KİŞİ SAYISI -->
+      <div class="field-group">
+        <div class="field-label"><span class="field-num">1</span>Günlük kişi sayısı</div>
+        <div class="field-help">Yemek hizmeti vereceğiniz toplam çalışan/öğrenci sayısı</div>
+        <div class="field-content">
+          <input type="number" id="kisiSayisi" class="input-number" placeholder="Örn. 150" min="1" max="10000">
+          <span class="input-suffix">kişi</span>
+        </div>
+      </div>
+
+      <!-- 2. ÖĞÜN -->
+      <div class="field-group">
+        <div class="field-label"><span class="field-num">2</span>Hangi öğünleri vereceksiniz?</div>
+        <div class="field-help">Birden fazla öğün seçebilirsiniz. Öğle otomatik kişi sayısına göre dolar; akşam veya kumanya girince öğleden düşülür. İstediğiniz öğünü elle de değiştirebilirsiniz, üstteki toplam kişi sayısı buna göre güncellenir.</div>
+        <div class="field-content">
+          <div class="option-row">
+            <div class="option-card selected" data-option="ogun" data-value="ogle">
+              <span class="opt-icon">☀️</span>
+              <div class="opt-title">Öğle</div>
+              <div class="opt-sub">11:00 - 14:00</div>
+            </div>
+            <div class="option-card" data-option="ogun" data-value="aksam">
+              <span class="opt-icon">🌙</span>
+              <div class="opt-title">Akşam</div>
+              <div class="opt-sub">17:00 - 20:00</div>
+            </div>
+            <div class="option-card" data-option="ogun" data-value="kumanya">
+              <span class="opt-icon">🥪</span>
+              <div class="opt-title">Kumanya</div>
+              <div class="opt-sub">Vardiya / Yol</div>
+            </div>
+          </div>
+
+          <div class="sub-fields visible" id="ogunDagilim">
+            <div class="sub-row" data-row="ogle">
+              <span class="sub-label">☀️ Öğle yemeği</span>
+              <div><input type="number" id="ogleAdet" min="0" placeholder="0"> <span style="font-size:13px;color:var(--ink-muted);">kişi</span></div>
+            </div>
+            <div class="sub-row" data-row="aksam" style="display:none;">
+              <span class="sub-label">🌙 Akşam yemeği</span>
+              <div><input type="number" id="aksamAdet" min="0" placeholder="0"> <span style="font-size:13px;color:var(--ink-muted);">kişi</span></div>
+            </div>
+            <div class="sub-row" data-row="kumanya" style="display:none;">
+              <span class="sub-label">🥪 Kumanya</span>
+              <div><input type="number" id="kumanyaAdet" min="0" placeholder="0"> <span style="font-size:13px;color:var(--ink-muted);">kişi</span></div>
+            </div>
+            <div class="dagilim-info" id="dagilimInfo" style="margin-top:10px; padding:10px; background:#FFF8EC; border-left:3px solid var(--brand-accent); font-size:12px; color:var(--ink-soft); display:none;">
+              <strong>ⓘ</strong> Günlük öğün dağılımı: bu sayılar her öğün için ayrı ayrı sayılır. Aynı kişi birden fazla öğün alabilir.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. MENÜ YAPILANDIRMASI -->
+      <div class="field-group">
+        <div class="field-label"><span class="field-num">3</span>Menü yapısı</div>
+        <div class="field-help">Bileşenleri seçin, menünüz yukarıda anlık şekillenir.</div>
+        <div class="field-content">
+
+          <!-- ÜST: CANLI MENÜ ÖNİZLEMESİ -->
+          <div class="menu-preview" id="menuPreview">
+            <div class="menu-preview-head">
+              <div>
+                <div class="menu-preview-title">🍽️ Menünüz</div>
+                <div class="menu-preview-sub" id="menuPreviewSub">6 çeşit / öğün</div>
+              </div>
+              <div class="menu-preview-badge" id="menuPreviewBadge">Standart</div>
+            </div>
+            <div class="menu-preview-items" id="menuPreviewItems">
+              <!-- JS dolduracak -->
+            </div>
+          </div>
+
+          <!-- ALT: CHIP TABANLI SEÇİM -->
+          <div class="menu-chips-section">
+
+            <!-- Sabit bilgilendirme -->
+            <div class="chips-row">
+              <div class="chips-label">📌 Sabit:</div>
+              <div class="chips-container">
+                <span class="menu-chip fixed">🥣 Çorba</span>
+                <span class="menu-chip fixed">🍖 Ana yemek</span>
+                <span class="menu-chip fixed">🍚 Yardımcı (pilav/makarna)</span>
+                <span class="menu-chip fixed">🍞 Ekmek</span>
+              </div>
+            </div>
+
+            <!-- Salata Bar -->
+            <div class="chips-row">
+              <div class="chips-label">🥗 Salata bar:</div>
+              <div class="chips-container">
+                <button type="button" class="menu-chip selectable active" data-chip="salata" data-value="1">1 Salata</button>
+                <button type="button" class="menu-chip selectable" data-chip="salata" data-value="2">2 Çeşit (+ Zeytinyağlı)</button>
+                <button type="button" class="menu-chip selectable" data-chip="salata" data-value="3">3 Çeşit (+ 2 Salata)</button>
+                <button type="button" class="menu-chip selectable" data-chip="salata" data-value="4">4 Çeşit (+ Meze)</button>
+                <button type="button" class="menu-chip selectable" data-chip="salata" data-value="5">5 Çeşit (Zengin)</button>
+                <button type="button" class="menu-chip selectable" data-chip="salata" data-value="6">6 Çeşit (Premium)</button>
+              </div>
+            </div>
+
+            <!-- Tatlı / Meyve / Meşrubat -->
+            <div class="chips-row">
+              <div class="chips-label">🍰 Tatlı tarzı:</div>
+              <div class="chips-container">
+                <button type="button" class="menu-chip selectable active" data-chip="tatli" data-value="evet">Tatlı/Meyve/Meşrubat dahil</button>
+                <button type="button" class="menu-chip selectable" data-chip="tatli" data-value="hayir">Yok, gerek değil</button>
+              </div>
+            </div>
+
+            <!-- Ayran / Yoğurt -->
+            <div class="chips-row">
+              <div class="chips-label">🥛 İçecek:</div>
+              <div class="chips-container">
+                <button type="button" class="menu-chip selectable" data-chip="ayran" data-value="ayran">Sadece Ayran</button>
+                <button type="button" class="menu-chip selectable" data-chip="ayran" data-value="yogurt">Sadece Yoğurt</button>
+                <button type="button" class="menu-chip selectable active" data-chip="ayran" data-value="rotasyon">Rotasyon (menüye göre)</button>
+                <button type="button" class="menu-chip selectable" data-chip="ayran" data-value="ikisi">Ayran + Yoğurt birlikte</button>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+      <!-- 4. SEGMENT -->
+      <div class="field-group">
+        <div class="field-label"><span class="field-num">4</span>Hizmet segmenti</div>
+        <div class="field-help">Beklenti seviyenize uygun hizmet kalitesi.</div>
+        <div class="field-content">
+          <div class="option-row">
+            <div class="option-card" data-option="segment" data-value="ekonomik">
+              <span class="opt-icon">📦</span>
+              <div class="opt-title">Ekonomik</div>
+              <div class="opt-sub">Bütçe dostu, temel kalite</div>
+            </div>
+            <div class="option-card selected" data-option="segment" data-value="genel">
+              <span class="opt-icon">⭐</span>
+              <div class="opt-title">Genel</div>
+              <div class="opt-sub">Standart, dengeli</div>
+            </div>
+            <div class="option-card" data-option="segment" data-value="premium">
+              <span class="opt-icon">👑</span>
+              <div class="opt-title">Premium</div>
+              <div class="opt-sub">Üst kalite, özel</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. LOKASYON -->
+      <div class="field-group">
+        <div class="field-label"><span class="field-num">5</span>Hizmet lokasyonu</div>
+        <div class="field-help">Yemeğin teslim edileceği veya hazırlanacağı yer.</div>
+        <div class="field-content">
+          <div class="location-tabs">
+            <button type="button" class="location-tab active" data-tab="manuel">📍 Adres Yaz</button>
+            <button type="button" class="location-tab" data-tab="gps">🛰️ Konumumu Kullan</button>
+          </div>
+          <div class="location-pane active" data-pane="manuel">
+            <input type="text" class="location-input" id="adresInput" placeholder="Örn: Gebze OSB, Kocaeli">
+          </div>
+          <div class="location-pane" data-pane="gps">
+            <button type="button" class="gps-btn" onclick="getGPS()">
+              🛰️ Konum İznini Kullan
+            </button>
+            <div class="gps-status" id="gpsStatus"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. PERSONEL -->
+      <div class="field-group">
+        <div class="field-label"><span class="field-num">6</span>Yemekçiden personel desteği</div>
+        <div class="field-help">Servis, bulaşık ve yardımcı personel istiyor musunuz? Her ek personel maliyeti artırır.</div>
+        <div class="field-content">
+          <div class="toggle-row">
+            <button type="button" class="toggle-btn" data-toggle="personel" data-value="evet">Evet</button>
+            <button type="button" class="toggle-btn active" data-toggle="personel" data-value="hayir">Hayır</button>
+          </div>
+          <div class="sub-fields" id="personelDetay">
+            <div class="sub-row">
+              <span class="sub-label">👨‍🍳 Aşçı sayısı</span>
+              <div><input type="number" id="asciSayi" min="0" max="20" placeholder="0"> <span style="font-size:13px;color:var(--ink-muted);">kişi</span></div>
+            </div>
+            <div class="sub-row">
+              <span class="sub-label">🍽️ Servis personeli</span>
+              <div><input type="number" id="servisSayi" min="0" max="50" placeholder="0"> <span style="font-size:13px;color:var(--ink-muted);">kişi</span></div>
+            </div>
+            <div class="sub-row">
+              <span class="sub-label">🧽 Bulaşık / temizlik</span>
+              <div><input type="number" id="bulasikSayi" min="0" max="20" placeholder="0"> <span style="font-size:13px;color:var(--ink-muted);">kişi</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 7. MUTFAK YATIRIMI -->
+      <div class="field-group">
+        <div class="field-label"><span class="field-num">7</span>Mutfak yatırımı</div>
+        <div class="field-help">Yemekçinin sahanızda mutfak kuracağı veya ekipman sağlayacağı bir senaryo var mı?</div>
+        <div class="field-content">
+          <div class="toggle-row">
+            <button type="button" class="toggle-btn" data-toggle="mutfak" data-value="evet">Evet</button>
+            <button type="button" class="toggle-btn active" data-toggle="mutfak" data-value="hayir">Hayır</button>
+          </div>
+          <div class="sub-fields" id="mutfakDetay">
+            <div style="font-size:13px; color:var(--ink-soft); margin-bottom:10px;">İhtiyaç duyulan ekipmanlar:</div>
+            <div class="checkbox-grid">
+              <label class="checkbox-item"><input type="checkbox" data-mutfak="ocak"> 🔥 Ocak / Set</label>
+              <label class="checkbox-item"><input type="checkbox" data-mutfak="firin"> 🧯 Sanayi fırın</label>
+              <label class="checkbox-item"><input type="checkbox" data-mutfak="bulasik"> 🧽 Endüstriyel bulaşık</label>
+              <label class="checkbox-item"><input type="checkbox" data-mutfak="dolap"> ❄️ Soğutucu dolap</label>
+              <label class="checkbox-item"><input type="checkbox" data-mutfak="depo"> 📦 Depo / Kiler</label>
+              <label class="checkbox-item"><input type="checkbox" data-mutfak="davlumbaz"> 💨 Davlumbaz</label>
+              <label class="checkbox-item"><input type="checkbox" data-mutfak="yemekhane"> 🪑 Yemekhane salon</label>
+              <label class="checkbox-item"><input type="checkbox" data-mutfak="hat"> 🍲 Self-servis hat</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 8. CUMARTESİ ÇALIŞMA -->
+      <div class="field-group">
+        <div class="field-label"><span class="field-num">8</span>Cumartesi standart çalışmanız var mı?</div>
+        <div class="field-help">Cumartesi de yemek hizmeti gerekiyorsa aylık iş günü 22'den 26'ya çıkar — fiyat doğru hesaplanır.</div>
+        <div class="field-content">
+          <div class="toggle-row">
+            <button type="button" class="toggle-btn" data-toggle="cumartesi" data-value="evet">Evet, çalışıyoruz</button>
+            <button type="button" class="toggle-btn active" data-toggle="cumartesi" data-value="hayir">Hayır, sadece hafta içi</button>
+            <button type="button" class="toggle-btn" data-toggle="cumartesi" data-value="yarim">Mesaimiz olduğunda</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 9. NOTLAR / DİĞER İSTEKLER -->
+      <div class="field-group">
+        <div class="field-label"><span class="field-num">9</span>Notlarınız / Diğer İstekleriniz</div>
+        <div class="field-help">Özel ihtiyaçlarınız, dini/diyet kuralları, alerjiler, ekipman beklentileri veya yemekçinin bilmesi gereken her şey.</div>
+        <div class="field-content">
+          <!-- Hızlı seçim etiketleri -->
+          <div style="margin-bottom:12px;">
+            <div style="font-size:12px; font-weight:600; color:var(--ink-soft); margin-bottom:8px;">Hızlı seçim (tıklayın, otomatik nota eklenir):</div>
+            <div class="quick-tags">
+              <button type="button" class="quick-tag" data-tag="🟢 Helal sertifikalı et zorunlu">🟢 Helal sertifikalı</button>
+              <button type="button" class="quick-tag" data-tag="🌱 Vegan/vejetaryen seçenek olsun">🌱 Vegan seçenek</button>
+              <button type="button" class="quick-tag" data-tag="🌾 Glutensiz alternatif gerekli">🌾 Glutensiz</button>
+              <button type="button" class="quick-tag" data-tag="🥜 Fıstık/yer fıstığı içermesin">🥜 Fıstık alerjisi</button>
+              <button type="button" class="quick-tag" data-tag="🐟 Deniz ürünü içermesin">🐟 Deniz ürünü yok</button>
+              <button type="button" class="quick-tag" data-tag="🌶️ Acılı yemek tercih edilmez">🌶️ Acısız</button>
+              <button type="button" class="quick-tag" data-tag="🕌 Ramazan ayında iftar/sahur servisi gerekiyor">🕌 Ramazan menüsü</button>
+              <button type="button" class="quick-tag" data-tag="🎓 Öğrenci yemekhanesi (yaş/beslenme grubu önemli)">🎓 Öğrenci menüsü</button>
+              <button type="button" class="quick-tag" data-tag="👷 Ağır iş çalışanları (2500+ kalori)">👷 Ağır iş çalışanları</button>
+              <button type="button" class="quick-tag" data-tag="🍽️ Kendi servis tabaklarımız var">🍽️ Tabaklarımız var</button>
+              <button type="button" class="quick-tag" data-tag="📦 Tek kullanımlık tabak/kap istiyoruz">📦 Tek kullanımlık servis</button>
+              <button type="button" class="quick-tag" data-tag="🧊 Soğuk zincir korunmalı (özel taşıma)">🧊 Soğuk zincir</button>
+            </div>
+          </div>
+
+          <!-- Notlar metin alanı -->
+          <textarea id="notlarInput" rows="5" maxlength="1000"
+            placeholder="Örn: Etler dana olmasın, sadece kuzu ve tavuk olsun. Çorbada acı baharat kullanılmasın. Pazartesi ve Cuma günleri vegan seçenek mutlaka olsun. Ramazan ayında iftar saatine göre teslimat yapılmalı..."
+            class="notes-textarea"></textarea>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px;">
+            <div style="font-size:11px; color:var(--ink-muted);">
+              ⓘ Yemekçilere bu notlar iletilir, fiyatlandırmayı buna göre yapar.
+            </div>
+            <div style="font-size:11px; color:var(--ink-muted);">
+              <span id="notKalan">1000</span> karakter kaldı
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUBMIT -->
+      <div class="submit-area">
+        <button type="button" class="btn-calc" id="hesaplaBtn">
+          Fiyat Aralığını Hesapla
+          <span class="arrow">→</span>
+        </button>
+      </div>
+
+      <!-- RESULT -->
+      <div class="result-card" id="resultCard">
+
+        <!-- BAŞLIK -->
+        <div class="result-label">Bölgenizdeki yemekçi fiyatları</div>
+        <div class="result-price" id="resultPrice">— TL</div>
+        <div class="result-unit" id="resultUnit">kişi başı / öğün ortalama aralık</div>
+
+        <!-- ÖZET (form değerleri) -->
+        <div class="result-summary" id="resultSummary"></div>
+
+        <!-- ANONİM YEMEKÇİ LİSTESİ -->
+        <div class="firma-listesi-wrap">
+          <div class="firma-listesi-head">
+            <div>
+              <h3 class="firma-listesi-title">📋 Size Uygun Yemekçiler</h3>
+              <p class="firma-listesi-sub" id="firmaListesiSub">12 yemekçi bulundu</p>
+            </div>
+            <div class="firma-listesi-info">🔒 Firma isimleri gizli</div>
+          </div>
+
+          <div class="firma-listesi" id="firmaListesi">
+            <!-- JS dolduracak -->
+          </div>
+
+          <div class="firma-listesi-footer">
+            ℹ️ Firma isimlerini görmek ve detaylı teklif almak için aşağıdaki formdan e-posta adresinize liste gönderin.
+          </div>
+        </div>
+
+        <!-- MAIL TALEP FORMU -->
+        <div class="mail-talep-wrap">
+          <div class="mail-talep-head">
+            <h3 class="mail-talep-title">📨 Detaylı Teklif Listesi İste</h3>
+            <p class="mail-talep-sub">E-posta adresinize firma bilgileri ve iletişim detaylarıyla liste gönderelim.</p>
+          </div>
+
+          <!-- Mod seçimi -->
+          <div class="mail-mod-secim">
+            <button type="button" class="mail-mod-btn active" data-mod="toplu">
+              <div class="mail-mod-icon">📊</div>
+              <div class="mail-mod-icerik">
+                <div class="mail-mod-baslik">Toplu Liste</div>
+                <div class="mail-mod-aciklama">Tüm yemekçiler tek mailde, karşılaştırmalı tablo</div>
+              </div>
+              <div class="mail-mod-check">✓</div>
+            </button>
+            <button type="button" class="mail-mod-btn" data-mod="ayri">
+              <div class="mail-mod-icon">📬</div>
+              <div class="mail-mod-icerik">
+                <div class="mail-mod-baslik">Ayrı Mailler</div>
+                <div class="mail-mod-aciklama">Her firma için ayrı mail (detaylı bilgi)</div>
+              </div>
+              <div class="mail-mod-check">✓</div>
+            </button>
+          </div>
+
+          <!-- Yemekçi seçim (ayri modunda görünür) -->
+          <div class="mail-firma-secim" id="mailFirmaSecim" style="display:none;">
+            <div class="mail-firma-secim-baslik">
+              Hangi yemekçilerden mail alalım?
+              <button type="button" class="mail-tum-sec" id="mailTumSec">Tümünü seç</button>
+            </div>
+            <div class="mail-firma-listesi" id="mailFirmaListesi"></div>
+          </div>
+
+          <!-- E-posta input -->
+          <div class="mail-input-grup">
+            <label class="mail-input-label">E-posta Adresiniz</label>
+            <div class="mail-input-row">
+              <input type="email" id="musteriEposta" placeholder="ornek@firma.com.tr" class="mail-input">
+              <button type="button" class="btn-mail-gonder" id="mailGonderBtn">
+                📧 Listeyi Gönder
+              </button>
+            </div>
+            <div class="mail-onay-row">
+              <label class="mail-onay-check">
+                <input type="checkbox" id="kvkkOnay" checked>
+                <span>İzin: <strong>Kayıtlı yemekçiler</strong> talebim hakkında benimle iletişime geçebilir.
+                <a href="#" style="color:var(--brand-primary);">KVKK Aydınlatma Metni</a></span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Başarı mesajı (gizli, mail gönderilince görünür) -->
+          <div class="mail-basari" id="mailBasari" style="display:none;">
+            <div class="mail-basari-icon">✅</div>
+            <div class="mail-basari-icerik">
+              <div class="mail-basari-baslik">E-posta gönderildi!</div>
+              <div class="mail-basari-detay" id="mailBasariDetay">
+                Listeyi <strong></strong> adresine gönderdik. Yemekçilerden 24 saat içinde teklifler ulaşmaya başlayacaktır.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="disclaimer">
+          ⓘ Tahmini fiyatlar, yemekçilerin ortalama maliyet matrisleri baz alınarak hesaplanmıştır. Net fiyat için yemekçilerin gönderdiği teklifleri inceleyiniz.
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<section class="how-it-works">
+  <div class="how-card">
+    <div class="step-num">01</div>
+    <h3>Fiyat Tahmini Al</h3>
+    <p>30 saniyede ihtiyacınız için bölgenizdeki ortalama maliyeti öğrenin.</p>
+  </div>
+  <div class="how-card">
+    <div class="step-num">02</div>
+    <h3>Teklif İste</h3>
+    <p>Kriterlerinize uyan yemekçiler 24 saat içinde teklif verir.</p>
+  </div>
+  <div class="how-card">
+    <div class="step-num">03</div>
+    <h3>Karşılaştır ve Seç</h3>
+    <p>Tüm teklifleri yan yana görün, en uygun olanı seçin.</p>
+  </div>
+</section>
+
+<script>
+  // ============== YEMEKÇİ MALİYETLERİ KÖPRÜSÜ ==============
+  // localStorage üzerinden yemekçi paneliyle iletişim
+  const STORAGE_KEY = 'yemekhaneci_yemekci_maliyetleri';
+  let yemekciMaliyetleri = null;
+
+  try {
+    const ham = localStorage.getItem(STORAGE_KEY);
+    if (ham) {
+      yemekciMaliyetleri = JSON.parse(ham);
+      // Üst rozet
+      const durum = document.getElementById('yemekciDurumu');
+      const tarih = new Date(yemekciMaliyetleri.kayitTarihi).toLocaleString('tr-TR', {
+        day: '2-digit', month: 'long', hour: '2-digit', minute: '2-digit'
+      });
+      durum.classList.add('visible');
+      durum.innerHTML = `
+        <span class="check">✓</span>
+        Fiyatlar <strong>${yemekciMaliyetleri.yemekci}</strong> maliyetlerine göre hesaplanıyor
+        <span style="opacity:0.7; margin-left:6px;">(${tarih} güncellendi)</span>
+      `;
+    } else {
+      const durum = document.getElementById('yemekciDurumu');
+      durum.classList.add('visible');
+      durum.innerHTML = `
+        <span class="check" style="background:#FFB300; color:white;">!</span>
+        Demo fiyatlar kullanılıyor — Gerçek fiyat için
+        <a href="yemekci-maliyet-paneli.html" style="color:#FFD700; text-decoration:underline; font-weight:600;">yemekçi paneline</a> maliyet girilmeli
+      `;
+    }
+  } catch (e) {
+    console.error('Yemekçi maliyetleri okunamadı:', e);
+  }
+
+  // ============== STATE ==============
+  const state = {
+    kisiSayisi: 0,
+    ogunler: new Set(['ogle']),  // öğle default seçili
+    ogunAdetleri: { ogle: 0, aksam: 0, kumanya: 0 },
+    // Menü konfigürasyonu (yemekçi paneliyle uyumlu)
+    menuConfig: {
+      salataAdet: 1,
+      tatliAktif: true,
+      ayranTip: 'rotasyon'  // 'ayran', 'yogurt', 'rotasyon', 'ikisi'
+    },
+    menu: 6,  // toplam çeşit sayısı (otomatik hesaplanır)
+    segment: 'genel',
+    lokasyon: '',
+    personel: 'hayir',
+    personelSayilari: { asci: 0, servis: 0, bulasik: 0 },
+    mutfak: 'hayir',
+    mutfakEkipman: new Set(),
+    cumartesi: 'hayir'
+  };
+
+  // ============== KİŞİ SAYISI DEĞİŞİNCE → ÖĞLE OTOMATİK DOLDUR ==============
+  const kisiInput = document.getElementById('kisiSayisi');
+  const ogleInput = document.getElementById('ogleAdet');
+  const aksamInput = document.getElementById('aksamAdet');
+  const kumanyaInput = document.getElementById('kumanyaAdet');
+
+  // Kullanıcı öğleyi elle değiştirdiyse otomatik düşürmeyelim
+  let ogleManuelDegistirildi = false;
+
+  kisiInput.addEventListener('input', () => {
+    const total = parseInt(kisiInput.value) || 0;
+    state.kisiSayisi = total;
+    // Kişi sayısı değişince öğle reset olur (manuel bayrağı sıfırla)
+    ogleManuelDegistirildi = false;
+    if (state.ogunler.has('ogle')) {
+      // Akşam ve kumanya zaten girilmişse toplamdan düşerek öğleyi hesapla
+      const aksam = parseInt(aksamInput.value) || 0;
+      const kumanya = parseInt(kumanyaInput.value) || 0;
+      const ogleYeni = Math.max(0, total - aksam - kumanya);
+      ogleInput.value = ogleYeni;
+      state.ogunAdetleri.ogle = ogleYeni;
+    }
+    updateDagilimInfo();
+  });
+
+  // ============== AKILLI ÖĞÜN DAĞILIMI ==============
+  // Mantık:
+  // - Akşam veya kumanya değişti → öğle otomatik düşer (manuel değilse)
+  // - Öğle elle değişti → manuel bayrağı set, toplam yeniden hesaplanır
+  // - Toplam = öğle + akşam + kumanya (her zaman)
+
+  function akilliDagilim(degisenInput) {
+    const ogle = parseInt(ogleInput.value) || 0;
+    const aksam = parseInt(aksamInput.value) || 0;
+    const kumanya = parseInt(kumanyaInput.value) || 0;
+
+    if (degisenInput === 'ogle') {
+      // Öğle elle değiştirildi
+      ogleManuelDegistirildi = true;
+      state.ogunAdetleri.ogle = ogle;
+      // Toplamı (kişi sayısı) yeniden hesapla
+      const yeniToplam = ogle + aksam + kumanya;
+      kisiInput.value = yeniToplam;
+      state.kisiSayisi = yeniToplam;
+    } else if (degisenInput === 'aksam' || degisenInput === 'kumanya') {
+      state.ogunAdetleri.aksam = aksam;
+      state.ogunAdetleri.kumanya = kumanya;
+
+      if (!ogleManuelDegistirildi && state.ogunler.has('ogle')) {
+        // Öğle henüz manuel değiştirilmedi → otomatik düş
+        const total = state.kisiSayisi;
+        const ogleYeni = Math.max(0, total - aksam - kumanya);
+        ogleInput.value = ogleYeni;
+        state.ogunAdetleri.ogle = ogleYeni;
+      } else {
+        // Öğle manuel set edilmiş veya seçili değil → toplamı yeniden hesapla
+        const yeniToplam = ogle + aksam + kumanya;
+        kisiInput.value = yeniToplam;
+        state.kisiSayisi = yeniToplam;
+      }
+    }
+
+    updateDagilimInfo();
+  }
+
+  ogleInput.addEventListener('input', () => akilliDagilim('ogle'));
+  aksamInput.addEventListener('input', () => akilliDagilim('aksam'));
+  kumanyaInput.addEventListener('input', () => akilliDagilim('kumanya'));
+
+  function updateDagilimInfo() {
+    const info = document.getElementById('dagilimInfo');
+    const ogle = state.ogunAdetleri.ogle || 0;
+    const aksam = state.ogunAdetleri.aksam || 0;
+    const kumanya = state.ogunAdetleri.kumanya || 0;
+    const toplamKisi = ogle + aksam + kumanya;
+
+    if (toplamKisi > 0 && (aksam > 0 || kumanya > 0)) {
+      info.style.display = 'block';
+      info.innerHTML = `<strong>ⓘ Günlük öğün dağılımı:</strong> Öğle: <strong>${ogle}</strong> · Akşam: <strong>${aksam}</strong> · Kumanya: <strong>${kumanya}</strong> = <strong>${toplamKisi} öğün/gün</strong>`;
+    } else {
+      info.style.display = 'none';
+    }
+  }
+  document.querySelectorAll('[data-option="ogun"]').forEach(card => {
+    card.addEventListener('click', () => {
+      const value = card.dataset.value;
+      card.classList.toggle('selected');
+      const row = document.querySelector(`[data-row="${value}"]`);
+      const dagilimWrapper = document.getElementById('ogunDagilim');
+
+      if (card.classList.contains('selected')) {
+        state.ogunler.add(value);
+        row.style.display = 'flex';
+        // Öğle yeniden seçildiyse manuel bayrağı sıfırla, otomatik doldur
+        if (value === 'ogle') {
+          ogleManuelDegistirildi = false;
+          if (state.kisiSayisi > 0) {
+            const aksam = parseInt(aksamInput.value) || 0;
+            const kumanya = parseInt(kumanyaInput.value) || 0;
+            const ogleYeni = Math.max(0, state.kisiSayisi - aksam - kumanya);
+            ogleInput.value = ogleYeni;
+            state.ogunAdetleri.ogle = ogleYeni;
+          }
+        }
+      } else {
+        state.ogunler.delete(value);
+        row.style.display = 'none';
+        // İlgili input'u sıfırla
+        if (value === 'ogle') {
+          ogleInput.value = '';
+          state.ogunAdetleri.ogle = 0;
+          // Toplam = akşam + kumanya
+          const yeniToplam = (state.ogunAdetleri.aksam || 0) + (state.ogunAdetleri.kumanya || 0);
+          kisiInput.value = yeniToplam;
+          state.kisiSayisi = yeniToplam;
+        }
+        if (value === 'aksam') {
+          aksamInput.value = '';
+          state.ogunAdetleri.aksam = 0;
+          akilliDagilim('aksam');
+        }
+        if (value === 'kumanya') {
+          kumanyaInput.value = '';
+          state.ogunAdetleri.kumanya = 0;
+          akilliDagilim('kumanya');
+        }
+      }
+
+      dagilimWrapper.classList.toggle('visible', state.ogunler.size > 0);
+      updateDagilimInfo();
+    });
+  });
+
+  // ============== SEGMENT SEÇİMİ ==============
+  document.querySelectorAll(`[data-option="segment"]`).forEach(card => {
+    card.addEventListener('click', () => {
+      document.querySelectorAll(`[data-option="segment"]`).forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      state.segment = card.dataset.value;
+    });
+  });
+
+  // ============== MENÜ KONFİGÜRASYONU (Soru 3) - CHIP STYLE ==============
+
+  // Salata bar dağılım kuralları (yemekçi paneliyle aynı)
+  function salataDagilimText(adet) {
+    const kural = {
+      1: '1 Salata',
+      2: '1 Salata + 1 Zeytinyağlı',
+      3: '2 Salata + 1 Zeytinyağlı',
+      4: '2 Salata + 1 Zeytinyağlı + 1 Meze',
+      5: '2 Salata + 1 Zeytinyağlı + 1 Meze + 1 Kısır',
+      6: '2 Salata + 2 Zeytinyağlı + 1 Meze + 1 Kısır'
+    };
+    return kural[adet] || `${adet} çeşit zengin salata bar`;
+  }
+
+  // Salata kompozisyon detayı (preview için tek tek pill üretir)
+  function salataPilller(adet) {
+    const dagilim = {
+      1: [{ ic: '🥬', ad: 'Salata' }],
+      2: [{ ic: '🥬', ad: 'Salata' }, { ic: '🫒', ad: 'Zeytinyağlı' }],
+      3: [{ ic: '🥬', ad: '2 Salata' }, { ic: '🫒', ad: 'Zeytinyağlı' }],
+      4: [{ ic: '🥬', ad: '2 Salata' }, { ic: '🫒', ad: 'Zeytinyağlı' }, { ic: '🧆', ad: 'Meze' }],
+      5: [{ ic: '🥬', ad: '2 Salata' }, { ic: '🫒', ad: 'Zeytinyağlı' }, { ic: '🧆', ad: 'Meze' }, { ic: '🌾', ad: 'Kısır' }],
+      6: [{ ic: '🥬', ad: '2 Salata' }, { ic: '🫒', ad: '2 Zeytinyağlı' }, { ic: '🧆', ad: 'Meze' }, { ic: '🌾', ad: 'Kısır' }]
+    };
+    return dagilim[adet] || [{ ic: '🥗', ad: `${adet} çeşit zengin bar` }];
+  }
+
+  // Chip click handler
+  document.querySelectorAll('.menu-chip.selectable').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const tip = chip.dataset.chip;
+      const value = chip.dataset.value;
+
+      // Aynı kategorideki tüm chip'lerden active'i kaldır
+      document.querySelectorAll(`[data-chip="${tip}"]`).forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+
+      // State'i güncelle
+      if (tip === 'salata') {
+        state.menuConfig.salataAdet = parseInt(value);
+      } else if (tip === 'tatli') {
+        state.menuConfig.tatliAktif = value === 'evet';
+      } else if (tip === 'ayran') {
+        state.menuConfig.ayranTip = value;
+      }
+
+      menuPreviewGuncelle();
+    });
+  });
+
+  // ============== CANLI MENÜ ÖNİZLEMESİ ==============
+  function menuPreviewGuncelle() {
+    const items = [];
+    let toplam = 0;
+
+    // Sabit bileşenler
+    items.push({ icon: '🥣', text: 'Çorba', fixed: true });
+    items.push({ icon: '🍖', text: 'Ana yemek', fixed: true });
+    items.push({ icon: '🍚', text: 'Pilav/Makarna', fixed: true });
+    items.push({ icon: '🍞', text: 'Ekmek', fixed: true });
+    toplam += 4; // ekmeği çeşit sayısına dahil etmiyoruz aslında ama görsel olarak gösteriyoruz
+    // Aslında çeşit sayısı: çorba+ana+yardımcı = 3 (ekmek hariç), sonra salata+tatlı+ayran ekleniyor
+
+    // Hesaplama için çeşit sayısı (ekmek dahil değil)
+    let cesitSayisi = 3; // çorba + ana + yardımcı
+
+    // Salata bar — pill'lere ayrılmış göster
+    const sa = state.menuConfig.salataAdet || 1;
+    const salataPills = salataPilller(sa);
+    salataPills.forEach(p => items.push({ icon: p.ic, text: p.ad }));
+    cesitSayisi += sa;
+
+    // Tatlı/Meyve/Meşrubat
+    if (state.menuConfig.tatliAktif) {
+      items.push({ icon: '🍰', text: 'Tatlı/Meyve/Meşrubat' });
+      cesitSayisi += 1;
+    }
+
+    // Ayran/Yoğurt — KAÇAK YOK, her durumda ekleniyor
+    if (state.menuConfig.ayranTip === 'ayran') {
+      items.push({ icon: '🥛', text: 'Ayran' });
+      cesitSayisi += 1;
+    } else if (state.menuConfig.ayranTip === 'yogurt') {
+      items.push({ icon: '🥛', text: 'Yoğurt' });
+      cesitSayisi += 1;
+    } else if (state.menuConfig.ayranTip === 'rotasyon') {
+      items.push({ icon: '🥛', text: 'Ayran/Yoğurt rotasyon' });
+      cesitSayisi += 1;
+    } else if (state.menuConfig.ayranTip === 'ikisi') {
+      items.push({ icon: '🥛', text: 'Ayran' });
+      items.push({ icon: '🥣', text: 'Yoğurt' });
+      cesitSayisi += 2;
+    }
+
+    // state.menu güncelle (fiyat motoru için)
+    state.menu = cesitSayisi;
+
+    // UI: pill'leri yaz
+    const itemsEl = document.getElementById('menuPreviewItems');
+    itemsEl.innerHTML = items.map(i =>
+      `<span class="menu-preview-pill ${i.fixed ? 'fixed' : ''}">${i.icon} ${i.text}</span>`
+    ).join('');
+
+    // Üst başlık güncelle
+    document.getElementById('menuPreviewSub').textContent = `${cesitSayisi} çeşit / öğün`;
+
+    // Badge: çeşit sayısına göre seviye
+    const badge = document.getElementById('menuPreviewBadge');
+    if (cesitSayisi <= 4) { badge.textContent = 'Sade'; badge.style.background = 'var(--ink-soft)'; }
+    else if (cesitSayisi <= 5) { badge.textContent = 'Ekonomik'; badge.style.background = '#2F6B4A'; }
+    else if (cesitSayisi <= 6) { badge.textContent = 'Standart'; badge.style.background = '#1B5E7C'; }
+    else if (cesitSayisi <= 7) { badge.textContent = 'Zengin'; badge.style.background = 'var(--brand-primary)'; }
+    else { badge.textContent = 'Premium'; badge.style.background = '#6B46C1'; }
+  }
+
+  // İlk yükleme
+  menuPreviewGuncelle();
+
+  // ============== TOGGLE (personel, mutfak) ==============
+  document.querySelectorAll('[data-toggle]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const type = btn.dataset.toggle;
+      document.querySelectorAll(`[data-toggle="${type}"]`).forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      state[type] = btn.dataset.value;
+
+      const detayId = type === 'personel' ? 'personelDetay' : 'mutfakDetay';
+      document.getElementById(detayId).classList.toggle('visible', btn.dataset.value === 'evet');
+    });
+  });
+
+  // ============== LOKASYON TAB ==============
+  document.querySelectorAll('.location-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.dataset.tab;
+      document.querySelectorAll('.location-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.location-pane').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.querySelector(`[data-pane="${target}"]`).classList.add('active');
+    });
+  });
+
+  // ============== GPS ==============
+  function getGPS() {
+    const status = document.getElementById('gpsStatus');
+    if (!navigator.geolocation) {
+      status.textContent = '❌ Tarayıcınız konum desteklemiyor.';
+      status.style.color = 'var(--brand-primary)';
+      status.classList.add('visible');
+      return;
+    }
+    status.textContent = '🔄 Konum alınıyor...';
+    status.style.color = 'var(--ink-muted)';
+    status.classList.add('visible');
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const lat = pos.coords.latitude.toFixed(4);
+        const lng = pos.coords.longitude.toFixed(4);
+        state.lokasyon = `${lat}, ${lng}`;
+        status.innerHTML = `✓ Konum alındı: <strong>${lat}, ${lng}</strong>`;
+        status.style.color = 'var(--success)';
+      },
+      () => {
+        status.textContent = '❌ Konum izni reddedildi. Lütfen adres yazın.';
+        status.style.color = 'var(--brand-primary)';
+      }
+    );
+  }
+
+  // ============== NOTLAR / QUICK TAGS ==============
+  const notlarInput = document.getElementById('notlarInput');
+  const notKalanEl = document.getElementById('notKalan');
+
+  // Karakter sayacı
+  notlarInput.addEventListener('input', () => {
+    const kalan = 1000 - notlarInput.value.length;
+    notKalanEl.textContent = kalan;
+    notKalanEl.style.color = kalan < 50 ? 'var(--brand-primary)' : 'var(--ink-muted)';
+  });
+
+  // Quick tag tıklamaları — nota ekler/çıkarır
+  document.querySelectorAll('.quick-tag').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tag = btn.dataset.tag;
+      const mevcut = notlarInput.value;
+      const aktif = btn.classList.contains('active');
+
+      if (aktif) {
+        // Tag kaldır - nottan da çıkar
+        btn.classList.remove('active');
+        const yeniNot = mevcut
+          .split('\n')
+          .filter(satir => satir.trim() !== tag)
+          .join('\n')
+          .trim();
+        notlarInput.value = yeniNot;
+      } else {
+        // Tag ekle
+        btn.classList.add('active');
+        notlarInput.value = mevcut ? mevcut + '\n' + tag : tag;
+      }
+
+      // Karakter sayısını güncelle
+      const kalan = 1000 - notlarInput.value.length;
+      notKalanEl.textContent = kalan;
+    });
+  });
+
+  // ============== MUTFAK EKİPMAN ==============
+  document.querySelectorAll('[data-mutfak]').forEach(cb => {
+    cb.addEventListener('change', (e) => {
+      const value = cb.dataset.mutfak;
+      const item = cb.closest('.checkbox-item');
+      if (cb.checked) {
+        state.mutfakEkipman.add(value);
+        item.classList.add('checked');
+      } else {
+        state.mutfakEkipman.delete(value);
+        item.classList.remove('checked');
+      }
+    });
+  });
+
+  // ============== HESAPLAMA ==============
+  document.getElementById('hesaplaBtn').addEventListener('click', () => {
+    // State güncelle
+    state.kisiSayisi = parseInt(document.getElementById('kisiSayisi').value) || 0;
+    state.ogunAdetleri.ogle = parseInt(document.getElementById('ogleAdet').value) || 0;
+    state.ogunAdetleri.aksam = parseInt(document.getElementById('aksamAdet').value) || 0;
+    state.ogunAdetleri.kumanya = parseInt(document.getElementById('kumanyaAdet').value) || 0;
+    state.lokasyon = state.lokasyon || document.getElementById('adresInput').value;
+    state.personelSayilari.asci = parseInt(document.getElementById('asciSayi').value) || 0;
+    state.personelSayilari.servis = parseInt(document.getElementById('servisSayi').value) || 0;
+    state.personelSayilari.bulasik = parseInt(document.getElementById('bulasikSayi').value) || 0;
+
+    // Validasyon
+    if (state.kisiSayisi < 1) {
+      alert('Lütfen kişi sayısı girin.');
+      return;
+    }
+    if (state.ogunler.size === 0) {
+      alert('Lütfen en az bir öğün seçin.');
+      return;
+    }
+    if (!state.lokasyon) {
+      alert('Lütfen lokasyon belirtin.');
+      return;
+    }
+
+    // ============== FİYAT HESAPLAMA MOTORU ==============
+    // İki mod: (a) Yemekçi maliyetleri kayıtlıysa onları kullan (gerçekçi)
+    //         (b) Kayıtlı değilse demo değerleriyle hesapla
+
+    let kisiBasi;
+    let hesapModu = 'demo';
+    let kullanilanYemekci = null;
+
+    if (yemekciMaliyetleri && yemekciMaliyetleri.data) {
+      // === GERÇEK YEMEKÇİ MALİYETİYLE HESAP ===
+      hesapModu = 'gercek';
+      kullanilanYemekci = yemekciMaliyetleri.yemekci;
+      const yd = yemekciMaliyetleri.data;
+
+      // Çeşit sayısı: yemekçinin matrisi 3-6 arası, fazlasını 6 say
+      const matrisCesit = Math.min(6, Math.max(3, state.menu || 6)).toString();
+      // Hammadde maliyeti
+      const hamMaliyet = yd.yemek[state.segment][matrisCesit] || 60;
+
+      // Personel maliyeti dağıtımı
+      const olcek = state.kisiSayisi / 100;
+      const sablonPers = {
+        asci: Math.ceil((yd.sablon?.asci || 2) * olcek),
+        yardimci: Math.ceil((yd.sablon?.yardimci || 1) * olcek),
+        servis: Math.ceil((yd.sablon?.servis || 3) * olcek),
+        bulasik: Math.ceil((yd.sablon?.bulasik || 1) * olcek),
+        lojistik: Math.ceil((yd.sablon?.lojistik || 1) * olcek)
+      };
+      const ortPers = {
+        asci: ((yd.personel.asci_senior || 35000) + (yd.personel.asci_junior || 25000)) / 2,
+        yardimci: yd.personel.yardimci || 20000,
+        servis: ((yd.personel.servis_senior || 28000) + (yd.personel.servis_junior || 22000)) / 2,
+        bulasik: yd.personel.bulasik || 20000,
+        lojistik: ((yd.personel.sofor || 26000) + (yd.personel.operasyon || 32000)) / 2
+      };
+      let aylikPers = 0;
+      Object.keys(sablonPers).forEach(k => { aylikPers += sablonPers[k] * ortPers[k]; });
+
+      // Aylık iş günü hesabı (cumartesi'ye göre, aşağıdaki kod tekrar hesaplayacak ama biz öğün için lazım)
+      let aylikIsGunuPre = 22;
+      if (state.cumartesi === 'evet') aylikIsGunuPre = 26;
+      else if (state.cumartesi === 'yarim') aylikIsGunuPre = 24;
+      const tahminAylikOgun = state.kisiSayisi * aylikIsGunuPre * state.ogunler.size;
+      const personelPerOgun = aylikPers / tahminAylikOgun;
+
+      // Sabit gider
+      const aylikSabit = Object.values(yd.sabit).reduce((a, b) => a + b, 0);
+      const sabitPay = aylikSabit * (yd.sabitOran / 100);
+      const sabitPerOgun = sabitPay / tahminAylikOgun;
+
+      // Birim maliyet
+      const birimMaliyet = hamMaliyet + personelPerOgun + sabitPerOgun;
+
+      // Marj
+      const segMarj = yd.marj[state.segment] || 25;
+      let hacimMarj = 0;
+      if (state.kisiSayisi >= 500) hacimMarj = yd.marj.hacim['500'] || -7;
+      else if (state.kisiSayisi >= 200) hacimMarj = yd.marj.hacim['200'] || -4;
+      else if (state.kisiSayisi >= 100) hacimMarj = yd.marj.hacim['100'] || -2;
+      const ozelMarj = yd.marj.ozel || 0;
+      const nihaiMarj = segMarj + hacimMarj + ozelMarj;
+
+      // Çeşit ek çarpanı (6+ üstü için)
+      let cesitEk = 1.0;
+      if (state.menu > 6) cesitEk = 1.0 + (state.menu - 6) * 0.10;
+
+      kisiBasi = birimMaliyet * (1 + nihaiMarj / 100) * cesitEk;
+
+    } else {
+      // === DEMO HESAP (yemekçi maliyetleri yoksa) ===
+      const segmentBase = { ekonomik: 75, genel: 110, premium: 175 };
+      kisiBasi = segmentBase[state.segment];
+
+      const menuCarpan = {
+        4: 0.78, 5: 0.88, 6: 1.00, 7: 1.12, 8: 1.24, 9: 1.36, 10: 1.48
+      };
+      const cesit = state.menu || 6;
+      const carpan = menuCarpan[cesit] || (1.0 + (cesit - 6) * 0.12);
+      kisiBasi *= carpan;
+
+      // Hacim indirim
+      if (state.kisiSayisi >= 500) kisiBasi *= 0.85;
+      else if (state.kisiSayisi >= 200) kisiBasi *= 0.90;
+      else if (state.kisiSayisi >= 100) kisiBasi *= 0.95;
+    }
+
+    // Toplam öğün sayısı — Cumartesi durumuna göre aylık iş günü değişir
+    // Hayır: 22 gün (sadece hafta içi)
+    // Yarım gün: 22 + (4 cumartesi × 0.5) = 24 (sadece öğle yarım gün)
+    // Evet: 22 + 4 = 26 gün
+    let aylikIsGunu = 22;
+    let aylikCumartesiYari = 0;
+    if (state.cumartesi === 'evet') aylikIsGunu = 26;
+    else if (state.cumartesi === 'yarim') aylikCumartesiYari = 4; // sadece öğle için ek 4 gün
+
+    let toplamOgun = 0;
+    state.ogunler.forEach(o => {
+      const adet = state.ogunAdetleri[o] || state.kisiSayisi;
+      // Yarım cumartesi: sadece öğle ek alır, akşam/kumanya almaz
+      const ogunGunu = (state.cumartesi === 'yarim' && o === 'ogle') ? aylikIsGunu + aylikCumartesiYari : aylikIsGunu;
+      toplamOgun += adet * ogunGunu;
+    });
+
+    // Kumanya ve akşam ek maliyet (lojistik)
+    let ogunCarpan = 1.0;
+    if (state.ogunler.has('aksam')) ogunCarpan += 0.05;
+    if (state.ogunler.has('kumanya')) ogunCarpan += 0.08;
+
+    // Personel maliyeti (aylık)
+    const personelToplam = state.personelSayilari.asci + state.personelSayilari.servis + state.personelSayilari.bulasik;
+    const personelMaliyet = personelToplam * 28000; // ortalama aylık personel maliyeti
+
+    // Mutfak yatırımı (tek seferlik amortismanı 12 aya yayalım)
+    const mutfakBirim = { ocak: 45000, firin: 65000, bulasik: 35000, dolap: 25000, depo: 15000, davlumbaz: 30000, yemekhane: 80000, hat: 40000 };
+    let mutfakToplam = 0;
+    state.mutfakEkipman.forEach(e => mutfakToplam += mutfakBirim[e] || 0);
+    const mutfakAylik = mutfakToplam / 12; // 12 ay amortisman
+
+    // Aylık toplam (alt-üst aralık ±%15)
+    const aylikYemek = kisiBasi * toplamOgun * ogunCarpan;
+    const aylikToplam = aylikYemek + personelMaliyet + mutfakAylik;
+    const altSinir = Math.round(aylikToplam * 0.85 / 1000) * 1000;
+    const ustSinir = Math.round(aylikToplam * 1.15 / 1000) * 1000;
+
+    // Kişi başı (görüntüleme için)
+    const kisiBasiAlt = Math.round(altSinir / toplamOgun);
+    const kisiBasiUst = Math.round(ustSinir / toplamOgun);
+
+    // ============== SONUÇ EKRANI ==============
+    const formatTL = (n) => n.toLocaleString('tr-TR');
+
+    document.getElementById('resultPrice').textContent = `${formatTL(altSinir)} - ${formatTL(ustSinir)} ₺`;
+    document.getElementById('resultUnit').textContent = `Aylık tahmini toplam (${formatTL(kisiBasiAlt)} - ${formatTL(kisiBasiUst)} ₺ kişi başı/öğün)`;
+
+    // Özet
+    const ogunListesi = Array.from(state.ogunler).map(o => {
+      const adet = state.ogunAdetleri[o] || state.kisiSayisi;
+      const isim = { ogle: 'Öğle', aksam: 'Akşam', kumanya: 'Kumanya' }[o];
+      return `${isim} (${adet} kişi)`;
+    }).join(', ');
+
+    const cumartesiText = { evet: 'Tam gün', hayir: 'Yok', yarim: 'Mesaimiz olduğunda' }[state.cumartesi];
+
+    // Menü detay metni
+    const ayranAdlari = {
+      ayran: 'Sabit Ayran',
+      yogurt: 'Sabit Yoğurt',
+      rotasyon: 'Ayran/Yoğurt rotasyon',
+      ikisi: 'Ayran + Yoğurt birlikte'
+    };
+    const menuParcalari = [
+      'Çorba', 'Ana', 'Pilav', 'Ekmek',
+      `${state.menuConfig.salataAdet} Salata`,
+      state.menuConfig.tatliAktif ? 'Tatlı/Meyve/Meşrubat' : null,
+      ayranAdlari[state.menuConfig.ayranTip]
+    ].filter(Boolean).join(' + ');
+
+    let summaryHTML = `
+      <div class="summary-row"><span class="label">Kişi sayısı</span><span class="value">${state.kisiSayisi}</span></div>
+      <div class="summary-row"><span class="label">Öğünler</span><span class="value">${ogunListesi}</span></div>
+      <div class="summary-row" style="align-items:flex-start;"><span class="label">Menü yapısı</span><span class="value" style="font-size:12px; text-align:right; max-width:65%;"><strong>${state.menu} çeşit</strong><br><span style="color:var(--ink-muted); font-weight:400;">${menuParcalari}</span></span></div>
+      <div class="summary-row"><span class="label">Hizmet segmenti</span><span class="value">${state.segment.charAt(0).toUpperCase() + state.segment.slice(1)}</span></div>
+      <div class="summary-row"><span class="label">Cumartesi çalışma</span><span class="value">${cumartesiText} (${aylikIsGunu + (state.cumartesi === 'yarim' ? aylikCumartesiYari : 0)} gün/ay)</span></div>
+      <div class="summary-row"><span class="label">Aylık toplam öğün</span><span class="value">${formatTL(toplamOgun)} öğün</span></div>
+    `;
+    if (personelToplam > 0) {
+      summaryHTML += `<div class="summary-row"><span class="label">Personel desteği</span><span class="value">${personelToplam} kişi (~${formatTL(personelMaliyet)} ₺/ay)</span></div>`;
+    }
+    if (state.mutfakEkipman.size > 0) {
+      summaryHTML += `<div class="summary-row"><span class="label">Mutfak yatırımı</span><span class="value">${state.mutfakEkipman.size} ekipman (12 ay amortisman: ~${formatTL(Math.round(mutfakAylik))} ₺/ay)</span></div>`;
+    }
+
+    // Notlar
+    const notlar = (notlarInput.value || '').trim();
+    if (notlar) {
+      const aktifTagSayi = document.querySelectorAll('.quick-tag.active').length;
+      const notKisalt = notlar.length > 80 ? notlar.substring(0, 80) + '...' : notlar;
+      summaryHTML += `<div class="summary-row" style="align-items:flex-start;"><span class="label">Özel notlar</span><span class="value" style="font-size:12px; text-align:right; max-width:60%;">${notlar.length} karakter${aktifTagSayi > 0 ? ` · ${aktifTagSayi} hızlı seçim` : ''}<br><span style="color:var(--ink-muted); font-weight:400; font-style:italic;">"${notKisalt}"</span></span></div>`;
+    }
+
+    // Hesap modu kaynağı
+    if (hesapModu === 'gercek') {
+      summaryHTML += `<div class="summary-row" style="background:#F0F7F2; margin:0 -8px; padding:8px 12px; border-radius:6px;"><span class="label" style="color:#2F6B4A;">📊 Hesap kaynağı</span><span class="value" style="color:#2F6B4A;">${kullanilanYemekci} maliyetleri ✓</span></div>`;
+    } else {
+      summaryHTML += `<div class="summary-row" style="background:#FFF8E7; margin:0 -8px; padding:8px 12px; border-radius:6px;"><span class="label" style="color:#C9882B;">⚠️ Hesap kaynağı</span><span class="value" style="color:#C9882B;">Demo değerler (gerçek değil)</span></div>`;
+    }
+
+    document.getElementById('resultSummary').innerHTML = summaryHTML;
+
+    // ============== YEMEKÇİ LİSTESİ ÜRET ==============
+    yemekciListesiUret(kisiBasiAlt, kisiBasiUst);
+
+    // Göster ve aşağı kaydır
+    const resultEl = document.getElementById('resultCard');
+    resultEl.classList.add('visible');
+    setTimeout(() => resultEl.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+  });
+
+  // ============== YEMEKÇİ LİSTESİ (ANONİM) ==============
+  // Gerçek backend'de bu liste DB'den gelecek; demo için mock data üretiyoruz
+  let mevcutYemekciler = [];
+
+  function yemekciListesiUret(kisiBasiAlt, kisiBasiUst) {
+    // Lokasyon parse (input'tan al, yoksa varsayılan)
+    const lokRaw = (state.lokasyon || document.getElementById('adresInput').value || 'Kocaeli').toString();
+    const lokParca = lokRaw.split(',').map(s => s.trim()).filter(Boolean);
+
+    // Yakın bölgeler — gerçek sistemde harita+poligon kontrolü yapılır, demo için yakın iller
+    const yakinBolgeler = [
+      'Gebze, Kocaeli',
+      'İzmit, Kocaeli',
+      'Darıca, Kocaeli',
+      'Çayırova, Kocaeli',
+      'Kartal, İstanbul',
+      'Pendik, İstanbul',
+      'Tuzla, İstanbul',
+      'Sakarya Merkez',
+      'Adapazarı, Sakarya',
+      'Yalova Merkez',
+      'Bursa OSB',
+      'Gemlik, Bursa'
+    ];
+
+    // 8-14 firma üret
+    const firmaSayisi = 8 + Math.floor(Math.random() * 7);
+    mevcutYemekciler = [];
+
+    for (let i = 0; i < firmaSayisi; i++) {
+      // Fiyat dağılımı: kişi başı aralığının %85-115 arası
+      const dalga = 0.85 + Math.random() * 0.30;
+      const merkezFiyat = (kisiBasiAlt + kisiBasiUst) / 2;
+      const fiyat = Math.round(merkezFiyat * dalga);
+
+      // Puan: 4.0 - 5.0 arası, çoğunluk 4.3-4.8
+      const puan = (4.0 + Math.random() * 1.0).toFixed(1);
+
+      // Çalışma yılı
+      const tecrube = 3 + Math.floor(Math.random() * 25);
+
+      // Belge durumu (premium: HACCP+ISO, standart: HACCP, ekonomik: yok)
+      const belgeler = [];
+      if (Math.random() > 0.3) belgeler.push('HACCP');
+      if (Math.random() > 0.5) belgeler.push('ISO 22000');
+      if (Math.random() > 0.7) belgeler.push('Helal');
+
+      mevcutYemekciler.push({
+        id: i + 1,
+        anonim: `Yemekçi ${String.fromCharCode(65 + i)}`,
+        gercekIsim: gercekFirmaAdiUret(i),
+        bolge: yakinBolgeler[Math.floor(Math.random() * yakinBolgeler.length)],
+        fiyat,
+        puan,
+        tecrube,
+        belgeler,
+        secili: true // mail seçim için
+      });
+    }
+
+    // Fiyata göre sırala (ucuzdan pahalıya)
+    mevcutYemekciler.sort((a, b) => a.fiyat - b.fiyat);
+
+    // UI'ya yaz
+    const liste = document.getElementById('firmaListesi');
+    liste.innerHTML = mevcutYemekciler.map(y => `
+      <div class="firma-row">
+        <div class="firma-row-sol">
+          <div class="firma-row-icon">🍳</div>
+          <div class="firma-row-bilgi">
+            <div class="firma-row-isim">${y.anonim}</div>
+            <div class="firma-row-meta">
+              <span class="firma-meta-bilgi">📍 ${y.bolge}</span>
+              <span class="firma-meta-bilgi">⭐ ${y.puan}</span>
+              <span class="firma-meta-bilgi">📅 ${y.tecrube} yıl</span>
+              ${y.belgeler.length ? `<span class="firma-meta-bilgi">🏆 ${y.belgeler.join(', ')}</span>` : ''}
+            </div>
+          </div>
+        </div>
+        <div class="firma-row-fiyat">
+          <div class="firma-row-fiyat-deger">${y.fiyat} ₺</div>
+          <div class="firma-row-fiyat-birim">kişi başı/öğün</div>
+        </div>
+      </div>
+    `).join('');
+
+    document.getElementById('firmaListesiSub').textContent = `${mevcutYemekciler.length} yemekçi bulundu — fiyata göre sıralı`;
+
+    // Mail seçim listesini de doldur
+    mailFirmaListesiniDoldur();
+  }
+
+  // Sahte (demo) firma adı üretici
+  function gercekFirmaAdiUret(seed) {
+    const onek = ['Anatolia', 'Saray', 'Ege', 'Anadolu', 'Mavi', 'Altın', 'Gül', 'Bereket', 'Şefler', 'Karadeniz', 'Marmara', 'Yıldız', 'Hisar', 'Selçuk', 'Lezzet'];
+    const ek = ['Catering', 'Yemekçilik', 'Mutfak', 'Sofra', 'Yemek Hizmetleri', 'Endüstri Mutfak', 'Kepçe'];
+    return `${onek[seed % onek.length]} ${ek[seed % ek.length]}`;
+  }
+
+  // ============== MAIL TALEP MODU ==============
+  let mailModu = 'toplu'; // 'toplu' veya 'ayri'
+
+  document.querySelectorAll('.mail-mod-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.mail-mod-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      mailModu = btn.dataset.mod;
+      document.getElementById('mailFirmaSecim').style.display = mailModu === 'ayri' ? 'block' : 'none';
+    });
+  });
+
+  function mailFirmaListesiniDoldur() {
+    const liste = document.getElementById('mailFirmaListesi');
+    if (!liste) return;
+    liste.innerHTML = mevcutYemekciler.map(y => `
+      <label class="mail-firma-cb">
+        <input type="checkbox" data-yid="${y.id}" checked>
+        <span class="mail-firma-cb-isim">${y.anonim} <span style="color:var(--ink-muted); font-weight:400;">— ${y.bolge}</span></span>
+        <span class="mail-firma-cb-fiyat">${y.fiyat} ₺/öğün</span>
+      </label>
+    `).join('');
+
+    // Tümünü seç butonu
+    document.getElementById('mailTumSec').addEventListener('click', () => {
+      const cbs = liste.querySelectorAll('input[type="checkbox"]');
+      const hepsiSecili = Array.from(cbs).every(cb => cb.checked);
+      cbs.forEach(cb => cb.checked = !hepsiSecili);
+    });
+  }
+
+  // ============== MAIL GÖNDER ==============
+  document.getElementById('mailGonderBtn').addEventListener('click', () => {
+    const epostaInput = document.getElementById('musteriEposta');
+    const eposta = epostaInput.value.trim();
+    const kvkkOnay = document.getElementById('kvkkOnay').checked;
+
+    // Validasyon
+    if (!eposta || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(eposta)) {
+      epostaInput.style.borderColor = 'var(--brand-primary)';
+      epostaInput.focus();
+      alert('Lütfen geçerli bir e-posta adresi girin.');
+      return;
+    }
+    if (!kvkkOnay) {
+      alert('Devam etmek için KVKK onayını işaretleyin.');
+      return;
+    }
+
+    // Seçili yemekçiler (ayrı modunda)
+    let secilenler = mevcutYemekciler;
+    if (mailModu === 'ayri') {
+      const cbs = document.querySelectorAll('#mailFirmaListesi input[type="checkbox"]');
+      const seciliIdler = Array.from(cbs).filter(cb => cb.checked).map(cb => parseInt(cb.dataset.yid));
+      secilenler = mevcutYemekciler.filter(y => seciliIdler.includes(y.id));
+      if (secilenler.length === 0) {
+        alert('En az bir yemekçi seçin.');
+        return;
+      }
+    }
+
+    // Buton durumu (loading simülasyonu)
+    const btn = document.getElementById('mailGonderBtn');
+    btn.disabled = true;
+    btn.innerHTML = '⏳ Gönderiliyor...';
+
+    setTimeout(() => {
+      btn.disabled = false;
+      btn.innerHTML = '📧 Listeyi Gönder';
+
+      // Başarı mesajı göster
+      const basari = document.getElementById('mailBasari');
+      const detay = document.getElementById('mailBasariDetay');
+      const modAciklama = mailModu === 'toplu'
+        ? `${secilenler.length} yemekçi için toplu karşılaştırma listesi`
+        : `${secilenler.length} yemekçi için ayrı ayrı detaylı mailler`;
+
+      detay.innerHTML = `<strong>${eposta}</strong> adresine ${modAciklama} gönderildi. Yemekçilerden 24 saat içinde teklifler ulaşmaya başlayacaktır.`;
+      basari.style.display = 'flex';
+      basari.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+      // Backend simülasyonu için console log
+      console.log('[Mail Gönder]', {
+        eposta,
+        mod: mailModu,
+        yemekciSayisi: secilenler.length,
+        yemekciler: secilenler.map(y => ({ id: y.id, isim: y.gercekIsim })),
+        talep: state
+      });
+    }, 1200);
+  });
+</script>
+
+</body>
+</html>
