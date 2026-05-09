@@ -65,21 +65,43 @@
             <h2 class="h5 mb-0"><i class="bi bi-grid-3x3-gap-fill me-2 text-brand"></i>Yönetim Modülleri (12 + 1)</h2>
           </div>
           <div class="list-group list-group-flush small">
-            <div class="list-group-item d-flex justify-content-between"><span><strong>Dashboard</strong> · KPI + grafik + aktivite akışı</span><span class="badge bg-secondary">Faz 1+</span></div>
-            <div class="list-group-item d-flex justify-content-between"><span><strong>Canlı aktivite akışı</strong> · WebSocket / 5 sn polling</span><span class="badge bg-secondary">Faz 1+</span></div>
-            <div class="list-group-item d-flex justify-content-between"><span><strong>Yemekçi onayları (KYC)</strong> · 5 belge inceleme + onay/red</span><span class="badge bg-secondary">Faz 1</span></div>
+            <a href="/yonetim/dashboard-canli" class="list-group-item list-group-item-action d-flex justify-content-between">
+              <span><strong>Dashboard</strong> · KPI + grafik + aktivite akışı</span><span class="badge bg-secondary">Faz 1+</span>
+            </a>
+            <a href="/yonetim/canli-akis" class="list-group-item list-group-item-action d-flex justify-content-between">
+              <span><strong>Canlı aktivite akışı</strong> · WebSocket / 5 sn polling</span><span class="badge bg-secondary">Faz 1+</span>
+            </a>
+            <a href="/yonetim/yemekci-onaylari" class="list-group-item list-group-item-action d-flex justify-content-between">
+              <span><strong>Yemekçi onayları (KYC)</strong> · 5 belge inceleme + onay/red</span><span class="badge bg-primary">Faz 1</span>
+            </a>
             <a href="/yonetim/yemekciler" class="list-group-item list-group-item-action d-flex justify-content-between">
               <span><strong>Yemekçi yönetimi</strong> · Manuel ekleme + başvuru onay + fiyat ayarları + anonim kod</span>
               <span class="badge bg-success">Hazır</span>
             </a>
-            <div class="list-group-item d-flex justify-content-between"><span><strong>Kullanıcı yönetimi</strong> · 4 user_type + KVKK silme</span><span class="badge bg-secondary">Faz 1</span></div>
-            <div class="list-group-item d-flex justify-content-between"><span><strong>Sipariş ve teklif takibi</strong> · Filtre + timeline + müdahale</span><span class="badge bg-secondary">Faz 6</span></div>
-            <div class="list-group-item d-flex justify-content-between"><span><strong>Teklif Pivot (yemekçi × müşteri)</strong> · 3 boyutlu matris + dönüşüm hunisi</span><span class="badge bg-warning text-dark">Faz 3.5</span></div>
-            <div class="list-group-item d-flex justify-content-between"><span><strong>Anlaşmazlık yönetimi</strong> · Vaka detay + müşteri lehine iade</span><span class="badge bg-secondary">Faz 7</span></div>
-            <div class="list-group-item d-flex justify-content-between"><span><strong>Finansal yönetim</strong> · Komisyon + yemekçi alacak/borç + e-fatura</span><span class="badge bg-secondary">Faz 6</span></div>
-            <div class="list-group-item d-flex justify-content-between"><span><strong>İçerik moderasyonu</strong> · Menü onayı + yorum kontrolü</span><span class="badge bg-secondary">Faz 5</span></div>
-            <div class="list-group-item d-flex justify-content-between"><span><strong>Pazarlama araçları</strong> · Kupon, kampanya, toplu iletişim</span><span class="badge bg-secondary">Faz 4+</span></div>
-            <div class="list-group-item d-flex justify-content-between"><span><strong>Sistem ayarları</strong> · Komisyon oranları, kategori, API key</span><span class="badge bg-secondary">Faz 1</span></div>
+            <a href="/yonetim/kullanicilar" class="list-group-item list-group-item-action d-flex justify-content-between">
+              <span><strong>Kullanıcı yönetimi</strong> · 4 user_type + KVKK silme</span><span class="badge bg-primary">Faz 1</span>
+            </a>
+            <a href="/yonetim/siparisler" class="list-group-item list-group-item-action d-flex justify-content-between">
+              <span><strong>Sipariş ve teklif takibi</strong> · Filtre + timeline + müdahale</span><span class="badge bg-success-subtle text-success-emphasis">Faz 6</span>
+            </a>
+            <a href="/yonetim/teklif-pivot" class="list-group-item list-group-item-action d-flex justify-content-between">
+              <span><strong>Teklif Pivot (yemekçi × müşteri)</strong> · 3 boyutlu matris + dönüşüm hunisi</span><span class="badge bg-warning text-dark">Faz 3.5</span>
+            </a>
+            <a href="/yonetim/anlasmazliklar" class="list-group-item list-group-item-action d-flex justify-content-between">
+              <span><strong>Anlaşmazlık yönetimi</strong> · Vaka detay + müşteri lehine iade</span><span class="badge bg-danger-subtle text-danger-emphasis">Faz 7</span>
+            </a>
+            <a href="/yonetim/finans" class="list-group-item list-group-item-action d-flex justify-content-between">
+              <span><strong>Finansal yönetim</strong> · Komisyon + yemekçi alacak/borç + e-fatura</span><span class="badge bg-success-subtle text-success-emphasis">Faz 6</span>
+            </a>
+            <a href="/yonetim/icerik-moderasyonu" class="list-group-item list-group-item-action d-flex justify-content-between">
+              <span><strong>İçerik moderasyonu</strong> · Menü onayı + yorum kontrolü</span><span class="badge bg-secondary">Faz 5</span>
+            </a>
+            <a href="/yonetim/pazarlama" class="list-group-item list-group-item-action d-flex justify-content-between">
+              <span><strong>Pazarlama araçları</strong> · Kupon, kampanya, toplu iletişim</span><span class="badge bg-info-subtle text-info-emphasis">Faz 4+</span>
+            </a>
+            <a href="/yonetim/sistem/ayarlar" class="list-group-item list-group-item-action d-flex justify-content-between">
+              <span><strong>Sistem ayarları</strong> · Komisyon oranları, kategori, API key</span><span class="badge bg-primary">Faz 1</span>
+            </a>
             <div class="list-group-item d-flex justify-content-between"><span><strong>Audit log (denetim izi)</strong> · 7 yıl saklama (KVKK)</span><span class="badge bg-secondary">Faz 1</span></div>
             <a href="/yonetim/araclar/enflasyon" class="list-group-item list-group-item-action d-flex justify-content-between bg-light">
               <span><strong>Enflasyon hesaplayıcı (admin)</strong> · 3 panel ortak motor + sektör analizi</span>

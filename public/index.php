@@ -16,6 +16,7 @@ use App\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Controllers\Admin\InflationController as AdminInflation;
 use App\Controllers\Admin\InflationLeadsController as AdminInflationLeads;
 use App\Controllers\Admin\InflationSourcesController as AdminInflationSources;
+use App\Controllers\Admin\PlaceholderController as AdminPlaceholder;
 use App\Controllers\Admin\SuppliersController as AdminSuppliers;
 use App\Controllers\Auth\AuthController;
 use App\Controllers\Public\HealthController;
@@ -174,6 +175,19 @@ $router->get('/yonetim/sistem/audit-log',
 
 // --- Admin middleware (alttaki tüm yönetim rotaları kullanır) ---
 $adminMw = [AuthMiddleware::requireRole('admin')];
+
+// --- Admin: Placeholder modüller (henüz tamamlanmamış, plan görünür) ---
+$router->get('/yonetim/dashboard-canli',           static fn() => (new AdminPlaceholder())->dashboardKpi(),       $adminMw);
+$router->get('/yonetim/canli-akis',                static fn() => (new AdminPlaceholder())->liveActivity(),       $adminMw);
+$router->get('/yonetim/yemekci-onaylari',          static fn() => (new AdminPlaceholder())->kycReview(),          $adminMw);
+$router->get('/yonetim/kullanicilar',              static fn() => (new AdminPlaceholder())->userManagement(),     $adminMw);
+$router->get('/yonetim/siparisler',                static fn() => (new AdminPlaceholder())->ordersTracking(),     $adminMw);
+$router->get('/yonetim/teklif-pivot',              static fn() => (new AdminPlaceholder())->quotesPivot(),        $adminMw);
+$router->get('/yonetim/anlasmazliklar',            static fn() => (new AdminPlaceholder())->disputes(),           $adminMw);
+$router->get('/yonetim/finans',                    static fn() => (new AdminPlaceholder())->financial(),          $adminMw);
+$router->get('/yonetim/icerik-moderasyonu',        static fn() => (new AdminPlaceholder())->contentModeration(),  $adminMw);
+$router->get('/yonetim/pazarlama',                 static fn() => (new AdminPlaceholder())->marketing(),          $adminMw);
+$router->get('/yonetim/sistem/ayarlar',            static fn() => (new AdminPlaceholder())->systemSettings(),     $adminMw);
 
 // --- Admin: Yemekçi yönetimi ---
 $router->get('/yonetim/yemekciler',
