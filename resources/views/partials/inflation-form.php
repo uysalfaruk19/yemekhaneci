@@ -38,23 +38,75 @@ $twoYearsAgo = date('Y-m', strtotime('-24 months'));
             </div>
           </div>
 
-          <div class="row g-2 mb-3">
-            <div class="col-md-6">
-              <label for="start_date_<?= e($panelOrigin) ?>" class="form-label">Başlangıç ayı</label>
-              <input type="month" class="form-control" id="start_date_<?= e($panelOrigin) ?>" x-model="form.start_date" min="2020-01" :max="thisMonth" required>
+          <div class="mb-3">
+            <label class="form-label d-flex justify-content-between">
+              <strong>Tarih aralığı</strong>
+              <span class="small text-secondary">Ay + Yıl seçin</span>
+            </label>
+
+            <!-- Hızlı seçim chip'leri -->
+            <div class="d-flex flex-wrap gap-1 mb-2">
+              <button type="button" class="btn btn-outline-secondary btn-sm" @click="quickRange(1)">1 yıl önce</button>
+              <button type="button" class="btn btn-outline-secondary btn-sm" @click="quickRange(2)">2 yıl önce</button>
+              <button type="button" class="btn btn-outline-secondary btn-sm" @click="quickRange(3)">3 yıl önce</button>
+              <button type="button" class="btn btn-outline-secondary btn-sm" @click="quickRange(5)">5 yıl önce</button>
             </div>
-            <div class="col-md-6">
-              <label for="end_date_<?= e($panelOrigin) ?>" class="form-label">Hedef ay</label>
-              <input type="month" class="form-control" id="end_date_<?= e($panelOrigin) ?>" x-model="form.end_date" min="2020-01" :max="thisMonth" required>
+
+            <!-- Başlangıç ay+yıl -->
+            <div class="mb-2">
+              <label class="form-label small text-secondary mb-1">📅 Başlangıç ayı</label>
+              <div class="row g-1">
+                <div class="col-7">
+                  <select class="form-select form-select-sm" x-model="form.start_month">
+                    <template x-for="(label, idx) in monthNames" :key="idx">
+                      <option :value="String(idx + 1).padStart(2, '0')" x-text="label"></option>
+                    </template>
+                  </select>
+                </div>
+                <div class="col-5">
+                  <select class="form-select form-select-sm mono" x-model="form.start_year">
+                    <template x-for="y in years" :key="y">
+                      <option :value="y" x-text="y"></option>
+                    </template>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Hedef ay+yıl -->
+            <div>
+              <label class="form-label small text-secondary mb-1">🎯 Hedef ay (bugünkü karşılığı)</label>
+              <div class="row g-1">
+                <div class="col-7">
+                  <select class="form-select form-select-sm" x-model="form.end_month">
+                    <template x-for="(label, idx) in monthNames" :key="idx">
+                      <option :value="String(idx + 1).padStart(2, '0')" x-text="label"></option>
+                    </template>
+                  </select>
+                </div>
+                <div class="col-5">
+                  <select class="form-select form-select-sm mono" x-model="form.end_year">
+                    <template x-for="y in years" :key="y">
+                      <option :value="y" x-text="y"></option>
+                    </template>
+                  </select>
+                </div>
+              </div>
             </div>
           </div>
 
           <div class="mb-3">
-            <label for="start_price_<?= e($panelOrigin) ?>" class="form-label">Başlangıç fiyatı (₺)</label>
-            <div class="input-group">
-              <span class="input-group-text">₺</span>
-              <input type="text" inputmode="decimal" class="form-control mono" id="start_price_<?= e($panelOrigin) ?>" x-model="form.start_price" placeholder="Örn: 5.000,00" required>
+            <label for="start_price_<?= e($panelOrigin) ?>" class="form-label">
+              <strong>💰 Başlangıç fiyatı</strong>
+            </label>
+            <div class="input-group input-group-lg">
+              <input type="text" inputmode="decimal" class="form-control mono fs-4 fw-bold text-end"
+                     id="start_price_<?= e($panelOrigin) ?>"
+                     x-model="form.start_price"
+                     placeholder="250">
+              <span class="input-group-text fs-4 fw-bold text-brand">₺</span>
             </div>
+            <div class="small text-secondary mt-1">Hesaplamak istediğiniz tutarı yazın · varsayılan 250 ₺</div>
           </div>
 
           <button type="submit" class="btn btn-brand w-100" :disabled="loading">
@@ -169,16 +221,36 @@ $twoYearsAgo = date('Y-m', strtotime('-24 months'));
 
 <script>
 function inflationApp() {
+  const now = new Date();
+  const thisYear  = now.getFullYear();
+  const thisMonth = String(now.getMonth() + 1).padStart(2, '0');
+
+  // 24 ay öncesi (default başlangıç)
+  const past = new Date(thisYear, now.getMonth() - 24, 1);
+  const startYear  = past.getFullYear();
+  const startMonth = String(past.getMonth() + 1).padStart(2, '0');
+
+  // Yıl listesi: 2020 → bu yıl
+  const years = [];
+  for (let y = thisYear; y >= 2020; y--) years.push(String(y));
+
   return {
     csrf: '<?= e(csrf_token()) ?>',
     panelOrigin: '<?= e($panelOrigin) ?>',
-    thisMonth: '<?= e($thisMonth) ?>',
+    thisMonth: `${thisYear}-${thisMonth}`,
     canvasId: 'inflChart_<?= e($panelOrigin) ?>',
+
+    monthNames: ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran',
+                 'Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'],
+    years: years,
+
     form: {
       source: 'tuik_tufe_gida',
-      start_date: '<?= e($twoYearsAgo) ?>',
-      end_date: '<?= e($thisMonth) ?>',
-      start_price: '5.000,00',
+      start_year:  String(startYear),
+      start_month: startMonth,
+      end_year:    String(thisYear),
+      end_month:   thisMonth,
+      start_price: '250',
     },
     loading: false,
     result: null,
@@ -192,6 +264,15 @@ function inflationApp() {
     leadError: null,
     leadMessage: '',
 
+    quickRange(yearsAgo) {
+      const now = new Date();
+      const past = new Date(now.getFullYear() - yearsAgo, now.getMonth(), 1);
+      this.form.start_year  = String(past.getFullYear());
+      this.form.start_month = String(past.getMonth() + 1).padStart(2, '0');
+      this.form.end_year    = String(now.getFullYear());
+      this.form.end_month   = String(now.getMonth() + 1).padStart(2, '0');
+    },
+
     async calculate() {
       this.loading = true;
       this.error = null;
@@ -199,8 +280,8 @@ function inflationApp() {
         const fd = new FormData();
         fd.set('_csrf', this.csrf);
         fd.set('source', this.form.source);
-        fd.set('start_date', this.form.start_date);
-        fd.set('end_date', this.form.end_date);
+        fd.set('start_date', `${this.form.start_year}-${this.form.start_month}`);
+        fd.set('end_date',   `${this.form.end_year}-${this.form.end_month}`);
         fd.set('start_price', this.form.start_price);
         fd.set('panel_origin', this.panelOrigin);
 
@@ -271,8 +352,8 @@ function inflationApp() {
         fd.set('email', this.lead.email);
         fd.set('kvkk', '1');
         fd.set('source', this.form.source);
-        fd.set('start_date', this.form.start_date);
-        fd.set('end_date', this.form.end_date);
+        fd.set('start_date', `${this.form.start_year}-${this.form.start_month}`);
+        fd.set('end_date',   `${this.form.end_year}-${this.form.end_month}`);
         fd.set('start_price', this.form.start_price);
         fd.set('panel_origin', this.panelOrigin);
 

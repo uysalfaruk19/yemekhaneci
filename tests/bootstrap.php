@@ -24,10 +24,15 @@ foreach ($argv as $arg) {
 // Default suite (no --testsuite flag) tüm testleri çalıştırır → server başlat
 $hasTestsuite = in_array('--testsuite', $argv, true);
 if (!$hasTestsuite || $runningFeature) {
-    // Rate limiter dosyalarını temizle (testler arasında izolasyon)
+    // Test izolasyonu: state dosyalarını temizle
     $rlDir = __DIR__ . '/../storage/ratelimit';
     if (is_dir($rlDir)) {
         foreach (glob($rlDir . '/*.txt') ?: [] as $f) @unlink($f);
     }
+    @unlink(__DIR__ . '/../storage/applications/suppliers.json');
+    @unlink(__DIR__ . '/../storage/quotes/quick_quotes.json');
+    @unlink(__DIR__ . '/../storage/auth/totp.json');
+    @unlink(__DIR__ . '/../storage/inflation/calculations.json');
+
     \Tests\Feature\TestServer::start();
 }
