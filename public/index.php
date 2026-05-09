@@ -101,6 +101,8 @@ $router->get('/yonetim/enflasyon/lead-ler',
 $adminMw = [AuthMiddleware::requireRole('admin')];
 $router->get('/yonetim/sistem/enflasyon-kaynaklari',
     static fn() => (new AdminInflationSources())->index(), $adminMw);
+$router->post('/yonetim/sistem/enflasyon-kaynaklari/evds-tetikle',
+    static fn() => (new AdminInflationSources())->triggerEvds(), $adminMw);
 $router->get('/yonetim/sistem/enflasyon-kaynaklari/yeni',
     static fn() => (new AdminInflationSources())->createForm(), $adminMw);
 $router->post('/yonetim/sistem/enflasyon-kaynaklari',

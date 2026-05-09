@@ -25,10 +25,23 @@ final class InflationCalculator
      */
     public static function mockIndices(): array
     {
-        $official = self::generateMockSeries();
-        $custom   = (new InflationSourceRepository())->customMonthlySeries();
-        // Custom kaynaklar resmî isimleriyle çakışmaz; doğrudan birleştir.
-        return array_merge($official, $custom);
+        $repo = new InflationSourceRepository();
+        $synthetic = self::generateMockSeries();
+        $custom    = $repo->customMonthlySeries();
+        $official  = $repo->officialMonthlySeries();
+
+        // Resmî kaynak için DB değerleri varsa onlar; yoksa sentetik baseline.
+        $merged = $synthetic;
+        foreach ($official as $code => $series) {
+            if (!empty($series)) {
+                $merged[$code] = $series;
+            }
+        }
+        // Custom kaynaklar (rezerve değil; resmî kodlarla çakışamaz).
+        foreach ($custom as $code => $series) {
+            $merged[$code] = $series;
+        }
+        return $merged;
     }
 
     /**

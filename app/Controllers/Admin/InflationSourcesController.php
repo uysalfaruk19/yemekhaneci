@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers\Admin;
 
 use App\Auth\SimpleAuth;
+use App\Jobs\FetchInflationIndicesJob;
 use App\Repositories\InflationSourceRepository;
 
 /**
@@ -26,7 +27,28 @@ final class InflationSourcesController
             'sources' => $this->repo->all(),
             'flash_success' => \flash('source_success'),
             'flash_error'   => \flash('source_error'),
+            'evds_meta'     => $this->repo->evdsRunMeta(),
         ]);
+    }
+
+    public function triggerEvds(): void
+    {
+        if (!\csrf_check((string) ($_POST['_csrf'] ?? ''))) {
+            \flash('source_error', 'Oturum doğrulaması başarısız.');
+            \redirect('/yonetim/sistem/enflasyon-kaynaklari');
+        }
+
+        $job = new FetchInflationIndicesJob(
+            triggeredBy: 'manual:' . (SimpleAuth::user()['username'] ?? 'admin')
+        );
+        $result = $job->run();
+
+        if ($result['ok']) {
+            \flash('source_success', 'EVDS senkronu tamamlandı: ' . $result['message']);
+        } else {
+            \flash('source_error', 'EVDS senkronu kısmen başarısız: ' . $result['message']);
+        }
+        \redirect('/yonetim/sistem/enflasyon-kaynaklari');
     }
 
     public function createForm(): string

@@ -398,4 +398,103 @@ final class InflationSourceRepository
             file_put_contents($this->dataFile, json_encode(['custom_sources' => new \stdClass()], JSON_PRETTY_PRINT));
         }
     }
+
+    // ---- Resmî kaynak aylık değerleri (EVDS / ENAG manuel) -----------------------------------
+
+    /**
+     * Resmî bir kaynağın bir aylık değerini set eder (EVDS fetcher veya ENAG manuel giriş).
+     */
+    public function setOfficialMonthlyValue(string $code, string $period, float $value, string $enteredBy, ?string $notes = null): void
+    {
+        if (!preg_match('/^\d{4}-\d{2}$/', $period)) {
+            throw new RuntimeException('Period biçimi YYYY-MM olmalı.');
+        }
+
+        $this->mutate(static function (array &$store) use ($code, $period, $value, $enteredBy, $notes): void {
+            if (!isset($store['official_values'])) $store['official_values'] = [];
+            if (!isset($store['official_values'][$code])) $store['official_values'][$code] = [];
+            $store['official_values'][$code][$period] = [
+                'value'      => $value,
+                'notes'      => $notes,
+                'entered_by' => $enteredBy,
+                'entered_at' => date('Y-m-d H:i:s'),
+            ];
+        });
+    }
+
+    /**
+     * Bir resmî kaynağın tüm aylık değerleri (varsa).
+     *
+     * @return array<string, array{value:float, notes:?string, entered_by:string, entered_at:string}>
+     */
+    public function officialMonthlyValues(string $code): array
+    {
+        $raw = file_get_contents($this->dataFile);
+        if ($raw === false || trim($raw) === '') return [];
+        $data = json_decode($raw, true) ?: [];
+        $values = $data['official_values'][$code] ?? [];
+        ksort($values);
+        return $values;
+    }
+
+    /**
+     * EVDS son çalışma damgaları (admin paneli için).
+     *
+     * @return array{last_run_at:?string, last_status:?string, last_message:?string, runs:int}
+     */
+    public function evdsRunMeta(): array
+    {
+        $raw = file_get_contents($this->dataFile);
+        $data = $raw ? (json_decode($raw, true) ?: []) : [];
+        return $data['evds_run'] ?? ['last_run_at' => null, 'last_status' => null, 'last_message' => null, 'runs' => 0];
+    }
+
+    public function recordEvdsRun(string $status, string $message): void
+    {
+        $this->mutate(static function (array &$store) use ($status, $message): void {
+            $store['evds_run'] = [
+                'last_run_at'  => date('Y-m-d H:i:s'),
+                'last_status'  => $status,
+                'last_message' => $message,
+                'runs'         => (int) ($store['evds_run']['runs'] ?? 0) + 1,
+            ];
+        });
+    }
+
+    /**
+     * Calculator için: tüm resmî kaynakların DB'den gelen aylık serileri.
+     *
+     * @return array<string, array<string, array{value:float, monthly_pct:?float, yearly_pct:?float}>>
+     */
+    public function officialMonthlySeries(): array
+    {
+        $raw = file_get_contents($this->dataFile);
+        $data = $raw ? (json_decode($raw, true) ?: []) : [];
+        $official = $data['official_values'] ?? [];
+
+        $out = [];
+        foreach ($official as $code => $values) {
+            ksort($values);
+            $previous = null;
+            $series = [];
+            foreach ($values as $period => $entry) {
+                $val = (float) $entry['value'];
+                $series[$period] = [
+                    'value'        => $val,
+                    'monthly_pct'  => $previous === null ? null : round((($val / $previous) - 1) * 100, 4),
+                    'yearly_pct'   => null,
+                ];
+                $previous = $val;
+            }
+            foreach ($series as $period => $row) {
+                [$y, $m] = array_map('intval', explode('-', $period));
+                $prevYear = sprintf('%04d-%02d', $y - 1, $m);
+                if (isset($series[$prevYear])) {
+                    $series[$period]['yearly_pct'] = round((($row['value'] / $series[$prevYear]['value']) - 1) * 100, 4);
+                }
+            }
+            $out[$code] = $series;
+        }
+        return $out;
+    }
 }

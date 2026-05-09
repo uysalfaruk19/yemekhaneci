@@ -3,7 +3,11 @@
  * @var array<int, array<string,mixed>> $sources
  * @var ?string $flash_success
  * @var ?string $flash_error
+ * @var array{last_run_at:?string, last_status:?string, last_message:?string, runs:int} $evds_meta
  */
+$evds_meta = $evds_meta ?? ['last_run_at' => null, 'last_status' => null, 'last_message' => null, 'runs' => 0];
+$evdsKey = getenv('EVDS_API_KEY') ?: '';
+$evdsMode = getenv('EVDS_MOCK') === 'true' || $evdsKey === '' ? 'MOCK' : 'LIVE';
 ?>
 <section class="py-4 py-lg-5">
   <div class="container">
@@ -111,11 +115,35 @@
           <div class="card-body">
             <h3 class="h6"><i class="bi bi-cloud-arrow-down text-brand me-2"></i>EVDS Otomatik Çekim</h3>
             <p class="small text-secondary mb-2">TÜİK üç endeksi her ayın 5'inde TCMB EVDS API ile çekilir.</p>
-            <ul class="small text-secondary mb-2">
-              <li>Son çalışma: <span class="text-secondary">— (henüz tetiklenmedi)</span></li>
-              <li>API anahtarı: <span class="badge bg-secondary">.env'de tanımlı değil</span></li>
-              <li>Manuel tetikleme: <button class="btn btn-sm btn-link p-0 align-baseline" disabled>Faz 0.5.7'de</button></li>
+            <ul class="small text-secondary mb-3">
+              <li>
+                Son çalışma:
+                <?php if ($evds_meta['last_run_at']): ?>
+                  <span class="mono"><?= e($evds_meta['last_run_at']) ?></span>
+                  <span class="badge bg-<?= $evds_meta['last_status'] === 'success' ? 'success' : 'warning text-dark' ?>"><?= e($evds_meta['last_status']) ?></span>
+                <?php else: ?>
+                  <span class="text-secondary">— henüz tetiklenmedi</span>
+                <?php endif; ?>
+              </li>
+              <li>Toplam çalışma: <strong><?= e((string) $evds_meta['runs']) ?></strong></li>
+              <li>
+                API anahtarı:
+                <?php if ($evdsKey === ''): ?>
+                  <span class="badge bg-secondary">.env'de tanımlı değil → MOCK</span>
+                <?php else: ?>
+                  <span class="badge bg-success">.env'de mevcut → <?= e($evdsMode) ?></span>
+                <?php endif; ?>
+              </li>
+              <?php if ($evds_meta['last_message']): ?>
+                <li class="mt-1">Mesaj: <em><?= e($evds_meta['last_message']) ?></em></li>
+              <?php endif; ?>
             </ul>
+            <form method="post" action="/yonetim/sistem/enflasyon-kaynaklari/evds-tetikle" class="m-0">
+              <?= csrf_field() ?>
+              <button class="btn btn-sm btn-outline-brand" type="submit">
+                <i class="bi bi-arrow-clockwise me-1"></i>Şimdi Tetikle (<?= e($evdsMode) ?> modu)
+              </button>
+            </form>
           </div>
         </div>
       </div>
