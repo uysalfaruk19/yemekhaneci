@@ -3,7 +3,7 @@
 > Bu dosya **her faz sonunda güncellenir**. Durum işaretleri: ☐ başlanmadı · ◐ devam ediyor · ☑ tamamlandı.
 
 **Son güncelleme:** 2026-05-08
-**Aktif faz:** Faz 0 ☑ → Faz 0.5 + Faz 1 paralel başlangıç
+**Aktif faz:** Faz 0 ☑ + Faz 0.5 ☑ + Faz 3 hızlı teklif MVP ☑ → Faz 1 (Auth+DB) sırada
 **Strateji:** Paralel iş paketleri (ADR-013c)
 **Repo:** [uysalfaruk19/yemekhaneci](https://github.com/uysalfaruk19/yemekhaneci) — `claude/start-yemekhaneci-project-xCJFu`
 
@@ -14,7 +14,7 @@
 | Faz | Başlık | Süre | Durum | Başlangıç | Bitiş |
 |-----|--------|------|:-----:|-----------|-------|
 | **Faz 0** | Proje Başlatma | 1 hafta | ☑ | 2026-05-08 | 2026-05-08 |
-| **Faz 0.5** ⚡ | **Enflasyon Hesaplayıcı (3 panel + özel formül)** | 1-2 hafta | ◐ | 2026-05-08 | — |
+| **Faz 0.5** ⚡ | **Enflasyon Hesaplayıcı (3 panel + özel formül)** | 1-2 hafta | ☑ | 2026-05-08 | 2026-05-09 |
 | **Faz 1** ⚡ | Temel (DB + Auth + KYC) — paralel | 3 hafta | ◐ | 2026-05-08 | — |
 | Faz 2 | Yemekçi Maliyet Paneli | 3 hafta | ☐ | — | — |
 | Faz 3 | Anasayfa Wizard + Fiyat Motoru + **Hızlı Teklif** | 4 hafta | ☐ | — | — |
@@ -97,18 +97,19 @@
 | 0.5.1 | DB migration (`inflation_sources`, `inflation_indices`, `inflation_calculations`) | ☑ | 2026-05-08 |
 | 0.5.2 | Seed: 4 resmî kaynak | ☑ | 2026-05-08 |
 | 0.5.3 | PRD Bölüm 25 yazımı | ☑ | `docs/PRD_25_Enflasyon_Hesaplayici.md` |
-| 0.5.4 | TCMB EVDS API hesabı (UYSA) | ☐ | UYSA — e-Devlet ile ücretsiz başvuru |
-| 0.5.5 | EVDS endeks kodları doğrulama | ☐ | API key alınınca |
-| 0.5.6 | `app/Services/InflationCalculator.php` | ☑ | Sentetik mock veriyle çalışıyor |
-| 0.5.7 | `app/Services/InflationDataFetcher.php` | ☐ | EVDS HTTP istemcisi |
-| 0.5.8 | `app/Jobs/FetchInflationIndicesJob.php` (cron) | ☐ | Her ayın 5'i |
-| 0.5.9 | Müşteri sayfası (anasayfa) | ☑ | `/araclar/enflasyon-hesaplayici` çalışıyor |
-| 0.5.10 | Yemekçi paneli sayfası | ☑ | `/yemekci/araclar/enflasyon` çalışıyor (paylaşılan partial) |
-| 0.5.11 | Admin paneli sayfası + kaynak yönetimi (read-only) | ☑ | `/yonetim/araclar/enflasyon` + `/yonetim/sistem/enflasyon-kaynaklari` |
-| 0.5.12 | Admin: özel formül oluştur + aylık veri gir | ☑ | CRUD + aylık veri tam çalışıyor (JSON-file backed, Faz 1.0a'da DB'ye taşınacak) |
-| 0.5.13 | Lead capture (`POST /api/v1/enflasyon/mail-gonder`) | ☐ | KVKK onayı + IP/UA kayıt |
-| 0.5.14 | Rate limit (IP başı 30/saat) | ◐ | Login başına 5/dk var; enflasyon API için Redis'e geçilecek |
-| 0.5.15 | Unit + Feature testler | ☐ | Hesap doğruluğu kritik |
+| 0.5.4 | TCMB EVDS API hesabı (UYSA) | ☐ | UYSA — e-Devlet ile ücretsiz başvuru bekleniyor |
+| 0.5.5 | EVDS endeks kodları doğrulama | ◐ | TP.FG.J0 / TP.FG.J01 / TP.FE.OKTG01 — LIVE'da doğrulanacak |
+| 0.5.6 | `app/Services/InflationCalculator.php` | ☑ | Sentetik + EVDS + custom merge |
+| 0.5.7 | `app/Services/EvdsClient.php` | ☑ | Mock + live mode, file_get_contents istemci |
+| 0.5.8 | `app/Jobs/FetchInflationIndicesJob.php` (cron + manuel) | ☑ | Admin paneli "Şimdi Tetikle" + cron iskeleti hazır |
+| 0.5.9 | Müşteri sayfası (anasayfa) | ☑ | `/araclar/enflasyon-hesaplayici` |
+| 0.5.10 | Yemekçi paneli sayfası | ☑ | `/yemekci/araclar/enflasyon` (paylaşılan partial) |
+| 0.5.11 | Admin paneli sayfası + kaynak yönetimi | ☑ | `/yonetim/araclar/enflasyon` + `/yonetim/sistem/enflasyon-kaynaklari` |
+| 0.5.12 | Admin: özel formül CRUD + aylık veri girişi | ☑ | Tüm akış çalışıyor (validate + edit + delete + monthly) |
+| 0.5.13 | Lead capture (KVKK) | ☑ | `POST /api/v1/enflasyon/mail-gonder` + admin lead listesi |
+| 0.5.14 | Rate limit (file-based, Redis-uyumlu API) | ☑ | `app/Services/RateLimiter.php`; calc 30/dk, lead 5/saat, quote 10/saat |
+| 0.5.15 | Unit testler | ☑ | PHPUnit 11.5; 33 test, 83 assertion, 22ms |
+| **0.5.E1** | **Composer install + Laravel-uyumlu autoload** | ☑ | vendor/autoload.php aktif, public/index.php auto-detect |
 | **0.5.D1** | **Demo: Login akışı (Uysa/1234, OFU/1234)** | ☑ | `/giris-yap` + role guard çalışıyor |
 | **0.5.D2** | **Demo: 3 panel iskeleti (public/yemekçi/admin)** | ☑ | Dashboard'lar placeholder |
 | **0.5.D3** | **Demo: Enflasyon hesap UI + API + grafik** | ☑ | Chart.js ile aylık seri |

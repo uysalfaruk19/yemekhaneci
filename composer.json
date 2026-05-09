@@ -7,43 +7,15 @@
     "keywords": ["catering", "yemekhane", "marketplace", "turkey", "uysa"],
     "require": {
         "php": "^8.2",
-        "ext-pdo": "*",
-        "ext-pdo_mysql": "*",
         "ext-mbstring": "*",
-        "ext-intl": "*",
         "ext-json": "*",
-        "ext-gd": "*",
-        "ext-imagick": "*",
-        "ext-redis": "*",
         "ext-openssl": "*",
-        "ext-curl": "*",
         "vlucas/phpdotenv": "^5.6",
-        "ramsey/uuid": "^4.7",
-        "nesbot/carbon": "^3.5",
         "monolog/monolog": "^3.7",
-        "symfony/http-foundation": "^7.1",
-        "symfony/mailer": "^7.1",
-        "symfony/validator": "^7.1",
-        "symfony/console": "^7.1",
-        "respect/validation": "^2.3",
-        "predis/predis": "^2.2",
-        "guzzlehttp/guzzle": "^7.9",
-        "iyzico/iyzipay-php": "^2.0",
-        "phpoffice/phpspreadsheet": "^3.4",
-        "league/flysystem": "^3.28",
-        "league/flysystem-aws-s3-v3": "^3.28",
-        "intervention/image": "^3.7",
-        "robthree/twofactorauth": "^2.1",
-        "sentry/sdk": "^4.1"
+        "guzzlehttp/guzzle": "^7.9"
     },
     "require-dev": {
-        "phpunit/phpunit": "^11.3",
-        "squizlabs/php_codesniffer": "^3.10",
-        "friendsofphp/php-cs-fixer": "^3.64",
-        "phpstan/phpstan": "^1.12",
-        "fakerphp/faker": "^1.23",
-        "mockery/mockery": "^1.6",
-        "symfony/var-dumper": "^7.1"
+        "phpunit/phpunit": "^11.3"
     },
     "autoload": {
         "psr-4": {
@@ -61,11 +33,7 @@
     "scripts": {
         "test": "phpunit --colors=always",
         "test-unit": "phpunit --testsuite=Unit",
-        "test-feature": "phpunit --testsuite=Feature",
-        "test-raw": "@php tests/TestRunner.php",
-        "lint": "phpcs --standard=PSR12 app/ routes/ config/ tests/",
-        "cs-fix": "php-cs-fixer fix --config=.php-cs-fixer.dist.php",
-        "stan": "phpstan analyse app/ --level=6",
+        "serve": "@php -S 127.0.0.1:8000 -t public/ public/index.php",
         "post-install-cmd": [
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
         ]

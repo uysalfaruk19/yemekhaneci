@@ -26,19 +26,21 @@ use App\Middleware\AuthMiddleware;
 
 // ---- Bootstrap ----
 $basePath = dirname(__DIR__);
-require $basePath . '/app/Helpers/functions.php';
 
-// Basit PSR-4 autoloader (Faz 1.0a'da Composer autoloader devralır).
-spl_autoload_register(static function (string $class) use ($basePath): void {
-    if (!str_starts_with($class, 'App\\')) {
-        return;
-    }
-    $relative = str_replace(['App\\', '\\'], ['', '/'], $class);
-    $file = $basePath . '/app/' . $relative . '.php';
-    if (is_file($file)) {
-        require $file;
-    }
-});
+// Composer autoloader varsa onu kullan (PSR-4 + helpers files autoload).
+$composerAutoload = $basePath . '/vendor/autoload.php';
+if (is_file($composerAutoload)) {
+    require $composerAutoload;
+} else {
+    // Fallback: manuel autoloader (composer install yapılmamışsa)
+    require $basePath . '/app/Helpers/functions.php';
+    spl_autoload_register(static function (string $class) use ($basePath): void {
+        if (!str_starts_with($class, 'App\\')) return;
+        $relative = str_replace(['App\\', '\\'], ['', '/'], $class);
+        $file = $basePath . '/app/' . $relative . '.php';
+        if (is_file($file)) require $file;
+    });
+}
 
 // Hata gösterimi (production'da kapatılır — .env APP_DEBUG'a bağlı olacak).
 ini_set('display_errors', '1');

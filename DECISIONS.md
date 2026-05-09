@@ -165,6 +165,21 @@
 - **Alternatif:** Seri (geç çıkar), tek mega oturum (riskli, context window).
 - **Etki:** Branch stratejisi: `feature/faz-1-db-auth`, `feature/faz-0.5-enflasyon`, `feature/faz-3.5-admin-pivot`, `feature/faz-3-hizli-teklif`. PR review sonrası `dev` dalına merge. Mevcut `claude/start-yemekhaneci-project-xCJFu` Faz 0 entry'si; bu commit sonrası kapanır.
 
+## ADR-015 — Faz 0.5 sonu: composer install + minimal Laravel-uyumlu deps
+
+- **Tarih:** 2026-05-09
+- **Durum:** Kabul edildi
+- **Bağlam:** Faz 0.5 tamamlandığında composer install denemesi yapıldı. Orijinal composer.json Laravel-stili paketler içeriyordu (Symfony 7, Intervention Image, predis, iyzipay vb.) ama henüz hiçbiri kullanılmıyordu ve bazıları PHP eklentileri (ext-imagick, ext-redis) gerektiriyordu — sandbox ortamında install başarısız olurdu.
+- **Karar:** composer.json minimumda tutuldu — sadece şu an gerçekten kullanılan/kullanılacak paketler:
+  - `vlucas/phpdotenv` (.env desteği — Faz 1.0a config)
+  - `monolog/monolog` (Laravel kurulduğunda log altyapısı)
+  - `guzzlehttp/guzzle` (EVDS LIVE mode için — şu an file_get_contents)
+  - `phpunit/phpunit` (test runner — TestRunner.php kaldırıldı)
+- **Faz 1.0a'da eklenecekler** (Laravel kurulduğunda doğal gelecekler):
+  `laravel/framework`, `laravel/sanctum`, `spatie/laravel-permission`,
+  `predis/predis`, `intervention/image`, `iyzico/iyzipay-php`, vs.
+- **Etki:** `composer install` ~50 paket kuruyor, `vendor/` 18MB, autoload.php 1834 sınıf. PHPUnit ile 33 test, 83 assertion, 22ms'de geçiyor. `public/index.php` Composer autoloader varsa onu kullanıyor (yoksa raw PHP fallback). Aynı kod hem dev hem (gelecek) Laravel'de çalışacak.
+
 ## ADR-014 — Faz 0.5 demo: raw PHP prototip (geçici)
 
 - **Tarih:** 2026-05-08

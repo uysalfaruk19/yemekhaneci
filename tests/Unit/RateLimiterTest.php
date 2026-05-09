@@ -2,67 +2,82 @@
 
 declare(strict_types=1);
 
+namespace Tests\Unit;
+
 use App\Services\RateLimiter;
-use Tests\TestRunner;
+use PHPUnit\Framework\TestCase;
 
-TestRunner::group('RateLimiter — sliding window', function () {
+final class RateLimiterTest extends TestCase
+{
+    private string $tmpDir;
 
-    $tmpDir = sys_get_temp_dir() . '/yh_test_rl_' . uniqid();
-    mkdir($tmpDir, 0755, true);
+    protected function setUp(): void
+    {
+        $this->tmpDir = sys_get_temp_dir() . '/yh_test_rl_' . uniqid();
+        mkdir($this->tmpDir, 0755, true);
+    }
 
-    TestRunner::run('Limit altında allow=true', function () use ($tmpDir) {
-        $rl = new RateLimiter('test_alpha', limit: 3, windowSeconds: 60, storageDir: $tmpDir);
-        $rl->reset('1.2.3.4');
-        TestRunner::assertTrue($rl->allow('1.2.3.4'), 'İstek 1');
-        TestRunner::assertTrue($rl->allow('1.2.3.4'), 'İstek 2');
-        TestRunner::assertTrue($rl->allow('1.2.3.4'), 'İstek 3');
-    });
+    protected function tearDown(): void
+    {
+        if (is_dir($this->tmpDir)) {
+            foreach (glob($this->tmpDir . '/*') ?: [] as $f) @unlink($f);
+            @rmdir($this->tmpDir);
+        }
+    }
 
-    TestRunner::run('Limit aşımında allow=false', function () use ($tmpDir) {
-        $rl = new RateLimiter('test_beta', limit: 2, windowSeconds: 60, storageDir: $tmpDir);
-        $rl->reset('5.5.5.5');
-        TestRunner::assertTrue($rl->allow('5.5.5.5'));
-        TestRunner::assertTrue($rl->allow('5.5.5.5'));
-        TestRunner::assertFalse($rl->allow('5.5.5.5'), '3. istek limit dışı olmalı');
-    });
+    public function test_limit_alti_allow_true(): void
+    {
+        $rl = new RateLimiter('alpha', 3, 60, $this->tmpDir);
+        $this->assertTrue($rl->allow('1.2.3.4'));
+        $this->assertTrue($rl->allow('1.2.3.4'));
+        $this->assertTrue($rl->allow('1.2.3.4'));
+    }
 
-    TestRunner::run('Farklı anahtarlar bağımsız sayılır', function () use ($tmpDir) {
-        $rl = new RateLimiter('test_gamma', limit: 1, windowSeconds: 60, storageDir: $tmpDir);
-        $rl->reset('a');
-        $rl->reset('b');
-        TestRunner::assertTrue($rl->allow('a'));
-        TestRunner::assertTrue($rl->allow('b'), "'b' anahtarı 'a' dolu olsa bile geçmeli");
-        TestRunner::assertFalse($rl->allow('a'));
-    });
+    public function test_limit_asiminda_allow_false(): void
+    {
+        $rl = new RateLimiter('beta', 2, 60, $this->tmpDir);
+        $this->assertTrue($rl->allow('5.5.5.5'));
+        $this->assertTrue($rl->allow('5.5.5.5'));
+        $this->assertFalse($rl->allow('5.5.5.5'));
+    }
 
-    TestRunner::run('remaining() doğru hesaplanır', function () use ($tmpDir) {
-        $rl = new RateLimiter('test_delta', limit: 5, windowSeconds: 60, storageDir: $tmpDir);
-        $rl->reset('x');
+    public function test_anahtarlar_bagimsiz(): void
+    {
+        $rl = new RateLimiter('gamma', 1, 60, $this->tmpDir);
+        $this->assertTrue($rl->allow('a'));
+        $this->assertTrue($rl->allow('b'));
+        $this->assertFalse($rl->allow('a'));
+    }
+
+    public function test_remaining_dogru_hesaplanir(): void
+    {
+        $rl = new RateLimiter('delta', 5, 60, $this->tmpDir);
         $rl->allow('x');
         $rl->allow('x');
-        TestRunner::assertSame(3, $rl->remaining('x'), '5 - 2 = 3 kalmalı');
-    });
+        $this->assertSame(3, $rl->remaining('x'));
+    }
 
-    TestRunner::run('reset() sayacı sıfırlar', function () use ($tmpDir) {
-        $rl = new RateLimiter('test_eps', limit: 2, windowSeconds: 60, storageDir: $tmpDir);
+    public function test_reset_sayaci_sifirlar(): void
+    {
+        $rl = new RateLimiter('eps', 2, 60, $this->tmpDir);
         $rl->allow('z');
         $rl->allow('z');
-        TestRunner::assertFalse($rl->allow('z'));
+        $this->assertFalse($rl->allow('z'));
         $rl->reset('z');
-        TestRunner::assertTrue($rl->allow('z'), 'Reset sonrası tekrar geçmeli');
-    });
+        $this->assertTrue($rl->allow('z'));
+    }
 
-    TestRunner::run('Tehlikeli karakter bucket adında sanitize edilir', function () use ($tmpDir) {
-        $rl = new RateLimiter('../../etc/passwd', limit: 1, windowSeconds: 60, storageDir: $tmpDir);
+    public function test_path_traversal_sanitize(): void
+    {
+        $rl = new RateLimiter('../../etc/passwd', 1, 60, $this->tmpDir);
         $rl->allow('test');
         $files = array_values(array_filter(
-            scandir($tmpDir) ?: [],
+            scandir($this->tmpDir) ?: [],
             static fn(string $f) => $f !== '.' && $f !== '..'
         ));
-        $hasTraversal = false;
         foreach ($files as $f) {
-            if (str_contains($f, '..') || str_contains($f, '/')) $hasTraversal = true;
+            $this->assertStringNotContainsString('..', $f);
+            $this->assertStringNotContainsString('/', $f);
         }
-        TestRunner::assertFalse($hasTraversal, 'Path traversal payload sanitize edilmeli');
-    });
-});
+    }
+}

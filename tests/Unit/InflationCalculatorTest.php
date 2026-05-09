@@ -2,56 +2,62 @@
 
 declare(strict_types=1);
 
+namespace Tests\Unit;
+
 use App\Services\InflationCalculator;
-use Tests\TestRunner;
+use DateTimeImmutable;
+use InvalidArgumentException;
+use PHPUnit\Framework\TestCase;
 
-TestRunner::group('InflationCalculator — formül ve kenar durumlar', function () {
-
-    TestRunner::run('Aynı endeksle aynı tarih → fiyat değişmemeli', function () {
+final class InflationCalculatorTest extends TestCase
+{
+    public function test_ayni_donemde_fiyat_degismez(): void
+    {
         $r = InflationCalculator::calculate(
             'tuik_tufe',
             new DateTimeImmutable('2025-01-01'),
             1000.0,
             new DateTimeImmutable('2025-01-01')
         );
-        TestRunner::assertEqualsWithDelta(1000.0, $r['end_price'], 0.01, 'Aynı dönemde fiyat aynı olmalı');
-        TestRunner::assertEqualsWithDelta(0.0, $r['change_pct'], 0.01);
-    });
+        $this->assertEqualsWithDelta(1000.0, $r['end_price'], 0.01);
+        $this->assertEqualsWithDelta(0.0, $r['change_pct'], 0.01);
+    }
 
-    TestRunner::run('Pozitif fiyat zorunlu', function () {
-        TestRunner::assertThrows(InvalidArgumentException::class, function () {
-            InflationCalculator::calculate(
-                'tuik_tufe',
-                new DateTimeImmutable('2024-01-01'),
-                0.0,
-                new DateTimeImmutable('2025-01-01')
-            );
-        });
-    });
+    public function test_pozitif_fiyat_zorunlu(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        InflationCalculator::calculate(
+            'tuik_tufe',
+            new DateTimeImmutable('2024-01-01'),
+            0.0,
+            new DateTimeImmutable('2025-01-01')
+        );
+    }
 
-    TestRunner::run('Hedef tarih başlangıçtan önce olamaz', function () {
-        TestRunner::assertThrows(InvalidArgumentException::class, function () {
-            InflationCalculator::calculate(
-                'tuik_tufe',
-                new DateTimeImmutable('2025-06-01'),
-                1000.0,
-                new DateTimeImmutable('2025-01-01')
-            );
-        });
-    });
+    public function test_hedef_tarih_baslangictan_once_olamaz(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        InflationCalculator::calculate(
+            'tuik_tufe',
+            new DateTimeImmutable('2025-06-01'),
+            1000.0,
+            new DateTimeImmutable('2025-01-01')
+        );
+    }
 
-    TestRunner::run('Geçersiz kaynak kodu hata fırlatır', function () {
-        TestRunner::assertThrows(InvalidArgumentException::class, function () {
-            InflationCalculator::calculate(
-                'olmayan_kod',
-                new DateTimeImmutable('2024-01-01'),
-                1000.0,
-                new DateTimeImmutable('2025-01-01')
-            );
-        });
-    });
+    public function test_gecersiz_kaynak_kodu_hata(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        InflationCalculator::calculate(
+            'olmayan_kod',
+            new DateTimeImmutable('2024-01-01'),
+            1000.0,
+            new DateTimeImmutable('2025-01-01')
+        );
+    }
 
-    TestRunner::run('Formül doğruluğu: end_price = start_price × (end_idx / start_idx)', function () {
+    public function test_formul_dogrulugu(): void
+    {
         $r = InflationCalculator::calculate(
             'tuik_tufe_gida',
             new DateTimeImmutable('2024-01-01'),
@@ -59,49 +65,51 @@ TestRunner::group('InflationCalculator — formül ve kenar durumlar', function 
             new DateTimeImmutable('2025-12-01')
         );
         $expected = round(5000.0 * ($r['end_index'] / $r['start_index']), 2);
-        TestRunner::assertEqualsWithDelta($expected, $r['end_price'], 0.01,
-            "5000 × ({$r['end_index']} / {$r['start_index']}) ≈ {$expected}");
-    });
+        $this->assertEqualsWithDelta($expected, $r['end_price'], 0.01);
+    }
 
-    TestRunner::run('Aylık ortalama bileşik artış geometric mean ile uyumlu', function () {
+    public function test_aylik_ortalama_bilesik(): void
+    {
         $r = InflationCalculator::calculate(
             'tuik_tufe',
             new DateTimeImmutable('2024-01-01'),
             1000.0,
             new DateTimeImmutable('2025-01-01')
         );
-        // 12 ay → (end/start)^(1/12) - 1
         $expectedMonthly = (pow($r['end_index'] / $r['start_index'], 1 / 12) - 1) * 100;
-        TestRunner::assertEqualsWithDelta($expectedMonthly, $r['monthly_avg_pct'], 0.001);
-    });
+        $this->assertEqualsWithDelta($expectedMonthly, $r['monthly_avg_pct'], 0.001);
+    }
 
-    TestRunner::run('monthly_series start..end aralığını kapsar', function () {
+    public function test_monthly_series_aralik_kapsar(): void
+    {
         $r = InflationCalculator::calculate(
             'tuik_yiufe',
             new DateTimeImmutable('2024-01-01'),
             1000.0,
             new DateTimeImmutable('2024-06-01')
         );
-        TestRunner::assertSame(6, count($r['monthly_series']), 'Ocak-Haziran 2024 = 6 ay');
-        TestRunner::assertSame('2024-01', $r['monthly_series'][0]['period']);
-        TestRunner::assertSame('2024-06', $r['monthly_series'][5]['period']);
-    });
+        $this->assertCount(6, $r['monthly_series']);
+        $this->assertSame('2024-01', $r['monthly_series'][0]['period']);
+        $this->assertSame('2024-06', $r['monthly_series'][5]['period']);
+    }
 
-    TestRunner::run('change_pct yön doğru (pozitif enflasyonda > 0)', function () {
+    public function test_change_pct_yon_pozitif_enflasyonda(): void
+    {
         $r = InflationCalculator::calculate(
             'tuik_tufe_gida',
             new DateTimeImmutable('2023-01-01'),
             1000.0,
             new DateTimeImmutable('2026-01-01')
         );
-        TestRunner::assertTrue($r['change_pct'] > 0, "Beklenen pozitif change_pct, gerçek {$r['change_pct']}");
-    });
+        $this->assertGreaterThan(0, $r['change_pct']);
+    }
 
-    TestRunner::run('sources() resmî 4 kaynak içerir', function () {
+    public function test_sources_resmi_4_kaynak_icerir(): void
+    {
         $sources = InflationCalculator::sources();
         $codes = array_column($sources, 'code');
         foreach (['tuik_tufe', 'tuik_tufe_gida', 'tuik_yiufe', 'enag_tufe'] as $expected) {
-            TestRunner::assertTrue(in_array($expected, $codes, true), "{$expected} eksik");
+            $this->assertContains($expected, $codes);
         }
-    });
-});
+    }
+}

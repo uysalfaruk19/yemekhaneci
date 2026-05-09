@@ -6,10 +6,10 @@
 # --- PHP / Composer ---
 /vendor/
 composer.phar
-composer.lock
 .phpunit.result.cache
 .phpunit.cache/
 .php-cs-fixer.cache
+# composer.lock production projesinde commit edilir (reproducible builds)
 
 # --- Node / Frontend build ---
 /node_modules/
