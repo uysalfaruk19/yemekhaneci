@@ -50,14 +50,14 @@ $twoYearsAgo = date('Y-m', strtotime('-24 months'));
               <div class="row g-1">
                 <div class="col-7">
                   <select class="form-select form-select-sm" x-model="form.start_month">
-                    <template x-for="(label, idx) in monthNames" :key="idx">
-                      <option :value="String(idx + 1).padStart(2, '0')" x-text="label"></option>
+                    <template x-for="m in monthOptions" :key="m.value">
+                      <option :value="m.value" x-text="m.label"></option>
                     </template>
                   </select>
                 </div>
                 <div class="col-5">
                   <select class="form-select form-select-sm mono" x-model="form.start_year">
-                    <template x-for="y in years" :key="y">
+                    <template x-for="y in years" :key="'sy-' + y">
                       <option :value="y" x-text="y"></option>
                     </template>
                   </select>
@@ -71,14 +71,14 @@ $twoYearsAgo = date('Y-m', strtotime('-24 months'));
               <div class="row g-1">
                 <div class="col-7">
                   <select class="form-select form-select-sm" x-model="form.end_month">
-                    <template x-for="(label, idx) in monthNames" :key="idx">
-                      <option :value="String(idx + 1).padStart(2, '0')" x-text="label"></option>
+                    <template x-for="m in monthOptions" :key="m.value">
+                      <option :value="m.value" x-text="m.label"></option>
                     </template>
                   </select>
                 </div>
                 <div class="col-5">
                   <select class="form-select form-select-sm mono" x-model="form.end_year">
-                    <template x-for="y in years" :key="y">
+                    <template x-for="y in years" :key="'ey-' + y">
                       <option :value="y" x-text="y"></option>
                     </template>
                   </select>
@@ -232,8 +232,15 @@ function inflationApp() {
     thisMonth: `${thisYear}-${thisMonth}`,
     canvasId: 'inflChart_<?= e($panelOrigin) ?>',
 
-    monthNames: ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran',
-                 'Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'],
+    // Önceden hazırlanmış option dizileri (Alpine x-for scope clash önlemi)
+    monthOptions: [
+      { value: '01', label: 'Ocak' },    { value: '02', label: 'Şubat' },
+      { value: '03', label: 'Mart' },    { value: '04', label: 'Nisan' },
+      { value: '05', label: 'Mayıs' },   { value: '06', label: 'Haziran' },
+      { value: '07', label: 'Temmuz' },  { value: '08', label: 'Ağustos' },
+      { value: '09', label: 'Eylül' },   { value: '10', label: 'Ekim' },
+      { value: '11', label: 'Kasım' },   { value: '12', label: 'Aralık' },
+    ],
     years: years,
 
     form: {
