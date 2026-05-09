@@ -4,13 +4,15 @@ declare(strict_types=1);
 
 namespace App\Repositories;
 
+use App\Repositories\Contracts\InflationCalculationRepositoryInterface;
+
 /**
  * `inflation_calculations` tablosunun JSON-file karşılığı (Faz 0.5).
  * KVKK uyumlu lead capture + analytics için tüm hesaplama sorguları burada saklanır.
  *
  * Faz 1.0a'da Eloquent `App\Models\InflationCalculation`'a taşınacak.
  */
-final class InflationCalculationRepository
+final class InflationCalculationRepository implements InflationCalculationRepositoryInterface
 {
     private string $dataFile;
 

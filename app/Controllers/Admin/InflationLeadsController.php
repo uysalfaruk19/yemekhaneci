@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace App\Controllers\Admin;
 
 use App\Auth\SimpleAuth;
-use App\Repositories\InflationCalculationRepository;
+use App\Bootstrap\Container;
+use App\Repositories\Contracts\InflationCalculationRepositoryInterface;
 
 /**
  * Admin: enflasyon hesap kayıtları + KVKK onaylı lead listesi (Faz 0.5.13).
@@ -14,7 +15,8 @@ final class InflationLeadsController
 {
     public function index(): string
     {
-        $repo = new InflationCalculationRepository();
+        /** @var InflationCalculationRepositoryInterface $repo */
+        $repo = Container::get(InflationCalculationRepositoryInterface::class);
 
         $content = \view('admin.inflation-leads', [
             'leads'        => $repo->leads(200),

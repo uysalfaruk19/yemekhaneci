@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace App\Repositories;
 
+use App\Repositories\Contracts\QuickQuoteRepositoryInterface;
 use RuntimeException;
 
 /**
  * Hızlı teklif (60 saniye) talepleri için file-backed repo (Faz 3 öne çekme).
  * Faz 1+ DB şemasında `requests` + `request_items` tablolarına taşınacak.
  */
-final class QuickQuoteRepository
+final class QuickQuoteRepository implements QuickQuoteRepositoryInterface
 {
     private string $dataFile;
 

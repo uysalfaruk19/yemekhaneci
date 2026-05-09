@@ -61,6 +61,11 @@ if (class_exists(\App\Bootstrap\SecurityHeaders::class)) {
     \App\Bootstrap\SecurityHeaders::send();
 }
 
+// DI container (Faz 1.0a'da Laravel container'a taşınır)
+if (class_exists(\App\Bootstrap\Container::class)) {
+    \App\Bootstrap\Container::bootDefaults();
+}
+
 SimpleAuth::startSession();
 
 // ---- Router ----

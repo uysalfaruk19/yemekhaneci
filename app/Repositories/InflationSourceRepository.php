@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Repositories;
 
+use App\Repositories\Contracts\InflationSourceRepositoryInterface;
 use RuntimeException;
 
 /**
@@ -16,7 +17,7 @@ use RuntimeException;
  * Özel kaynaklar (UYSA Et Endeksi vb.) `storage/inflation/data.json`'da
  * tutulur; aylık veri girişleri de aynı dosyaya yazılır.
  */
-final class InflationSourceRepository
+final class InflationSourceRepository implements InflationSourceRepositoryInterface
 {
     private string $dataFile;
 
