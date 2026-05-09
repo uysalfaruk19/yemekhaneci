@@ -16,6 +16,7 @@ use App\Controllers\Admin\InflationController as AdminInflation;
 use App\Controllers\Admin\InflationLeadsController as AdminInflationLeads;
 use App\Controllers\Admin\InflationSourcesController as AdminInflationSources;
 use App\Controllers\Auth\AuthController;
+use App\Controllers\Public\HealthController;
 use App\Controllers\Public\HomeController;
 use App\Controllers\Public\InflationCalculatorController;
 use App\Controllers\Public\LegalController;
@@ -59,6 +60,10 @@ SimpleAuth::startSession();
 
 // ---- Router ----
 $router = new Router();
+
+// --- Health checks (Hostinger/Traefik için) ---
+$router->get('/saglik', static fn() => (new HealthController())->liveness());
+$router->get('/hazir',  static fn() => (new HealthController())->readiness());
 
 // --- Public ---
 $router->get('/', static fn() => (new HomeController())->index());
