@@ -57,7 +57,11 @@
             </a>
             <a href="/yonetim/sistem/enflasyon-kaynaklari" class="list-group-item list-group-item-action d-flex justify-content-between">
               <span><strong>Enflasyon kaynak yönetimi</strong> · TÜİK API + ENAG manuel + UYSA özel formülleri</span>
-              <span class="badge bg-warning text-dark">Liste hazır · CRUD Faz 0.5.12</span>
+              <span class="badge bg-success">CRUD hazır</span>
+            </a>
+            <a href="/yonetim/enflasyon/lead-ler" class="list-group-item list-group-item-action d-flex justify-content-between">
+              <span><strong>Enflasyon lead yönetimi</strong> · KVKK onaylı e-posta bırakanlar + analytics</span>
+              <span class="badge bg-success">Hazır</span>
             </a>
           </div>
         </div>

@@ -95,6 +95,42 @@ $twoYearsAgo = date('Y-m', strtotime('-24 months'));
               <div class="alert alert-warning small py-2"><i class="bi bi-info-circle me-1"></i><span x-text="result.warning"></span></div>
             </template>
 
+            <?php if ($panelOrigin === 'public'): ?>
+            <div class="card border-0 mb-3" style="background:#FAF6F0;">
+              <div class="card-body p-3">
+                <template x-if="!leadSent">
+                  <form @submit.prevent="sendLead()">
+                    <strong class="d-block mb-2"><i class="bi bi-envelope-paper-fill text-brand me-1"></i>Sonucu e-postama gönder</strong>
+                    <div class="row g-2">
+                      <div class="col-sm-7">
+                        <input type="email" class="form-control form-control-sm" x-model="lead.email" required placeholder="ornek@firma.com.tr">
+                      </div>
+                      <div class="col-sm-5">
+                        <button type="submit" class="btn btn-brand btn-sm w-100" :disabled="leadLoading || !lead.kvkk">
+                          <template x-if="!leadLoading"><span><i class="bi bi-send me-1"></i>Gönder</span></template>
+                          <template x-if="leadLoading"><span><span class="spinner-border spinner-border-sm me-1"></span>Gönderiliyor…</span></template>
+                        </button>
+                      </div>
+                    </div>
+                    <div class="form-check small mt-2">
+                      <input class="form-check-input" type="checkbox" id="kvkk_<?= e($panelOrigin) ?>" x-model="lead.kvkk" required>
+                      <label class="form-check-label text-secondary" for="kvkk_<?= e($panelOrigin) ?>">
+                        <a href="#" class="text-brand text-decoration-none">Aydınlatma metnini</a> okudum,
+                        e-posta adresimin hesap sonucu ve UYSA güncellemeleri için kullanılmasını kabul ediyorum.
+                      </label>
+                    </div>
+                    <div class="text-danger small mt-1" x-show="leadError" x-text="leadError"></div>
+                  </form>
+                </template>
+                <template x-if="leadSent">
+                  <div class="text-success small mb-0">
+                    <i class="bi bi-check-circle-fill me-1"></i><span x-text="leadMessage"></span>
+                  </div>
+                </template>
+              </div>
+            </div>
+            <?php endif; ?>
+
             <div class="row g-3 mb-3">
               <div class="col-sm-6">
                 <div class="text-secondary small">Başlangıç (<span x-text="result.start_period"></span>)</div>
@@ -148,6 +184,13 @@ function inflationApp() {
     result: null,
     error: null,
     chart: null,
+
+    // Lead capture (sadece public panelde aktif)
+    lead: { email: '', kvkk: false },
+    leadLoading: false,
+    leadSent: false,
+    leadError: null,
+    leadMessage: '',
 
     async calculate() {
       this.loading = true;
@@ -209,6 +252,44 @@ function inflationApp() {
           },
         },
       });
+    },
+
+    async sendLead() {
+      if (!this.result) {
+        this.leadError = 'Önce bir hesaplama yapın.';
+        return;
+      }
+      if (!this.lead.kvkk) {
+        this.leadError = 'KVKK onayı zorunludur.';
+        return;
+      }
+      this.leadLoading = true;
+      this.leadError = null;
+      try {
+        const fd = new FormData();
+        fd.set('_csrf', this.csrf);
+        fd.set('email', this.lead.email);
+        fd.set('kvkk', '1');
+        fd.set('source', this.form.source);
+        fd.set('start_date', this.form.start_date);
+        fd.set('end_date', this.form.end_date);
+        fd.set('start_price', this.form.start_price);
+        fd.set('panel_origin', this.panelOrigin);
+
+        const res = await fetch('/api/v1/enflasyon/mail-gonder', { method: 'POST', body: fd });
+        const data = await res.json();
+        if (!data.success) {
+          const firstField = data.errors ? Object.values(data.errors)[0]?.[0] : null;
+          this.leadError = firstField || data.message || 'Beklenmedik hata.';
+        } else {
+          this.leadSent = true;
+          this.leadMessage = data.data?.message || 'Talebiniz alındı.';
+        }
+      } catch (e) {
+        this.leadError = 'Sunucuya ulaşılamadı: ' + e.message;
+      } finally {
+        this.leadLoading = false;
+      }
     },
 
     formatMoney(v) {

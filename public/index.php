@@ -12,6 +12,7 @@ declare(strict_types=1);
 use App\Auth\SimpleAuth;
 use App\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Controllers\Admin\InflationController as AdminInflation;
+use App\Controllers\Admin\InflationLeadsController as AdminInflationLeads;
 use App\Controllers\Admin\InflationSourcesController as AdminInflationSources;
 use App\Controllers\Auth\AuthController;
 use App\Controllers\Public\HomeController;
@@ -57,6 +58,10 @@ $router->post(
     '/api/v1/enflasyon/hesapla',
     static fn() => (new InflationCalculatorController())->calculate()
 );
+$router->post(
+    '/api/v1/enflasyon/mail-gonder',
+    static fn() => (new InflationCalculatorController())->submitLead()
+);
 
 // --- Auth ---
 $router->get('/giris-yap', static fn() => (new AuthController())->showLogin(), [AuthMiddleware::guestOnly()]);
@@ -87,6 +92,11 @@ $router->get(
     static fn() => (new AdminInflation())->show(),
     [AuthMiddleware::requireRole('admin')]
 );
+$router->get('/yonetim/enflasyon/lead-ler',
+    static fn() => (new AdminInflationLeads())->index(),
+    [AuthMiddleware::requireRole('admin')]
+);
+
 // --- Admin: Enflasyon kaynak yönetimi (Faz 0.5.12) ---
 $adminMw = [AuthMiddleware::requireRole('admin')];
 $router->get('/yonetim/sistem/enflasyon-kaynaklari',
