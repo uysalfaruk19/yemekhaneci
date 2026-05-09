@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace App\Controllers\Admin;
 
 use App\Auth\SimpleAuth;
+use App\Repositories\InflationCalculationRepository;
+use App\Repositories\QuickQuoteRepository;
+use App\Repositories\SupplierApplicationRepository;
 
 /**
- * Admin paneli — dashboard (Faz 0.5 demo iskelet).
- * Faz 1'de 12 modül + Faz 3.5'te teklif pivotu eklenecek.
+ * Admin paneli — dashboard.
  */
 final class DashboardController
 {
@@ -16,8 +18,16 @@ final class DashboardController
     {
         $user = SimpleAuth::user();
 
+        $supplierRepo = new SupplierApplicationRepository();
+        $quoteRepo    = new QuickQuoteRepository();
+        $leadRepo     = new InflationCalculationRepository();
+
         $content = \view('admin.dashboard', [
-            'user' => $user,
+            'user'           => $user,
+            'pending_count'  => $supplierRepo->pendingCount(),
+            'active_count'   => $supplierRepo->activeCount(),
+            'quote_count_7d' => $quoteRepo->last7DaysCount(),
+            'lead_count'     => $leadRepo->leadCount(),
         ]);
 
         return \layout('app', $content, [

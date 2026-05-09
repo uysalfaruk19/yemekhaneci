@@ -28,10 +28,34 @@
 
     <!-- KPI -->
     <div class="row g-3 mb-4">
-      <div class="col-md-3 col-6"><div class="card card-soft p-3"><div class="text-secondary small">Aylık GMV</div><div class="h4 mono mb-0">— ₺</div><div class="small text-secondary mt-1">Faz 6+</div></div></div>
-      <div class="col-md-3 col-6"><div class="card card-soft p-3"><div class="text-secondary small">Aktif Sipariş</div><div class="h4 mono mb-0">—</div><div class="small text-secondary mt-1">Faz 6+</div></div></div>
-      <div class="col-md-3 col-6"><div class="card card-soft p-3"><div class="text-secondary small">Komisyon Geliri</div><div class="h4 mono mb-0">— ₺</div><div class="small text-secondary mt-1">İlk 6 ay sıfır</div></div></div>
-      <div class="col-md-3 col-6"><div class="card card-soft p-3"><div class="text-secondary small">Aktif Yemekçi</div><div class="h4 mono mb-0">—</div><div class="small text-secondary mt-1">Faz 1+</div></div></div>
+      <div class="col-md-3 col-6">
+        <a href="/yonetim/yemekciler?durum=pending" class="card card-soft p-3 text-decoration-none text-dark h-100">
+          <div class="text-secondary small">⏳ Onay Bekleyen Yemekçi</div>
+          <div class="h3 mono mb-0 text-warning"><?= e((string) ($pending_count ?? 0)) ?></div>
+          <div class="small text-secondary mt-1">Onayla / reddet</div>
+        </a>
+      </div>
+      <div class="col-md-3 col-6">
+        <a href="/yonetim/yemekciler?durum=active" class="card card-soft p-3 text-decoration-none text-dark h-100">
+          <div class="text-secondary small">🟢 Aktif Yemekçi</div>
+          <div class="h3 mono mb-0 text-success"><?= e((string) ($active_count ?? 0)) ?></div>
+          <div class="small text-secondary mt-1">Müşteri sonuç ekranında listelenir</div>
+        </a>
+      </div>
+      <div class="col-md-3 col-6">
+        <a href="/yonetim/hizli-teklifler" class="card card-soft p-3 text-decoration-none text-dark h-100">
+          <div class="text-secondary small">📋 Talep (son 7 gün)</div>
+          <div class="h3 mono mb-0 text-brand"><?= e((string) ($quote_count_7d ?? 0)) ?></div>
+          <div class="small text-secondary mt-1">Hızlı teklif</div>
+        </a>
+      </div>
+      <div class="col-md-3 col-6">
+        <a href="/yonetim/enflasyon/lead-ler" class="card card-soft p-3 text-decoration-none text-dark h-100">
+          <div class="text-secondary small">📧 KVKK Onaylı Lead</div>
+          <div class="h3 mono mb-0"><?= e((string) ($lead_count ?? 0)) ?></div>
+          <div class="small text-secondary mt-1">Enflasyon hesaplayıcı</div>
+        </a>
+      </div>
     </div>
 
     <div class="row g-3">
@@ -44,7 +68,10 @@
             <div class="list-group-item d-flex justify-content-between"><span><strong>Dashboard</strong> · KPI + grafik + aktivite akışı</span><span class="badge bg-secondary">Faz 1+</span></div>
             <div class="list-group-item d-flex justify-content-between"><span><strong>Canlı aktivite akışı</strong> · WebSocket / 5 sn polling</span><span class="badge bg-secondary">Faz 1+</span></div>
             <div class="list-group-item d-flex justify-content-between"><span><strong>Yemekçi onayları (KYC)</strong> · 5 belge inceleme + onay/red</span><span class="badge bg-secondary">Faz 1</span></div>
-            <div class="list-group-item d-flex justify-content-between"><span><strong>Manuel yemekçi ekleme</strong> · Saha ekibinin telefonla anlaşma akışı</span><span class="badge bg-warning text-dark">Faz 3.5</span></div>
+            <a href="/yonetim/yemekciler" class="list-group-item list-group-item-action d-flex justify-content-between">
+              <span><strong>Yemekçi yönetimi</strong> · Manuel ekleme + başvuru onay + fiyat ayarları + anonim kod</span>
+              <span class="badge bg-success">Hazır</span>
+            </a>
             <div class="list-group-item d-flex justify-content-between"><span><strong>Kullanıcı yönetimi</strong> · 4 user_type + KVKK silme</span><span class="badge bg-secondary">Faz 1</span></div>
             <div class="list-group-item d-flex justify-content-between"><span><strong>Sipariş ve teklif takibi</strong> · Filtre + timeline + müdahale</span><span class="badge bg-secondary">Faz 6</span></div>
             <div class="list-group-item d-flex justify-content-between"><span><strong>Teklif Pivot (yemekçi × müşteri)</strong> · 3 boyutlu matris + dönüşüm hunisi</span><span class="badge bg-warning text-dark">Faz 3.5</span></div>

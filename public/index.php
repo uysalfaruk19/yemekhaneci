@@ -16,6 +16,7 @@ use App\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Controllers\Admin\InflationController as AdminInflation;
 use App\Controllers\Admin\InflationLeadsController as AdminInflationLeads;
 use App\Controllers\Admin\InflationSourcesController as AdminInflationSources;
+use App\Controllers\Admin\SuppliersController as AdminSuppliers;
 use App\Controllers\Auth\AuthController;
 use App\Controllers\Public\HealthController;
 use App\Controllers\Public\HomeController;
@@ -171,8 +172,30 @@ $router->get('/yonetim/sistem/audit-log',
     [AuthMiddleware::requireRole('admin')]
 );
 
-// --- Admin: Enflasyon kaynak yönetimi (Faz 0.5.12) ---
+// --- Admin middleware (alttaki tüm yönetim rotaları kullanır) ---
 $adminMw = [AuthMiddleware::requireRole('admin')];
+
+// --- Admin: Yemekçi yönetimi ---
+$router->get('/yonetim/yemekciler',
+    static fn() => (new AdminSuppliers())->index(), $adminMw);
+$router->get('/yonetim/yemekciler/yeni',
+    static fn() => (new AdminSuppliers())->createForm(), $adminMw);
+$router->post('/yonetim/yemekciler',
+    static fn() => (new AdminSuppliers())->store(), $adminMw);
+$router->get('/yonetim/yemekciler/{id}/duzenle',
+    static fn(array $p) => (new AdminSuppliers())->editForm($p), $adminMw);
+$router->post('/yonetim/yemekciler/{id}/duzenle',
+    static fn(array $p) => (new AdminSuppliers())->update($p), $adminMw);
+$router->post('/yonetim/yemekciler/{id}/onayla',
+    static fn(array $p) => (new AdminSuppliers())->approve($p), $adminMw);
+$router->post('/yonetim/yemekciler/{id}/askiya-al',
+    static fn(array $p) => (new AdminSuppliers())->suspend($p), $adminMw);
+$router->post('/yonetim/yemekciler/{id}/reddet',
+    static fn(array $p) => (new AdminSuppliers())->reject($p), $adminMw);
+$router->post('/yonetim/yemekciler/{id}/sil',
+    static fn(array $p) => (new AdminSuppliers())->delete($p), $adminMw);
+
+// --- Admin: Enflasyon kaynak yönetimi (Faz 0.5.12) ---
 $router->get('/yonetim/sistem/enflasyon-kaynaklari',
     static fn() => (new AdminInflationSources())->index(), $adminMw);
 $router->post('/yonetim/sistem/enflasyon-kaynaklari/evds-tetikle',

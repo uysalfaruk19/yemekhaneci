@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers\Public;
 
 use App\Repositories\QuickQuoteRepository;
+use App\Repositories\SupplierApplicationRepository;
 use App\Services\AuditLogger;
 use App\Services\RateLimiter;
 
@@ -121,7 +122,21 @@ final class QuickQuoteController
             ], 422);
         }
 
-        $pricing = self::estimatePricing($segment, $menu, $personnel, $equipment, $saturday);
+        // Aktif yemekçileri çek — varsa gerçek fiyatlardan listele, yoksa mock
+        $supplierRepo = new SupplierApplicationRepository();
+        $activeSuppliers = $supplierRepo->activeForCity($location['city'], 5);
+
+        if (count($activeSuppliers) > 0) {
+            $supplierList = self::buildAnonymousFromReal(
+                $activeSuppliers, $segment, $menu, $personnel, $equipment, $saturday
+            );
+            // Ortalama fiyat = aktif yemekçilerin ortalaması
+            $avgPerMeal = (int) round(array_sum(array_column($supplierList, 'price_per_meal')) / count($supplierList));
+            $pricing = ['per_meal' => $avgPerMeal];
+        } else {
+            $pricing = self::estimatePricing($segment, $menu, $personnel, $equipment, $saturday);
+            $supplierList = self::anonymousSuppliers($pricing['per_meal'], $location['city']);
+        }
         $monthly = self::monthlyTotal($pricing['per_meal'], $guestCount, $mealCount, $saturday);
 
         $record = (new QuickQuoteRepository())->create([
@@ -161,7 +176,7 @@ final class QuickQuoteController
                     'monthly_total_max'   => $monthly + (int) round($monthly * 0.07),
                     'business_days'       => self::businessDays($saturday),
                 ],
-                'anonymous_suppliers' => self::anonymousSuppliers($pricing['per_meal'], $location['city']),
+                'anonymous_suppliers' => $supplierList,
             ],
             'message' => 'Bölgenizdeki ortalama fiyat hesaplandı.',
         ]);
@@ -291,6 +306,56 @@ final class QuickQuoteController
     private static function monthlyTotal(int $perMeal, int $guestCount, int $mealCount, string $saturday): int
     {
         return $perMeal * $guestCount * $mealCount * self::businessDays($saturday);
+    }
+
+    /**
+     * Admin'in girdiği fiyat ayarlarından gerçek yemekçi listesi türetir.
+     * Her yemekçi kendi pricing'iyle wizard sonucuna göre fiyat hesaplar.
+     *
+     * @param array<int,array<string,mixed>> $suppliers
+     * @return array<int,array<string,mixed>>
+     */
+    private static function buildAnonymousFromReal(
+        array $suppliers, string $segment, array $menu, array $personnel, array $equipment, string $saturday
+    ): array {
+        $out = [];
+        foreach ($suppliers as $sup) {
+            $pricing = $sup['pricing'] ?? \App\Repositories\SupplierApplicationRepository::defaultPricing();
+
+            $base = match ($segment) {
+                'ekonomik' => (int) ($pricing['ekonomik_per_meal'] ?? 110),
+                'premium'  => (int) ($pricing['premium_per_meal']  ?? 195),
+                default    => (int) ($pricing['genel_per_meal']    ?? 145),
+            };
+
+            $addon = 0;
+            if (!empty($menu['salad_bar_count'])) {
+                $addon += max(0, $menu['salad_bar_count'] - 2) * (int) ($pricing['salad_per_extra'] ?? 4);
+            }
+            if (!empty($menu['dessert_rotation'])) $addon += (int) ($pricing['dessert_addon'] ?? 8);
+            if (($menu['drinks'] ?? 'rotation') === 'both') $addon += (int) ($pricing['drinks_both_addon'] ?? 5);
+            if (!empty($personnel['enabled'])) $addon += (int) ($pricing['personnel_addon'] ?? 25);
+            if (trim((string) ($equipment['requested'] ?? '')) !== '') $addon += (int) ($pricing['equipment_addon'] ?? 18);
+            $addon += match ($saturday) {
+                'partial' => (int) ($pricing['saturday_partial'] ?? 5),
+                'yes'     => (int) ($pricing['saturday_yes']     ?? 10),
+                default   => 0,
+            };
+
+            $out[] = [
+                'code'           => $sup['anonymous_code'] ?? 'Yemekçi ?',
+                'city'           => $sup['city'] ?? '',
+                'district'       => $sup['district'] ?? '',
+                'rating'         => (float) ($sup['rating'] ?? 4.5),
+                'years'          => (int) ($sup['years_in_business'] ?? 10),
+                'capacity'       => (int) ($sup['daily_capacity'] ?? 1000),
+                'price_per_meal' => $base + $addon,
+                'certifications' => array_slice((array) ($sup['certifications'] ?? []), 0, 3),
+            ];
+        }
+        // Fiyata göre artan sıraya
+        usort($out, static fn($a, $b) => $a['price_per_meal'] <=> $b['price_per_meal']);
+        return $out;
     }
 
     private static function anonymousSuppliers(int $basePrice, string $city): array
