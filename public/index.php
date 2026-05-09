@@ -44,9 +44,16 @@ if (is_file($composerAutoload)) {
     });
 }
 
-// Hata gösterimi (production'da kapatılır — .env APP_DEBUG'a bağlı olacak).
-ini_set('display_errors', '1');
+// Debug modu .env'den (vlucas/phpdotenv Faz 1.0a'da bind edilecek)
+$appDebug = (getenv('APP_DEBUG') ?: 'false') === 'true';
+ini_set('display_errors', $appDebug ? '1' : '0');
+ini_set('display_startup_errors', $appDebug ? '1' : '0');
 error_reporting(E_ALL);
+
+// Logger + uncaught exception/error handler (Monolog rotating)
+if (class_exists(\App\Bootstrap\Logger::class)) {
+    \App\Bootstrap\Logger::registerHandlers(showDebug: $appDebug);
+}
 
 SimpleAuth::startSession();
 
