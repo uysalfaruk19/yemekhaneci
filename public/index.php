@@ -97,6 +97,10 @@ $router->post(
     '/api/v1/hizli-teklif',
     static fn() => (new QuickQuoteController())->submit()
 );
+$router->post(
+    '/api/v1/hizli-teklif/iletisim',
+    static fn() => (new QuickQuoteController())->attachContact()
+);
 
 // --- Marketing & başvuru sayfaları ---
 $router->get('/toplu-yemek',    static fn() => (new MarketingController())->topluYemek());

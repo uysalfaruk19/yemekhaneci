@@ -19,63 +19,42 @@ final class QuickQuoteTest extends TestCase
     private function validPayload(): array
     {
         return [
-            'guest_count'           => 250,
-            'meals[ogle]'           => 200,
-            'meals[aksam]'          => 50,
-            'meals[kumanya]'        => 0,
-            'menu[soup]'            => '1',
-            'menu[main_dish]'       => '1',
-            'menu[side_dish]'       => '1',
-            'menu[bread]'           => '1',
-            'menu[salad_bar_count]' => 2,
-            'menu[dessert]'         => 'fruit',
-            'menu[drinks]'          => 'rotation',
-            'segment'               => 'genel',
-            'location[city]'        => 'İstanbul',
-            'location[district]'    => 'Şişli',
-            'saturday'              => 'no',
-            'contact_email'         => 'test@firma.com.tr',
-            'contact_phone'         => '0532 123 45 67',
-            'kvkk'                  => '1',
+            'meal_count'              => 2,
+            'guest_count'             => 250,
+            'menu[soup]'              => '1',
+            'menu[main_dish]'         => '1',
+            'menu[side_dish]'         => '1',
+            'menu[bread]'             => '1',
+            'menu[salad_bar_count]'   => 3,
+            'menu[dessert_rotation]'  => '1',
+            'menu[drinks]'            => 'rotation',
+            'segment'                 => 'genel',
+            'location[city]'          => 'İstanbul',
+            'location[district]'      => 'Şişli',
+            'equipment[has_existing]' => 'Endüstriyel ocak, bulaşık makinesi',
+            'equipment[requested]'    => 'Sanayi fırın',
+            'saturday'                => 'no',
         ];
     }
 
-    public function test_gecerli_9_soru_talebi(): void
+    public function test_gecerli_talep_fiyat_doner(): void
     {
         $r = $this->http->post('/api/v1/hizli-teklif', $this->validPayload());
         $this->assertSame(200, $r->statusCode);
         $data = $r->json();
         $this->assertTrue($data['success']);
         $this->assertMatchesRegularExpression('/^YHC-\d{4}-[A-F0-9]{4}$/', $data['data']['reference']);
+        $this->assertGreaterThan(100, $data['data']['pricing']['per_person_per_meal']);
+        $this->assertCount(5, $data['data']['anonymous_suppliers']);
     }
 
-    public function test_iletisim_eksik_422(): void
+    public function test_meal_count_zorunlu(): void
     {
         $payload = $this->validPayload();
-        unset($payload['contact_email'], $payload['contact_phone']);
+        $payload['meal_count'] = 0;
         $r = $this->http->post('/api/v1/hizli-teklif', $payload);
         $this->assertSame(422, $r->statusCode);
-        $this->assertArrayHasKey('contact', $r->json()['errors'] ?? []);
-    }
-
-    public function test_kvkk_zorunlu(): void
-    {
-        $payload = $this->validPayload();
-        unset($payload['kvkk']);
-        $r = $this->http->post('/api/v1/hizli-teklif', $payload);
-        $this->assertSame(422, $r->statusCode);
-        $this->assertArrayHasKey('kvkk', $r->json()['errors'] ?? []);
-    }
-
-    public function test_ogun_secimi_zorunlu(): void
-    {
-        $payload = $this->validPayload();
-        $payload['meals[ogle]']    = 0;
-        $payload['meals[aksam]']   = 0;
-        $payload['meals[kumanya]'] = 0;
-        $r = $this->http->post('/api/v1/hizli-teklif', $payload);
-        $this->assertSame(422, $r->statusCode);
-        $this->assertArrayHasKey('meals', $r->json()['errors'] ?? []);
+        $this->assertArrayHasKey('meal_count', $r->json()['errors'] ?? []);
     }
 
     public function test_gecersiz_segment_422(): void
@@ -93,5 +72,44 @@ final class QuickQuoteTest extends TestCase
         $r = $this->http->post('/api/v1/hizli-teklif', $payload);
         $this->assertSame(422, $r->statusCode);
         $this->assertArrayHasKey('city', $r->json()['errors'] ?? []);
+    }
+
+    public function test_iletisim_endpoint_kvkk_zorunlu(): void
+    {
+        // Önce talep oluştur
+        $r = $this->http->post('/api/v1/hizli-teklif', $this->validPayload());
+        $reference = $r->json()['data']['reference'];
+
+        // KVKK olmadan iletişim ekleme
+        $r2 = $this->http->post('/api/v1/hizli-teklif/iletisim', [
+            'reference'     => $reference,
+            'contact_email' => 'test@firma.com',
+        ]);
+        $this->assertSame(422, $r2->statusCode);
+        $this->assertArrayHasKey('kvkk', $r2->json()['errors'] ?? []);
+    }
+
+    public function test_iletisim_endpoint_basarili(): void
+    {
+        $r = $this->http->post('/api/v1/hizli-teklif', $this->validPayload());
+        $reference = $r->json()['data']['reference'];
+
+        $r2 = $this->http->post('/api/v1/hizli-teklif/iletisim', [
+            'reference'     => $reference,
+            'contact_email' => 'test@firma.com',
+            'contact_phone' => '0532 111 22 33',
+            'kvkk'          => '1',
+        ]);
+        $this->assertSame(200, $r2->statusCode);
+        $this->assertTrue($r2->json()['success']);
+    }
+
+    public function test_iletisim_olmayan_referans_404(): void
+    {
+        $r = $this->http->post('/api/v1/hizli-teklif/iletisim', [
+            'reference'     => 'YHC-9999-DEAD',     // hex format doğru ama kayıt yok
+            'contact_email' => 't@t.com', 'kvkk' => '1',
+        ]);
+        $this->assertSame(404, $r->statusCode);
     }
 }

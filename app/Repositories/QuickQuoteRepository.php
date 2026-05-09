@@ -41,6 +41,7 @@ final class QuickQuoteRepository implements QuickQuoteRepositoryInterface
             'id'            => (int) (microtime(true) * 1000),
             'reference'     => self::generateReference(),
             'guest_count'   => (int) ($data['guest_count'] ?? 0),
+            'meal_count'    => (int) ($data['meal_count'] ?? 1),
 
             // PRD §7.2 — 9 soruluk akış
             'meals'         => array_map('intval', $meals),
@@ -48,17 +49,25 @@ final class QuickQuoteRepository implements QuickQuoteRepositoryInterface
             'segment'       => $data['segment'] ?? 'genel',
             'location'      => $data['location'] ?? [],
             'personnel'     => $data['personnel'] ?? ['enabled' => false],
-            'equipment'     => $data['equipment'] ?? ['enabled' => false, 'items' => []],
+            'equipment'     => $data['equipment'] ?? [
+                'has_existing' => '',
+                'requested'    => '',
+            ],
             'saturday'      => $data['saturday'] ?? 'no',
             'notes'         => $data['notes'] ?? ['tags' => [], 'text' => null],
 
-            // İletişim (sonuç ekranındaki mail formundan)
+            // İletişim — opsiyonel, "Detaylı teklif al" sonrası dolar
             'contact_name'  => trim((string) ($data['contact_name'] ?? '')),
+            'company_name'  => trim((string) ($data['company_name'] ?? '')),
             'contact_email' => trim((string) ($data['contact_email'] ?? '')),
             'contact_phone' => trim((string) ($data['contact_phone'] ?? '')),
             'kvkk_accepted_at' => !empty($data['kvkk']) ? $now : null,
 
-            // Geriye uyumluluk: eski admin sayfası ve testler için
+            // Tahmini fiyat (sonuç ekranında gösterilen)
+            'estimated_price_per_meal' => $data['estimated_price_per_meal'] ?? null,
+            'estimated_monthly_total'  => $data['estimated_monthly_total']  ?? null,
+
+            // Geriye uyumluluk
             'meal_type'     => $primaryMeal,
             'event_date'    => $data['event_date'] ?? null,
             'city'          => $data['location']['city'] ?? '',
@@ -76,6 +85,29 @@ final class QuickQuoteRepository implements QuickQuoteRepositoryInterface
         });
 
         return $record;
+    }
+
+    /**
+     * Mevcut talebe iletişim bilgileri ekle (Detaylı teklif al akışı).
+     */
+    public function attachContact(string $reference, array $contact): ?array
+    {
+        $found = null;
+        $this->mutate(static function (array &$store) use ($reference, $contact, &$found): void {
+            foreach ($store as $i => $row) {
+                if (($row['reference'] ?? '') === $reference) {
+                    $store[$i]['contact_name']     = trim((string) ($contact['contact_name'] ?? ''));
+                    $store[$i]['company_name']     = trim((string) ($contact['company_name'] ?? ''));
+                    $store[$i]['contact_email']    = trim((string) ($contact['contact_email'] ?? ''));
+                    $store[$i]['contact_phone']    = trim((string) ($contact['contact_phone'] ?? ''));
+                    $store[$i]['kvkk_accepted_at'] = !empty($contact['kvkk']) ? date('Y-m-d H:i:s') : null;
+                    $store[$i]['status']           = 'contacted';
+                    $found = $store[$i];
+                    return;
+                }
+            }
+        });
+        return $found;
     }
 
     /** @return array<int, array<string,mixed>>  En yeni en başta. */

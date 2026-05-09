@@ -11,24 +11,22 @@ use App\Services\RateLimiter;
 /**
  * Hızlı Teklif — anasayfa wizard 9 soruluk akış (PRD §7.2).
  *
- * 1. Kişi sayısı
- * 2. Öğün dağılımı (multi: ogle/aksam/kumanya, her biri için kişi sayısı)
- * 3. Menü yapısı (chip seçimleri)
+ * 1. Günlük kaç öğün? (1/2/3)
+ * 2. Kaç kişilik? (1-10000)
+ * 3. Menü yapısı (sabit + salata bar + tatlı/meyve dönüşüm + ayran/yoğurt)
  * 4. Hizmet segmenti (ekonomik/genel/premium)
- * 5. Hizmet lokasyonu (şehir/ilçe/adres)
- * 6. Personel desteği (toggle + alt sayılar)
- * 7. Mutfak yatırımı (toggle + 8 ekipman)
- * 8. Cumartesi çalışma (yes/no/partial)
- * 9. Notlar (etiket + serbest metin) + iletişim + KVKK
+ * 5. Hizmet lokasyonu
+ * 6. Personel desteği (Var / Yok kartı + alt sayılar)
+ * 7. Ekipman (mevcut + talep edilen — 2 textarea)
+ * 8. Cumartesi çalışma
+ * 9. Notlar (etiket + serbest metin) → Fiyat Öğren
+ *
+ * Sonuç: anonim 3-5 yemekçi + ortalama fiyat. Detaylı teklif iletişim formu opsiyonel.
  */
 final class QuickQuoteController
 {
-    private const MEAL_KEYS = ['ogle', 'aksam', 'kumanya'];
     private const SEGMENTS = ['ekonomik', 'genel', 'premium'];
     private const SATURDAY = ['no', 'yes', 'partial'];
-    private const EQUIPMENT_ITEMS = [
-        'ocak', 'firin', 'bulasik', 'sogutucu', 'depo', 'davlumbaz', 'salon', 'self_servis',
-    ];
 
     public function submit(): string
     {
@@ -52,49 +50,35 @@ final class QuickQuoteController
 
         $errors = [];
 
-        // S1: Kişi sayısı
+        $mealCount = (int) ($_POST['meal_count'] ?? 0);
+        if (!in_array($mealCount, [1, 2, 3], true)) {
+            $errors['meal_count'] = ['Günlük öğün sayısı 1, 2 veya 3 olmalı.'];
+        }
+
         $guestCount = (int) ($_POST['guest_count'] ?? 0);
         if ($guestCount < 1 || $guestCount > 10000) {
             $errors['guest_count'] = ['Kişi sayısı 1 ile 10.000 arasında olmalı.'];
         }
 
-        // S2: Öğün dağılımı
-        $meals = [];
-        $totalMeal = 0;
-        foreach (self::MEAL_KEYS as $key) {
-            $count = (int) ($_POST['meals'][$key] ?? 0);
-            if ($count < 0 || $count > 10000) {
-                $errors['meals'] = ['Öğün başı kişi sayıları 0-10.000 arasında olmalı.'];
-                break;
-            }
-            $meals[$key] = $count;
-            $totalMeal += $count;
-        }
-        if ($totalMeal === 0) {
-            $errors['meals'] = ['En az bir öğün için kişi sayısı girmelisiniz.'];
-        }
+        $meals = self::deriveMeals($mealCount, $guestCount);
 
-        // S3: Menü
         $menu = [
             'soup'             => !empty($_POST['menu']['soup']),
             'main_dish'        => !empty($_POST['menu']['main_dish']),
             'side_dish'        => !empty($_POST['menu']['side_dish']),
             'bread'            => !empty($_POST['menu']['bread']),
             'salad_bar_count'  => max(0, min(7, (int) ($_POST['menu']['salad_bar_count'] ?? 0))),
-            'dessert'          => in_array((string) ($_POST['menu']['dessert'] ?? 'none'), ['none', 'fruit', 'dessert'], true)
-                                    ? (string) $_POST['menu']['dessert'] : 'none',
+            'dessert_rotation' => !empty($_POST['menu']['dessert_rotation']),
             'drinks'           => in_array((string) ($_POST['menu']['drinks'] ?? 'rotation'),
                                     ['ayran', 'yogurt', 'rotation', 'both'], true)
                                     ? (string) $_POST['menu']['drinks'] : 'rotation',
         ];
 
-        // S4: Segment
         $segment = (string) ($_POST['segment'] ?? 'genel');
         if (!in_array($segment, self::SEGMENTS, true)) {
             $errors['segment'] = ['Geçersiz segment seçimi.'];
         }
 
-        // S5: Lokasyon
         $city = trim((string) ($_POST['location']['city'] ?? ''));
         if (mb_strlen($city) < 2 || mb_strlen($city) > 80) {
             $errors['city'] = ['Şehir 2-80 karakter olmalı.'];
@@ -105,7 +89,6 @@ final class QuickQuoteController
             'address'  => trim((string) ($_POST['location']['address'] ?? '')),
         ];
 
-        // S6: Personel
         $personnel = ['enabled' => !empty($_POST['personnel']['enabled'])];
         if ($personnel['enabled']) {
             $personnel['cooks']    = max(0, min(20, (int) ($_POST['personnel']['cooks']    ?? 0)));
@@ -113,44 +96,21 @@ final class QuickQuoteController
             $personnel['cleaning'] = max(0, min(20, (int) ($_POST['personnel']['cleaning'] ?? 0)));
         }
 
-        // S7: Ekipman
-        $equipment = ['enabled' => !empty($_POST['equipment']['enabled']), 'items' => []];
-        if ($equipment['enabled']) {
-            $items = $_POST['equipment']['items'] ?? [];
-            if (is_array($items)) {
-                $equipment['items'] = array_values(array_intersect(self::EQUIPMENT_ITEMS, $items));
-            }
-        }
+        $equipment = [
+            'has_existing' => mb_substr(trim((string) ($_POST['equipment']['has_existing'] ?? '')), 0, 1000),
+            'requested'    => mb_substr(trim((string) ($_POST['equipment']['requested']    ?? '')), 0, 1000),
+        ];
 
-        // S8: Cumartesi
         $saturday = (string) ($_POST['saturday'] ?? 'no');
         if (!in_array($saturday, self::SATURDAY, true)) {
             $errors['saturday'] = ['Geçersiz cumartesi seçimi.'];
         }
 
-        // S9: Notlar + iletişim
         $tags = $_POST['notes']['tags'] ?? [];
         $notes = [
             'tags' => is_array($tags) ? array_values(array_filter(array_map('strval', $tags))) : [],
             'text' => mb_substr(trim((string) ($_POST['notes']['text'] ?? '')), 0, 1000),
         ];
-
-        $contactName  = trim((string) ($_POST['contact_name'] ?? ''));
-        $contactEmail = trim((string) ($_POST['contact_email'] ?? ''));
-        $contactPhone = trim((string) ($_POST['contact_phone'] ?? ''));
-
-        if ($contactEmail === '' && $contactPhone === '') {
-            $errors['contact'] = ['Size dönüş yapabilmemiz için e-posta veya telefon girin.'];
-        }
-        if ($contactEmail !== '' && !filter_var($contactEmail, FILTER_VALIDATE_EMAIL)) {
-            $errors['contact_email'] = ['Geçerli bir e-posta giriniz.'];
-        }
-        if ($contactPhone !== '' && !preg_match('/^[\d\s+()-]{7,25}$/', $contactPhone)) {
-            $errors['contact_phone'] = ['Geçerli bir telefon numarası giriniz.'];
-        }
-        if (empty($_POST['kvkk'])) {
-            $errors['kvkk'] = ['KVKK onayı zorunludur.'];
-        }
 
         if ($errors) {
             return self::json([
@@ -161,7 +121,11 @@ final class QuickQuoteController
             ], 422);
         }
 
+        $pricing = self::estimatePricing($segment, $menu, $personnel, $equipment, $saturday);
+        $monthly = self::monthlyTotal($pricing['per_meal'], $guestCount, $mealCount, $saturday);
+
         $record = (new QuickQuoteRepository())->create([
+            'meal_count'    => $mealCount,
             'guest_count'   => $guestCount,
             'meals'         => $meals,
             'menu'          => $menu,
@@ -171,10 +135,8 @@ final class QuickQuoteController
             'equipment'     => $equipment,
             'saturday'      => $saturday,
             'notes'         => $notes,
-            'contact_name'  => $contactName,
-            'contact_email' => $contactEmail,
-            'contact_phone' => $contactPhone,
-            'kvkk'          => true,
+            'estimated_price_per_meal' => $pricing['per_meal'],
+            'estimated_monthly_total'  => $monthly,
             'ip_address'    => $ip,
             'user_agent'    => $_SERVER['HTTP_USER_AGENT'] ?? '',
         ]);
@@ -182,24 +144,175 @@ final class QuickQuoteController
         AuditLogger::log('quote.submitted', [
             'reference' => $record['reference'],
             'guests'    => $guestCount,
-            'meals'     => $meals,
+            'meals'     => $mealCount,
             'city'      => $city,
             'segment'   => $segment,
+            'per_meal'  => $pricing['per_meal'],
         ]);
 
         return self::json([
             'success' => true,
             'data'    => [
-                'reference'  => $record['reference'],
-                'message'    => 'Talebiniz alındı. Onaylı yemekçilerden teklifler 24 saat içinde geliyor olacak.',
-                'next_steps' => [
-                    '24 saat içinde 3-5 yemekçinin tekliflerini e-posta/SMS ile alacaksınız.',
-                    'Anonim listeyi inceleyin, beğendiğiniz yemekçinin profilini açın.',
-                    'Mesajlaşma ve sözleşme platform üzerinden devam edecek.',
+                'reference' => $record['reference'],
+                'pricing'   => [
+                    'per_person_per_meal' => $pricing['per_meal'],
+                    'monthly_total'       => $monthly,
+                    'monthly_total_min'   => max(0, $monthly - (int) round($monthly * 0.05)),
+                    'monthly_total_max'   => $monthly + (int) round($monthly * 0.07),
+                    'business_days'       => self::businessDays($saturday),
                 ],
+                'anonymous_suppliers' => self::anonymousSuppliers($pricing['per_meal'], $location['city']),
             ],
-            'message' => 'Talebiniz alındı.',
+            'message' => 'Bölgenizdeki ortalama fiyat hesaplandı.',
         ]);
+    }
+
+    public function attachContact(): string
+    {
+        header('Content-Type: application/json; charset=utf-8');
+
+        if (!\csrf_check((string) ($_POST['_csrf'] ?? ''))) {
+            return self::json(['success' => false, 'error' => 'CSRF'], 419);
+        }
+
+        $rl = new RateLimiter('quick_quote_contact', limit: 5, windowSeconds: 3600);
+        $ip = InflationCalculatorController::clientIp();
+        if (!$rl->allow($ip)) {
+            header('Retry-After: ' . $rl->retryAfter($ip));
+            return self::json(['success' => false, 'error' => 'RATE_LIMITED'], 429);
+        }
+
+        $reference   = trim((string) ($_POST['reference'] ?? ''));
+        $email       = trim((string) ($_POST['contact_email'] ?? ''));
+        $phone       = trim((string) ($_POST['contact_phone'] ?? ''));
+        $contactName = trim((string) ($_POST['contact_name'] ?? ''));
+        $companyName = trim((string) ($_POST['company_name'] ?? ''));
+
+        $errors = [];
+        if (!preg_match('/^YHC-\d{4}-[A-F0-9]{4}$/', $reference)) {
+            $errors['reference'] = ['Geçerli bir referans no gerekli.'];
+        }
+        if ($email === '' && $phone === '') {
+            $errors['contact'] = ['E-posta veya telefon girin.'];
+        }
+        if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $errors['contact_email'] = ['Geçerli e-posta giriniz.'];
+        }
+        if ($phone !== '' && !preg_match('/^[\d\s+()-]{7,25}$/', $phone)) {
+            $errors['contact_phone'] = ['Geçerli telefon giriniz.'];
+        }
+        if (empty($_POST['kvkk'])) {
+            $errors['kvkk'] = ['KVKK onayı zorunludur.'];
+        }
+
+        if ($errors) {
+            return self::json([
+                'success' => false, 'error' => 'VALIDATION_FAILED', 'errors' => $errors,
+                'message' => 'Lütfen formu kontrol edin.',
+            ], 422);
+        }
+
+        $record = (new QuickQuoteRepository())->attachContact($reference, [
+            'contact_name'  => $contactName,
+            'company_name'  => $companyName,
+            'contact_email' => $email,
+            'contact_phone' => $phone,
+            'kvkk'          => true,
+        ]);
+
+        if (!$record) {
+            return self::json([
+                'success' => false, 'error' => 'NOT_FOUND',
+                'message' => 'Talep bulunamadı. Önce hızlı teklif almalısınız.',
+            ], 404);
+        }
+
+        AuditLogger::log('quote.contact_attached', [
+            'reference' => $reference,
+            'email'     => $email !== '',
+            'phone'     => $phone !== '',
+        ]);
+
+        return self::json([
+            'success' => true,
+            'data'    => [
+                'reference' => $reference,
+                'message'   => 'Detaylı teklifler 24 saat içinde size gönderilecek.',
+            ],
+        ]);
+    }
+
+    // ────────────────────────────────────────────────────────
+    //  HESAPLAMA YARDIMCILARI (Faz 2'de gerçek maliyet matrisi)
+    // ────────────────────────────────────────────────────────
+
+    private static function deriveMeals(int $mealCount, int $guestCount): array
+    {
+        return match ($mealCount) {
+            1 => ['ogle' => $guestCount, 'aksam' => 0, 'kumanya' => 0],
+            2 => ['ogle' => $guestCount, 'aksam' => $guestCount, 'kumanya' => 0],
+            3 => ['ogle' => $guestCount, 'aksam' => $guestCount, 'kumanya' => $guestCount],
+            default => ['ogle' => $guestCount, 'aksam' => 0, 'kumanya' => 0],
+        };
+    }
+
+    private static function estimatePricing(string $segment, array $menu, array $personnel, array $equipment, string $saturday): array
+    {
+        $base = match ($segment) {
+            'ekonomik' => 110,
+            'premium'  => 195,
+            default    => 145,
+        };
+
+        $menuAddon = 0;
+        if (!empty($menu['salad_bar_count'])) {
+            $menuAddon += max(0, $menu['salad_bar_count'] - 2) * 4;
+        }
+        if (!empty($menu['dessert_rotation'])) $menuAddon += 8;
+        if (($menu['drinks'] ?? 'rotation') === 'both') $menuAddon += 5;
+
+        $personelAddon = !empty($personnel['enabled']) ? 25 : 0;
+        $ekipmanAddon  = trim((string) ($equipment['requested'] ?? '')) !== '' ? 18 : 0;
+
+        $satAddon = match ($saturday) {
+            'partial' => 5,
+            'yes'     => 10,
+            default   => 0,
+        };
+
+        return ['per_meal' => $base + $menuAddon + $personelAddon + $ekipmanAddon + $satAddon];
+    }
+
+    private static function businessDays(string $saturday): int
+    {
+        return match ($saturday) { 'partial' => 24, 'yes' => 26, default => 22 };
+    }
+
+    private static function monthlyTotal(int $perMeal, int $guestCount, int $mealCount, string $saturday): int
+    {
+        return $perMeal * $guestCount * $mealCount * self::businessDays($saturday);
+    }
+
+    private static function anonymousSuppliers(int $basePrice, string $city): array
+    {
+        $codes     = ['A', 'B', 'C', 'D', 'E'];
+        $districts = ['Şişli', 'Kadıköy', 'Beşiktaş', 'Bakırköy', 'Maltepe'];
+        $out = [];
+        foreach ($codes as $i => $code) {
+            $offsetPct = [-8, -3, 0, 4, 9][$i] ?? 0;
+            $price = (int) round($basePrice * (1 + $offsetPct / 100));
+            $out[] = [
+                'code'           => 'Yemekçi ' . $code,
+                'city'           => $city,
+                'district'       => $districts[$i] ?? '',
+                'rating'         => round(4.4 + ($i * 0.1), 1),
+                'years'          => [12, 18, 25, 8, 15][$i] ?? 10,
+                'capacity'       => [2000, 5000, 8000, 1500, 3500][$i] ?? 2000,
+                'price_per_meal' => $price,
+                'certifications' => $i === 2 ? ['ISO 22000', 'TSE Helal', 'Vegan'] : ($i === 1 ? ['ISO 22000', 'HACCP'] : ['HACCP']),
+            ];
+        }
+        return $out;
     }
 
     private static function json(array $data, int $status = 200): string
