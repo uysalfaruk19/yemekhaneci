@@ -62,6 +62,7 @@
         "test": "phpunit --colors=always",
         "test-unit": "phpunit --testsuite=Unit",
         "test-feature": "phpunit --testsuite=Feature",
+        "test-raw": "@php tests/TestRunner.php",
         "lint": "phpcs --standard=PSR12 app/ routes/ config/ tests/",
         "cs-fix": "php-cs-fixer fix --config=.php-cs-fixer.dist.php",
         "stan": "phpstan analyse app/ --level=6",

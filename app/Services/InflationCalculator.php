@@ -30,12 +30,17 @@ final class InflationCalculator
         $custom    = $repo->customMonthlySeries();
         $official  = $repo->officialMonthlySeries();
 
-        // Resmî kaynak için DB değerleri varsa onlar; yoksa sentetik baseline.
+        // Resmî kaynak: her dönem için repo > sentetik (gap-filling).
+        // Bu sayede EVDS sadece 2024-05+ çekse de eski aylar sentetikten gelir.
         $merged = $synthetic;
         foreach ($official as $code => $series) {
-            if (!empty($series)) {
-                $merged[$code] = $series;
+            if (!isset($merged[$code])) {
+                $merged[$code] = [];
             }
+            foreach ($series as $period => $row) {
+                $merged[$code][$period] = $row;
+            }
+            ksort($merged[$code]);
         }
         // Custom kaynaklar (rezerve değil; resmî kodlarla çakışamaz).
         foreach ($custom as $code => $series) {
