@@ -4,11 +4,20 @@
  * aynı kullanılır. Sarmalayıcı sayfa kendi başlık/banner'ını ekler.
  *
  * @var array<int, array{code:string,name:string,color:string,base_period:string}> $sources
- * @var string $panel_origin  'public' | 'supplier' | 'admin'  — analytics + olası özel davranış
+ * @var string $panel_origin
  */
-$panelOrigin = $panel_origin ?? 'public';
-$thisMonth = date('Y-m');
-$twoYearsAgo = date('Y-m', strtotime('-24 months'));
+$panelOrigin   = $panel_origin ?? 'public';
+$thisYearPhp   = (int) date('Y');
+$thisMonthPhp  = sprintf('%02d', (int) date('m'));
+$startYearPhp  = (int) date('Y', strtotime('-24 months'));
+$startMonthPhp = sprintf('%02d', (int) date('m', strtotime('-24 months')));
+
+$monthsTr = [
+    '01' => 'Ocak',  '02' => 'Şubat',  '03' => 'Mart',    '04' => 'Nisan',
+    '05' => 'Mayıs', '06' => 'Haziran','07' => 'Temmuz',  '08' => 'Ağustos',
+    '09' => 'Eylül', '10' => 'Ekim',   '11' => 'Kasım',   '12' => 'Aralık',
+];
+$yearsList = range($thisYearPhp, 2020);   // [2026, 2025, ..., 2020]
 ?>
 <div class="row gy-4" x-data="inflationApp()">
   <!-- Form -->
@@ -44,22 +53,22 @@ $twoYearsAgo = date('Y-m', strtotime('-24 months'));
               <span class="small text-secondary">Ay + Yıl seçin</span>
             </label>
 
-            <!-- Başlangıç ay+yıl -->
+            <!-- Başlangıç ay+yıl (PHP server-render option'lar — Alpine x-for clash önlendi) -->
             <div class="mb-2">
               <label class="form-label small text-secondary mb-1">📅 Başlangıç ayı</label>
               <div class="row g-1">
                 <div class="col-7">
                   <select class="form-select form-select-sm" x-model="form.start_month">
-                    <template x-for="m in monthOptions" :key="m.value">
-                      <option :value="m.value" x-text="m.label"></option>
-                    </template>
+                    <?php foreach ($monthsTr as $val => $label): ?>
+                      <option value="<?= e($val) ?>"<?= $val === $startMonthPhp ? ' selected' : '' ?>><?= e($label) ?></option>
+                    <?php endforeach; ?>
                   </select>
                 </div>
                 <div class="col-5">
                   <select class="form-select form-select-sm mono" x-model="form.start_year">
-                    <template x-for="y in years" :key="'sy-' + y">
-                      <option :value="y" x-text="y"></option>
-                    </template>
+                    <?php foreach ($yearsList as $y): ?>
+                      <option value="<?= (int) $y ?>"<?= (int) $y === $startYearPhp ? ' selected' : '' ?>><?= (int) $y ?></option>
+                    <?php endforeach; ?>
                   </select>
                 </div>
               </div>
@@ -71,16 +80,16 @@ $twoYearsAgo = date('Y-m', strtotime('-24 months'));
               <div class="row g-1">
                 <div class="col-7">
                   <select class="form-select form-select-sm" x-model="form.end_month">
-                    <template x-for="m in monthOptions" :key="m.value">
-                      <option :value="m.value" x-text="m.label"></option>
-                    </template>
+                    <?php foreach ($monthsTr as $val => $label): ?>
+                      <option value="<?= e($val) ?>"<?= $val === $thisMonthPhp ? ' selected' : '' ?>><?= e($label) ?></option>
+                    <?php endforeach; ?>
                   </select>
                 </div>
                 <div class="col-5">
                   <select class="form-select form-select-sm mono" x-model="form.end_year">
-                    <template x-for="y in years" :key="'ey-' + y">
-                      <option :value="y" x-text="y"></option>
-                    </template>
+                    <?php foreach ($yearsList as $y): ?>
+                      <option value="<?= (int) $y ?>"<?= (int) $y === $thisYearPhp ? ' selected' : '' ?>><?= (int) $y ?></option>
+                    <?php endforeach; ?>
                   </select>
                 </div>
               </div>
@@ -213,42 +222,17 @@ $twoYearsAgo = date('Y-m', strtotime('-24 months'));
 
 <script>
 function inflationApp() {
-  const now = new Date();
-  const thisYear  = now.getFullYear();
-  const thisMonth = String(now.getMonth() + 1).padStart(2, '0');
-
-  // 24 ay öncesi (default başlangıç)
-  const past = new Date(thisYear, now.getMonth() - 24, 1);
-  const startYear  = past.getFullYear();
-  const startMonth = String(past.getMonth() + 1).padStart(2, '0');
-
-  // Yıl listesi: 2020 → bu yıl
-  const years = [];
-  for (let y = thisYear; y >= 2020; y--) years.push(String(y));
-
   return {
     csrf: '<?= e(csrf_token()) ?>',
     panelOrigin: '<?= e($panelOrigin) ?>',
-    thisMonth: `${thisYear}-${thisMonth}`,
     canvasId: 'inflChart_<?= e($panelOrigin) ?>',
-
-    // Önceden hazırlanmış option dizileri (Alpine x-for scope clash önlemi)
-    monthOptions: [
-      { value: '01', label: 'Ocak' },    { value: '02', label: 'Şubat' },
-      { value: '03', label: 'Mart' },    { value: '04', label: 'Nisan' },
-      { value: '05', label: 'Mayıs' },   { value: '06', label: 'Haziran' },
-      { value: '07', label: 'Temmuz' },  { value: '08', label: 'Ağustos' },
-      { value: '09', label: 'Eylül' },   { value: '10', label: 'Ekim' },
-      { value: '11', label: 'Kasım' },   { value: '12', label: 'Aralık' },
-    ],
-    years: years,
 
     form: {
       source: 'tuik_tufe_gida',
-      start_year:  String(startYear),
-      start_month: startMonth,
-      end_year:    String(thisYear),
-      end_month:   thisMonth,
+      start_year:  '<?= (int) $startYearPhp ?>',
+      start_month: '<?= e($startMonthPhp) ?>',
+      end_year:    '<?= (int) $thisYearPhp ?>',
+      end_month:   '<?= e($thisMonthPhp) ?>',
       start_price: '250',
     },
     loading: false,
