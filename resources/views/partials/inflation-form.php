@@ -115,7 +115,7 @@ $twoYearsAgo = date('Y-m', strtotime('-24 months'));
                     <div class="form-check small mt-2">
                       <input class="form-check-input" type="checkbox" id="kvkk_<?= e($panelOrigin) ?>" x-model="lead.kvkk" required>
                       <label class="form-check-label text-secondary" for="kvkk_<?= e($panelOrigin) ?>">
-                        <a href="#" class="text-brand text-decoration-none">Aydınlatma metnini</a> okudum,
+                        <a href="/yasal/aydinlatma-metni" target="_blank" class="text-brand text-decoration-none">Aydınlatma metnini</a> okudum,
                         e-posta adresimin hesap sonucu ve UYSA güncellemeleri için kullanılmasını kabul ediyorum.
                       </label>
                     </div>

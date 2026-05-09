@@ -17,6 +17,7 @@ use App\Controllers\Admin\InflationSourcesController as AdminInflationSources;
 use App\Controllers\Auth\AuthController;
 use App\Controllers\Public\HomeController;
 use App\Controllers\Public\InflationCalculatorController;
+use App\Controllers\Public\LegalController;
 use App\Controllers\Public\QuickQuoteController;
 use App\Controllers\Admin\QuickQuotesController as AdminQuickQuotes;
 use App\Controllers\Supplier\DashboardController as SupplierDashboard;
@@ -70,6 +71,12 @@ $router->post(
     '/api/v1/hizli-teklif',
     static fn() => (new QuickQuoteController())->submit()
 );
+
+// --- Legal (KVKK + Çerez) ---
+$router->get('/yasal/aydinlatma-metni',  static fn() => (new LegalController())->privacyNotice());
+$router->get('/yasal/cerez-politikasi',  static fn() => (new LegalController())->cookiePolicy());
+$router->get('/yasal/kullanim-kosullari',static fn() => (new LegalController())->termsOfService());
+$router->get('/yasal/veri-silme',        static fn() => (new LegalController())->dataDeletion());
 
 // --- Auth ---
 $router->get('/giris-yap', static fn() => (new AuthController())->showLogin(), [AuthMiddleware::guestOnly()]);

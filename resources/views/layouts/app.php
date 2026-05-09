@@ -147,19 +147,30 @@ $user        = $user        ?? null;
 
 <footer class="footer mt-auto py-4">
   <div class="container">
-    <div class="row gy-3 align-items-center">
-      <div class="col-md-6">
+    <div class="row gy-3 align-items-start">
+      <div class="col-md-5">
         <strong class="text-accent">Yemekhaneci.com.tr</strong> — Türkiye'nin Tarafsız Catering Pazaryeri
-        <div class="small text-secondary mt-1">© 2026 UYSA Yemek Hizmetleri</div>
+        <div class="small text-secondary mt-1">© 2026 UYSA Yemek Hizmetleri San. ve Tic. Ltd. Şti.</div>
       </div>
-      <div class="col-md-6 text-md-end">
-        <a href="/araclar/enflasyon-hesaplayici" class="me-3">Enflasyon Hesaplayıcı</a>
-        <a href="#" class="me-3">KVKK</a>
-        <a href="#">İletişim</a>
+      <div class="col-md-3">
+        <strong class="d-block mb-1 small text-uppercase text-secondary">Araçlar</strong>
+        <a href="/araclar/enflasyon-hesaplayici" class="d-block small">Enflasyon Hesaplayıcı</a>
+        <a href="/#hizli-teklif" class="d-block small">Hızlı Teklif</a>
+        <a href="/giris-yap" class="d-block small">Giriş Yap</a>
+      </div>
+      <div class="col-md-4">
+        <strong class="d-block mb-1 small text-uppercase text-secondary">Yasal</strong>
+        <a href="/yasal/aydinlatma-metni" class="d-block small">KVKK Aydınlatma Metni</a>
+        <a href="/yasal/cerez-politikasi" class="d-block small">Çerez Politikası</a>
+        <a href="/yasal/kullanim-kosullari" class="d-block small">Kullanım Koşulları</a>
+        <a href="/yasal/veri-silme" class="d-block small">Veri Silme Talebi</a>
+        <a href="#" class="d-block small" onclick="event.preventDefault(); document.dispatchEvent(new CustomEvent('yh:open-cookie-prefs'));">Çerez tercihimi değiştir</a>
       </div>
     </div>
   </div>
 </footer>
+
+<?= view('partials.cookie-banner') ?>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous" defer></script>
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>

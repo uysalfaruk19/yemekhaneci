@@ -178,7 +178,7 @@
                 <div class="form-check mt-3">
                   <input class="form-check-input" type="checkbox" id="kvkk_quote" x-model="form.kvkk" required>
                   <label class="form-check-label small" for="kvkk_quote">
-                    <a href="#" class="text-brand text-decoration-none">Aydınlatma metnini</a> okudum,
+                    <a href="/yasal/aydinlatma-metni" target="_blank" class="text-brand text-decoration-none">Aydınlatma metnini</a> okudum,
                     iletişim bilgilerimin yemekçilerle paylaşılmasını ve UYSA'nın geri dönüş yapmasını kabul ediyorum.
                   </label>
                 </div>
