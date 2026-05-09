@@ -63,6 +63,10 @@
               <span><strong>Enflasyon lead yönetimi</strong> · KVKK onaylı e-posta bırakanlar + analytics</span>
               <span class="badge bg-success">Hazır</span>
             </a>
+            <a href="/yonetim/hizli-teklifler" class="list-group-item list-group-item-action d-flex justify-content-between">
+              <span><strong>Hızlı teklif talepleri</strong> · 60sn anasayfa wizard'ından gelen anonim talepler</span>
+              <span class="badge bg-success">Faz 3 öne çekildi · MVP</span>
+            </a>
           </div>
         </div>
       </div>

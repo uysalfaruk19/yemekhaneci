@@ -17,6 +17,8 @@ use App\Controllers\Admin\InflationSourcesController as AdminInflationSources;
 use App\Controllers\Auth\AuthController;
 use App\Controllers\Public\HomeController;
 use App\Controllers\Public\InflationCalculatorController;
+use App\Controllers\Public\QuickQuoteController;
+use App\Controllers\Admin\QuickQuotesController as AdminQuickQuotes;
 use App\Controllers\Supplier\DashboardController as SupplierDashboard;
 use App\Controllers\Supplier\InflationController as SupplierInflation;
 use App\Http\Router;
@@ -62,6 +64,10 @@ $router->post(
     '/api/v1/enflasyon/mail-gonder',
     static fn() => (new InflationCalculatorController())->submitLead()
 );
+$router->post(
+    '/api/v1/hizli-teklif',
+    static fn() => (new QuickQuoteController())->submit()
+);
 
 // --- Auth ---
 $router->get('/giris-yap', static fn() => (new AuthController())->showLogin(), [AuthMiddleware::guestOnly()]);
@@ -94,6 +100,10 @@ $router->get(
 );
 $router->get('/yonetim/enflasyon/lead-ler',
     static fn() => (new AdminInflationLeads())->index(),
+    [AuthMiddleware::requireRole('admin')]
+);
+$router->get('/yonetim/hizli-teklifler',
+    static fn() => (new AdminQuickQuotes())->index(),
     [AuthMiddleware::requireRole('admin')]
 );
 
