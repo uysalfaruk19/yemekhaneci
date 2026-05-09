@@ -44,14 +44,6 @@ $twoYearsAgo = date('Y-m', strtotime('-24 months'));
               <span class="small text-secondary">Ay + Yıl seçin</span>
             </label>
 
-            <!-- Hızlı seçim chip'leri -->
-            <div class="d-flex flex-wrap gap-1 mb-2">
-              <button type="button" class="btn btn-outline-secondary btn-sm" @click="quickRange(1)">1 yıl önce</button>
-              <button type="button" class="btn btn-outline-secondary btn-sm" @click="quickRange(2)">2 yıl önce</button>
-              <button type="button" class="btn btn-outline-secondary btn-sm" @click="quickRange(3)">3 yıl önce</button>
-              <button type="button" class="btn btn-outline-secondary btn-sm" @click="quickRange(5)">5 yıl önce</button>
-            </div>
-
             <!-- Başlangıç ay+yıl -->
             <div class="mb-2">
               <label class="form-label small text-secondary mb-1">📅 Başlangıç ayı</label>
@@ -263,15 +255,6 @@ function inflationApp() {
     leadSent: false,
     leadError: null,
     leadMessage: '',
-
-    quickRange(yearsAgo) {
-      const now = new Date();
-      const past = new Date(now.getFullYear() - yearsAgo, now.getMonth(), 1);
-      this.form.start_year  = String(past.getFullYear());
-      this.form.start_month = String(past.getMonth() + 1).padStart(2, '0');
-      this.form.end_year    = String(now.getFullYear());
-      this.form.end_month   = String(now.getMonth() + 1).padStart(2, '0');
-    },
 
     async calculate() {
       this.loading = true;
