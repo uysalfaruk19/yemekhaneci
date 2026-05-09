@@ -1,0 +1,36 @@
+name: Security
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+  schedule:
+    - cron: '0 6 * * 1'   # Her Pazartesi 06:00 UTC
+
+jobs:
+  audit:
+    name: Composer audit (CVE taraması)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          tools: composer:v2
+      - name: Composer install
+        run: composer install --no-interaction --prefer-dist --no-progress
+      - name: composer audit
+        run: composer audit --abandoned=report
+
+  secrets:
+    name: Sızdırılmış sır taraması
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

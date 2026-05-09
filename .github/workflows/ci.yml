@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  push:
+    branches: [main, dev, staging, 'claude/**', 'feature/**', 'fix/**']
+  pull_request:
+    branches: [main, dev, staging]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: PHP ${{ matrix.php }} — testler + lint
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.2', '8.3', '8.4']
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: PHP kurulumu (${{ matrix.php }})
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: mbstring, json, openssl, curl, intl
+          coverage: none
+          tools: composer:v2
+
+      - name: Composer cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache/files
+          key: composer-${{ matrix.php }}-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-${{ matrix.php }}-
+
+      - name: Composer install
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: PHP syntax lint
+        run: |
+          find . -path ./vendor -prune -o -name "*.php" -print \
+            | xargs -P4 -I{} php -l {} | grep -v "No syntax errors" || true
+
+      - name: Unit testleri (PHPUnit)
+        run: ./vendor/bin/phpunit --colors=never --no-progress
+
+      - name: Feature testleri (HTTP integration)
+        run: ./vendor/bin/phpunit --colors=never --no-progress --testsuite=Feature
+        if: hashFiles('tests/Feature/**/*Test.php') != ''
