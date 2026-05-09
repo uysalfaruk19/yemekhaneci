@@ -90,7 +90,10 @@ $user        = $user        ?? null;
     <div class="collapse navbar-collapse" id="nav">
       <ul class="navbar-nav me-auto">
         <li class="nav-item"><a class="nav-link" href="/">Ana sayfa</a></li>
-        <li class="nav-item"><a class="nav-link" href="/araclar/enflasyon-hesaplayici"><i class="bi bi-graph-up-arrow me-1"></i>Enflasyon Hesaplayıcı</a></li>
+        <li class="nav-item"><a class="nav-link" href="/toplu-yemek">Toplu Yemek</a></li>
+        <li class="nav-item"><a class="nav-link" href="/yemekciler">Yemekçiler</a></li>
+        <li class="nav-item"><a class="nav-link" href="/nasil-calisir">Nasıl Çalışır</a></li>
+        <li class="nav-item"><a class="nav-link" href="/araclar/enflasyon-hesaplayici"><i class="bi bi-graph-up-arrow me-1"></i>Enflasyon</a></li>
       </ul>
       <ul class="navbar-nav">
         <?php if ($authed): ?>
@@ -112,6 +115,11 @@ $user        = $user        ?? null;
             </ul>
           </li>
         <?php else: ?>
+          <li class="nav-item">
+            <a class="btn btn-outline-brand ms-lg-2" href="/yemekci-ol">
+              <i class="bi bi-shop me-1"></i>Yemekçi Ol
+            </a>
+          </li>
           <li class="nav-item">
             <a class="btn btn-brand ms-lg-2" href="/giris-yap">
               <i class="bi bi-box-arrow-in-right me-1"></i>Giriş Yap
@@ -153,9 +161,16 @@ $user        = $user        ?? null;
         <div class="small text-secondary mt-1">© 2026 UYSA Yemek Hizmetleri San. ve Tic. Ltd. Şti.</div>
       </div>
       <div class="col-md-3">
-        <strong class="d-block mb-1 small text-uppercase text-secondary">Araçlar</strong>
+        <strong class="d-block mb-1 small text-uppercase text-secondary">Müşteri</strong>
+        <a href="/toplu-yemek" class="d-block small">Toplu Yemek</a>
+        <a href="/yemekciler" class="d-block small">Yemekçiler</a>
+        <a href="/nasil-calisir" class="d-block small">Nasıl Çalışır</a>
         <a href="/araclar/enflasyon-hesaplayici" class="d-block small">Enflasyon Hesaplayıcı</a>
         <a href="/#hizli-teklif" class="d-block small">Hızlı Teklif</a>
+      </div>
+      <div class="col-md-2">
+        <strong class="d-block mb-1 small text-uppercase text-secondary">Yemekçi</strong>
+        <a href="/yemekci-ol" class="d-block small">Yemekçi Ol</a>
         <a href="/giris-yap" class="d-block small">Giriş Yap</a>
       </div>
       <div class="col-md-4">

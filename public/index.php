@@ -21,7 +21,9 @@ use App\Controllers\Public\HealthController;
 use App\Controllers\Public\HomeController;
 use App\Controllers\Public\InflationCalculatorController;
 use App\Controllers\Public\LegalController;
+use App\Controllers\Public\MarketingController;
 use App\Controllers\Public\QuickQuoteController;
+use App\Controllers\Public\SupplierApplicationController;
 use App\Controllers\Admin\QuickQuotesController as AdminQuickQuotes;
 use App\Controllers\Supplier\DashboardController as SupplierDashboard;
 use App\Controllers\Supplier\InflationController as SupplierInflation;
@@ -95,6 +97,13 @@ $router->post(
     '/api/v1/hizli-teklif',
     static fn() => (new QuickQuoteController())->submit()
 );
+
+// --- Marketing & başvuru sayfaları ---
+$router->get('/toplu-yemek',    static fn() => (new MarketingController())->topluYemek());
+$router->get('/yemekciler',     static fn() => (new MarketingController())->yemekciler());
+$router->get('/nasil-calisir',  static fn() => (new MarketingController())->nasilCalisir());
+$router->get('/yemekci-ol',     static fn() => (new SupplierApplicationController())->showForm());
+$router->post('/yemekci-ol',    static fn() => (new SupplierApplicationController())->submit());
 
 // --- Legal (KVKK + Çerez) ---
 $router->get('/yasal/aydinlatma-metni',  static fn() => (new LegalController())->privacyNotice());
