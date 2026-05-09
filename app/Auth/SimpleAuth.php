@@ -53,6 +53,10 @@ final class SimpleAuth
         // Session fixation savunması — login sonrası ID yenile.
         session_regenerate_id(true);
 
+        // 2FA kontrolü: aktifse "pending_2fa" durumunda bırak; otherwise auth complete.
+        $totpRepo = new \App\Repositories\TotpSecretRepository();
+        $pending2fa = $totpRepo->isEnabled($username);
+
         $_SESSION['auth'] = [
             'username'     => $username,
             'role'         => $record['role'],
@@ -60,6 +64,7 @@ final class SimpleAuth
             'email'        => $record['email'] ?? null,
             'panel_route'  => $record['panel_route'],
             'logged_in_at' => time(),
+            'pending_2fa'  => $pending2fa,
         ];
 
         return true;
@@ -94,7 +99,26 @@ final class SimpleAuth
 
     public static function check(): bool
     {
-        return isset($_SESSION['auth']) && is_array($_SESSION['auth']);
+        return isset($_SESSION['auth']) && is_array($_SESSION['auth']) && empty($_SESSION['auth']['pending_2fa']);
+    }
+
+    /** Şifre doğru ama 2FA bekleniyor (intermediate state). */
+    public static function isPending2fa(): bool
+    {
+        return isset($_SESSION['auth']['pending_2fa']) && $_SESSION['auth']['pending_2fa'] === true;
+    }
+
+    public static function pendingUsername(): ?string
+    {
+        return $_SESSION['auth']['username'] ?? null;
+    }
+
+    public static function complete2fa(): void
+    {
+        if (isset($_SESSION['auth'])) {
+            unset($_SESSION['auth']['pending_2fa']);
+            session_regenerate_id(true);
+        }
     }
 
     public static function user(): ?array

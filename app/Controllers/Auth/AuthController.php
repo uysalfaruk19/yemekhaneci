@@ -59,6 +59,12 @@ final class AuthController
 
         $user = SimpleAuth::user();
         AuditLogger::log('auth.login_success', ['role' => $user['role'] ?? null], $username);
+
+        if (SimpleAuth::isPending2fa()) {
+            // 2FA challenge'a yönlendir; user objesi var ama check() false dönüyor
+            \redirect('/giris-yap/2fa');
+        }
+
         \flash('success', 'Hoş geldin, ' . $user['display_name'] . '.');
         \redirect($user['panel_route']);
     }

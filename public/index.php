@@ -10,6 +10,7 @@ declare(strict_types=1);
  */
 
 use App\Auth\SimpleAuth;
+use App\Controllers\Auth\TwoFactorController;
 use App\Controllers\Admin\AuditLogController as AdminAuditLog;
 use App\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Controllers\Admin\InflationController as AdminInflation;
@@ -106,6 +107,20 @@ $router->get('/giris-yap', static fn() => (new AuthController())->showLogin(), [
 $router->post('/giris-yap', static fn() => (new AuthController())->login(),    [AuthMiddleware::guestOnly()]);
 $router->get('/cikis-yap', static fn() => (new AuthController())->logout());
 $router->post('/cikis-yap', static fn() => (new AuthController())->logout());
+
+// --- 2FA (TOTP) ---
+$router->get('/giris-yap/2fa',  static fn() => (new TwoFactorController())->showChallenge());
+$router->post('/giris-yap/2fa', static fn() => (new TwoFactorController())->verifyChallenge());
+// Auth gereken self-servis 2FA ayarları (admin + supplier)
+$router->get('/hesap/iki-adimli-dogrulama',
+    static fn() => (new TwoFactorController())->showSetup(),
+    [AuthMiddleware::requireAuth()]);
+$router->post('/hesap/iki-adimli-dogrulama/onayla',
+    static fn() => (new TwoFactorController())->confirmSetupAndRender(),
+    [AuthMiddleware::requireAuth()]);
+$router->post('/hesap/iki-adimli-dogrulama/kapat',
+    static fn() => (new TwoFactorController())->disable(),
+    [AuthMiddleware::requireAuth()]);
 
 // --- Yemekçi paneli (auth + role=supplier) ---
 $router->get(

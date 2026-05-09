@@ -8,6 +8,9 @@
         <p class="text-secondary mb-0 small">Yemekhaneci.com.tr — Faz 0.5 demo · 12 modül Faz 1+ ile gelecek.</p>
       </div>
       <div class="d-flex gap-2">
+        <a href="/hesap/iki-adimli-dogrulama" class="btn btn-outline-brand">
+          <i class="bi bi-shield-lock me-1"></i>2FA
+        </a>
         <a href="/yonetim/araclar/enflasyon" class="btn btn-outline-brand">
           <i class="bi bi-graph-up-arrow me-1"></i>Enflasyon Aracı
         </a>
