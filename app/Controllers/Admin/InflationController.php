@@ -26,19 +26,4 @@ final class InflationController
             'user'   => $user,
         ]);
     }
-
-    public function sources(): string
-    {
-        $user = SimpleAuth::user();
-        $content = \view('admin.inflation-sources', [
-            'sources' => InflationCalculator::sources(),
-            'user'    => $user,
-        ]);
-
-        return \layout('app', $content, [
-            'title'  => 'Enflasyon Kaynakları — Yönetim',
-            'authed' => true,
-            'user'   => $user,
-        ]);
-    }
 }

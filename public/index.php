@@ -12,6 +12,7 @@ declare(strict_types=1);
 use App\Auth\SimpleAuth;
 use App\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Controllers\Admin\InflationController as AdminInflation;
+use App\Controllers\Admin\InflationSourcesController as AdminInflationSources;
 use App\Controllers\Auth\AuthController;
 use App\Controllers\Public\HomeController;
 use App\Controllers\Public\InflationCalculatorController;
@@ -86,11 +87,26 @@ $router->get(
     static fn() => (new AdminInflation())->show(),
     [AuthMiddleware::requireRole('admin')]
 );
-$router->get(
-    '/yonetim/sistem/enflasyon-kaynaklari',
-    static fn() => (new AdminInflation())->sources(),
-    [AuthMiddleware::requireRole('admin')]
-);
+// --- Admin: Enflasyon kaynak yönetimi (Faz 0.5.12) ---
+$adminMw = [AuthMiddleware::requireRole('admin')];
+$router->get('/yonetim/sistem/enflasyon-kaynaklari',
+    static fn() => (new AdminInflationSources())->index(), $adminMw);
+$router->get('/yonetim/sistem/enflasyon-kaynaklari/yeni',
+    static fn() => (new AdminInflationSources())->createForm(), $adminMw);
+$router->post('/yonetim/sistem/enflasyon-kaynaklari',
+    static fn() => (new AdminInflationSources())->store(), $adminMw);
+$router->get('/yonetim/sistem/enflasyon-kaynaklari/{code}/duzenle',
+    static fn(array $p) => (new AdminInflationSources())->editForm($p), $adminMw);
+$router->post('/yonetim/sistem/enflasyon-kaynaklari/{code}/duzenle',
+    static fn(array $p) => (new AdminInflationSources())->update($p), $adminMw);
+$router->post('/yonetim/sistem/enflasyon-kaynaklari/{code}/sil',
+    static fn(array $p) => (new AdminInflationSources())->delete($p), $adminMw);
+$router->get('/yonetim/sistem/enflasyon-kaynaklari/{code}/aylik-veri',
+    static fn(array $p) => (new AdminInflationSources())->dataView($p), $adminMw);
+$router->post('/yonetim/sistem/enflasyon-kaynaklari/{code}/aylik-veri',
+    static fn(array $p) => (new AdminInflationSources())->dataAdd($p), $adminMw);
+$router->post('/yonetim/sistem/enflasyon-kaynaklari/{code}/aylik-veri/{period}/sil',
+    static fn(array $p) => (new AdminInflationSources())->dataDelete($p), $adminMw);
 
 $router->dispatch(
     $_SERVER['REQUEST_METHOD'] ?? 'GET',

@@ -105,7 +105,7 @@
 | 0.5.9 | Müşteri sayfası (anasayfa) | ☑ | `/araclar/enflasyon-hesaplayici` çalışıyor |
 | 0.5.10 | Yemekçi paneli sayfası | ☑ | `/yemekci/araclar/enflasyon` çalışıyor (paylaşılan partial) |
 | 0.5.11 | Admin paneli sayfası + kaynak yönetimi (read-only) | ☑ | `/yonetim/araclar/enflasyon` + `/yonetim/sistem/enflasyon-kaynaklari` |
-| 0.5.12 | Admin: özel formül oluştur + aylık veri gir | ☐ | CRUD UI (kaynak yönetim sayfasında butonlar disabled, "Faz 0.5.12'de aktif") |
+| 0.5.12 | Admin: özel formül oluştur + aylık veri gir | ☑ | CRUD + aylık veri tam çalışıyor (JSON-file backed, Faz 1.0a'da DB'ye taşınacak) |
 | 0.5.13 | Lead capture (`POST /api/v1/enflasyon/mail-gonder`) | ☐ | KVKK onayı + IP/UA kayıt |
 | 0.5.14 | Rate limit (IP başı 30/saat) | ◐ | Login başına 5/dk var; enflasyon API için Redis'e geçilecek |
 | 0.5.15 | Unit + Feature testler | ☐ | Hesap doğruluğu kritik |

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Repositories\InflationSourceRepository;
 use DateTimeImmutable;
 use InvalidArgumentException;
 
@@ -24,22 +25,32 @@ final class InflationCalculator
      */
     public static function mockIndices(): array
     {
-        return self::generateMockSeries();
+        $official = self::generateMockSeries();
+        $custom   = (new InflationSourceRepository())->customMonthlySeries();
+        // Custom kaynaklar resmî isimleriyle çakışmaz; doğrudan birleştir.
+        return array_merge($official, $custom);
     }
 
     /**
-     * Aktif kaynaklar (UI için).
+     * Aktif kaynaklar (UI için) — resmî + admin'in oluşturduğu özel formüller.
      *
-     * @return array<int, array{code:string, name:string, color:string, base_period:string}>
+     * @return array<int, array{code:string, name:string, color:string, base_period:string, is_official:bool}>
      */
     public static function sources(): array
     {
-        return [
-            ['code' => 'tuik_tufe',       'name' => 'TÜİK TÜFE Genel',                    'color' => '#6B1F2A', 'base_period' => '2003=100'],
-            ['code' => 'tuik_tufe_gida',  'name' => 'TÜİK Gıda Endeksi (TÜFE alt grubu)', 'color' => '#C9A961', 'base_period' => '2003=100'],
-            ['code' => 'tuik_yiufe',      'name' => 'TÜİK Yİ-ÜFE (eski TEFE)',            'color' => '#2A5C6B', 'base_period' => '2003=100'],
-            ['code' => 'enag_tufe',       'name' => 'ENAG TÜFE (bağımsız)',               'color' => '#7A2A2A', 'base_period' => '2020=100'],
-        ];
+        $repo = new InflationSourceRepository();
+        $out = [];
+        foreach ($repo->all() as $src) {
+            if (!($src['is_active'] ?? true)) continue;
+            $out[] = [
+                'code'        => $src['code'],
+                'name'        => $src['name'],
+                'color'       => $src['color_hex'] ?? '#6B1F2A',
+                'base_period' => $src['base_period'] ?? '',
+                'is_official' => (bool) ($src['is_official'] ?? false),
+            ];
+        }
+        return $out;
     }
 
     /**
