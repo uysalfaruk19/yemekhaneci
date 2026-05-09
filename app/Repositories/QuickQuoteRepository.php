@@ -16,10 +16,9 @@ final class QuickQuoteRepository
 
     public function __construct(?string $dataFile = null)
     {
-        $this->dataFile = $dataFile ?? \app_path('storage/quick_quotes.json');
-        if (!is_dir(dirname($this->dataFile))) {
-            mkdir(dirname($this->dataFile), 0755, true);
-        }
+        $this->dataFile = $dataFile ?? \app_path('storage/quotes/quick_quotes.json');
+        $dir = dirname($this->dataFile);
+        if (!is_dir($dir)) mkdir($dir, 0755, true);
         if (!file_exists($this->dataFile)) {
             file_put_contents($this->dataFile, '[]');
         }
