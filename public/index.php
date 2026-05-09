@@ -56,6 +56,11 @@ if (class_exists(\App\Bootstrap\Logger::class)) {
     \App\Bootstrap\Logger::registerHandlers(showDebug: $appDebug);
 }
 
+// Security headers (HSTS, CSP, X-Frame-Options, vb.) + HTTPS zorunluluğu
+if (class_exists(\App\Bootstrap\SecurityHeaders::class)) {
+    \App\Bootstrap\SecurityHeaders::send();
+}
+
 SimpleAuth::startSession();
 
 // ---- Router ----

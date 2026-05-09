@@ -3,9 +3,13 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
-    # HTTPS zorunlu (production'da Traefik tarafından da yapılıyor; ek savunma).
-    # RewriteCond %{HTTPS} off
-    # RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+    # HTTPS zorunlu (Traefik/Cloudflare çoğu trafikte halletse de derinlik savunması için).
+    # APP_FORCE_HTTPS=true env varsa PHP tarafı da redirect ediyor.
+    RewriteCond %{HTTPS} off
+    RewriteCond %{HTTP:X-Forwarded-Proto} !=https
+    RewriteCond %{HTTP_HOST} !^localhost [NC]
+    RewriteCond %{HTTP_HOST} !^127\.0\.0\.1 [NC]
+    RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
     # public/ altındaki gerçek dosya/dizin isteğini doğrudan döndür.
     RewriteCond %{REQUEST_FILENAME} -d [OR]
@@ -16,12 +20,16 @@
     RewriteRule ^ index.php [L]
 </IfModule>
 
-# Güvenlik header'ları
+# Güvenlik header'ları (PHP SecurityHeaders sınıfı da gönderiyor — dual defense)
 <IfModule mod_headers.c>
     Header set X-Content-Type-Options "nosniff"
     Header set X-Frame-Options "SAMEORIGIN"
     Header set Referrer-Policy "strict-origin-when-cross-origin"
-    Header set Permissions-Policy "geolocation=(self), camera=(), microphone=()"
+    Header set Permissions-Policy "geolocation=(self), camera=(), microphone=(), payment=(self)"
+    Header set X-Permitted-Cross-Domain-Policies "none"
+    Header set Cross-Origin-Opener-Policy "same-origin"
+    # HSTS — sadece HTTPS isteklerinde gönderilsin
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" "expr=%{HTTPS} == 'on'"
 </IfModule>
 
 # .env, config/, app/ gibi hassas dizinlere erişim engeli (zaten public/ altı değil ama emin olalım).

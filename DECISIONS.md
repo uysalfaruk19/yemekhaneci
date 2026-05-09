@@ -165,6 +165,21 @@
 - **Alternatif:** Seri (geç çıkar), tek mega oturum (riskli, context window).
 - **Etki:** Branch stratejisi: `feature/faz-1-db-auth`, `feature/faz-0.5-enflasyon`, `feature/faz-3.5-admin-pivot`, `feature/faz-3-hizli-teklif`. PR review sonrası `dev` dalına merge. Mevcut `claude/start-yemekhaneci-project-xCJFu` Faz 0 entry'si; bu commit sonrası kapanır.
 
+## ADR-016 — P0 production-readiness paketi (KVKK + audit + logger + health + security headers)
+
+- **Tarih:** 2026-05-09
+- **Durum:** Kabul edildi (kullanıcı talebiyle uygulandı)
+- **Bağlam:** Demo lansman öncesi Türkiye yasal zorunlulukları (KVKK çerez opt-in, aydınlatma metni) + production basics (audit log, logger, health, security headers) henüz yapılmamıştı. Üretim'e bu durumda çıkarmak yasal/teknik risk.
+- **Karar:** 5 P0 maddesi sırayla uygulandı:
+  1. **KVKK + Çerez:** 4 yasal sayfa (`/yasal/*`) + opt-in cookie banner (Alpine.js, localStorage `yh_consent`, 4 kategori) + footer link'leri + form KVKK linkleri
+  2. **Audit log:** `App\Services\AuditLogger` JSONL file-backed; 12 olay türü entegre (auth/source/monthly/evds/lead/quote); `/yonetim/sistem/audit-log` admin sayfası
+  3. **Logger:** `App\Bootstrap\Logger` Monolog rotating + WebProcessor + IntrospectionProcessor; uncaught exception handler → log + 500 sayfası; `display_errors` artık `APP_DEBUG`'a bağlı
+  4. **Health checks:** `/saglik` (liveness JSON) + `/hazir` (6 readiness check, 503 dönebilir)
+  5. **Security headers:** `App\Bootstrap\SecurityHeaders` HSTS + CSP-Report-Only + X-Frame-Options vb.; `APP_FORCE_HTTPS=true` ile 301 redirect (`.htaccess` ve PHP'de dual defense)
+- **CSP stratejisi:** Report-Only modunda başla (kırmaz, raporlar). Faz 1.0a'da nonce-based inline script'lere geçilince Enforce moduna alınacak.
+- **HSTS:** 1 yıl + includeSubDomains + preload. Sadece HTTPS isteklerinde gönderilir (yoksa anlamsız).
+- **Etki:** Şu an demo'yu Hostinger production'a taşımak yasal/teknik açıdan tutarlı. UYSA hukuk ekibi VERBİS sicil + adres dolduracak; yazılım tarafında P0 tamam.
+
 ## ADR-015 — Faz 0.5 sonu: composer install + minimal Laravel-uyumlu deps
 
 - **Tarih:** 2026-05-09
