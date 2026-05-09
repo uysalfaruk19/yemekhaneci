@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers\Auth;
 
 use App\Auth\SimpleAuth;
+use App\Services\AuditLogger;
 
 /**
  * Giriş / çıkış akışı (Faz 0.5 demo — ADR-014).
@@ -50,12 +51,14 @@ final class AuthController
 
         if (!SimpleAuth::attempt($username, $password)) {
             self::rateLimitHit();
+            AuditLogger::log('auth.login_failed', ['username' => $username], 'anonymous');
             \flash('error', 'Kullanıcı adı veya şifre hatalı.');
             \flash_old($_POST);
             \redirect('/giris-yap');
         }
 
         $user = SimpleAuth::user();
+        AuditLogger::log('auth.login_success', ['role' => $user['role'] ?? null], $username);
         \flash('success', 'Hoş geldin, ' . $user['display_name'] . '.');
         \redirect($user['panel_route']);
     }
@@ -67,8 +70,10 @@ final class AuthController
             \redirect('/');
         }
 
+        $username = SimpleAuth::user()['username'] ?? 'unknown';
         SimpleAuth::logout();
         SimpleAuth::startSession();   // yeni boş session başlat (flash için)
+        AuditLogger::log('auth.logout', [], $username);
         \flash('success', 'Güvenli şekilde çıkış yaptınız.');
         \redirect('/giris-yap');
     }

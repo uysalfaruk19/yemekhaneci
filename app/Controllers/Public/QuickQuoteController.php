@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers\Public;
 
 use App\Repositories\QuickQuoteRepository;
+use App\Services\AuditLogger;
 use App\Services\RateLimiter;
 
 /**
@@ -91,6 +92,9 @@ final class QuickQuoteController
             ], 422);
         }
 
+        AuditLogger::log('quote.submitted', [
+            'guests' => $guestCount, 'meal' => $mealType, 'date' => $eventDate, 'city' => $city,
+        ]);
         $record = (new QuickQuoteRepository())->create([
             'guest_count'   => $guestCount,
             'meal_type'     => $mealType,

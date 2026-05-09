@@ -67,6 +67,10 @@
               <span><strong>Hızlı teklif talepleri</strong> · 60sn anasayfa wizard'ından gelen anonim talepler</span>
               <span class="badge bg-success">Faz 3 öne çekildi · MVP</span>
             </a>
+            <a href="/yonetim/sistem/audit-log" class="list-group-item list-group-item-action d-flex justify-content-between">
+              <span><strong>Denetim izi (audit log)</strong> · KVKK + ticari uyum, 7 yıl saklama</span>
+              <span class="badge bg-success">Hazır</span>
+            </a>
           </div>
         </div>
       </div>

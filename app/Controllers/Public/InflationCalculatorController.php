@@ -6,6 +6,7 @@ namespace App\Controllers\Public;
 
 use App\Auth\SimpleAuth;
 use App\Repositories\InflationCalculationRepository;
+use App\Services\AuditLogger;
 use App\Services\InflationCalculator;
 use App\Services\RateLimiter;
 use DateTimeImmutable;
@@ -215,6 +216,8 @@ final class InflationCalculatorController
             'user_agent'    => $_SERVER['HTTP_USER_AGENT'] ?? '',
             'panel_origin'  => $panelOrigin,
         ]);
+
+        AuditLogger::log('lead.captured', ['email' => $email, 'source' => $sourceCode, 'panel' => $panelOrigin]);
 
         return self::json([
             'success' => true,

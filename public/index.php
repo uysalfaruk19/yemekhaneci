@@ -10,6 +10,7 @@ declare(strict_types=1);
  */
 
 use App\Auth\SimpleAuth;
+use App\Controllers\Admin\AuditLogController as AdminAuditLog;
 use App\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Controllers\Admin\InflationController as AdminInflation;
 use App\Controllers\Admin\InflationLeadsController as AdminInflationLeads;
@@ -113,6 +114,10 @@ $router->get('/yonetim/enflasyon/lead-ler',
 );
 $router->get('/yonetim/hizli-teklifler',
     static fn() => (new AdminQuickQuotes())->index(),
+    [AuthMiddleware::requireRole('admin')]
+);
+$router->get('/yonetim/sistem/audit-log',
+    static fn() => (new AdminAuditLog())->index(),
     [AuthMiddleware::requireRole('admin')]
 );
 

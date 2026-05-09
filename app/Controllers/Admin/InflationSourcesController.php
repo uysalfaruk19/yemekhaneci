@@ -7,6 +7,7 @@ namespace App\Controllers\Admin;
 use App\Auth\SimpleAuth;
 use App\Jobs\FetchInflationIndicesJob;
 use App\Repositories\InflationSourceRepository;
+use App\Services\AuditLogger;
 
 /**
  * Admin enflasyon kaynak yönetimi (Faz 0.5.12 — özel formül CRUD).
@@ -38,10 +39,12 @@ final class InflationSourcesController
             \redirect('/yonetim/sistem/enflasyon-kaynaklari');
         }
 
+        AuditLogger::log('evds.triggered', ['actor' => SimpleAuth::user()['username'] ?? 'admin']);
         $job = new FetchInflationIndicesJob(
             triggeredBy: 'manual:' . (SimpleAuth::user()['username'] ?? 'admin')
         );
         $result = $job->run();
+        AuditLogger::log('evds.completed', ['mode' => $result['mode'], 'fetched' => $result['fetched'], 'ok' => $result['ok']]);
 
         if ($result['ok']) {
             \flash('source_success', 'EVDS senkronu tamamlandı: ' . $result['message']);
@@ -82,6 +85,7 @@ final class InflationSourcesController
             \redirect('/yonetim/sistem/enflasyon-kaynaklari/yeni');
         }
 
+        AuditLogger::log('source.created', ['code' => $record['code'], 'name' => $record['name'], 'unit' => $record['unit']]);
         \flash('source_success', "Yeni kaynak oluşturuldu: {$record['name']} (kod: {$record['code']}).");
         \redirect('/yonetim/sistem/enflasyon-kaynaklari/' . $record['code'] . '/aylik-veri');
     }
@@ -130,6 +134,7 @@ final class InflationSourcesController
             \redirect('/yonetim/sistem/enflasyon-kaynaklari/' . $code . '/duzenle');
         }
 
+        AuditLogger::log('source.updated', ['code' => $code, 'name' => $payload['name']]);
         \flash('source_success', 'Kaynak güncellendi: ' . $payload['name']);
         \redirect('/yonetim/sistem/enflasyon-kaynaklari');
     }
@@ -144,6 +149,7 @@ final class InflationSourcesController
         $code = $params['code'] ?? '';
         try {
             $this->repo->deleteCustom($code);
+            AuditLogger::log('source.deleted', ['code' => $code]);
             \flash('source_success', "Kaynak silindi: {$code}.");
         } catch (\Throwable $e) {
             \flash('source_error', $e->getMessage());
@@ -218,6 +224,7 @@ final class InflationSourcesController
             \redirect('/yonetim/sistem/enflasyon-kaynaklari/' . $code . '/aylik-veri');
         }
 
+        AuditLogger::log('monthly_value.added', ['code' => $code, 'period' => $period, 'value' => (float) $value]);
         \flash('source_success', "Aylık veri eklendi: {$period} → " . number_format((float) $value, 4, ',', '.'));
         \redirect('/yonetim/sistem/enflasyon-kaynaklari/' . $code . '/aylik-veri');
     }
@@ -234,6 +241,7 @@ final class InflationSourcesController
 
         try {
             $this->repo->deleteMonthlyValue($code, $period);
+            AuditLogger::log('monthly_value.deleted', ['code' => $code, 'period' => $period]);
             \flash('source_success', "Aylık veri silindi: {$period}.");
         } catch (\Throwable $e) {
             \flash('source_error', $e->getMessage());
